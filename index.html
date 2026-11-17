@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b2a3f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>VNT Paraná · Navegación en vivo</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --ink:#0d1b26;--ink2:#4a5b68;--ink3:#8796a1;--line:#e3e8ec;--bg:#f5f7f9;--card:#fff;
+  --navy:#0b2a3f;--sea:#0f6c8c;--sea2:#e6f3f7;--up:#1d7a46;--down:#c2410c;--stop:#7c8a96;
+  --w0:#5aa9c4;--w1:#2e9e6a;--w2:#d9a400;--w3:#e8710a;--w4:#d0312d;
+  --r:14px;--sheet-peek:236px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--font);-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+#app{position:fixed;inset:0;display:flex;flex-direction:column}
+/* ---------- barra superior ---------- */
+.top{position:absolute;z-index:1000;left:0;right:0;top:0;padding:calc(env(safe-area-inset-top) + 8px) 10px 0;pointer-events:none;display:flex;gap:8px;align-items:flex-start}
+.chip{pointer-events:auto;background:rgba(11,42,63,.92);color:#fff;border-radius:12px;padding:8px 12px;box-shadow:0 4px 14px rgba(0,0,0,.18);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px)}
+.pos{flex:1;min-width:0}
+.pos .l1{display:flex;align-items:baseline;gap:8px;white-space:nowrap;overflow:hidden}
+.pos .km{font-weight:700;font-size:18px;letter-spacing:-.01em}
+.pos .rio{font-size:13px;opacity:.85;overflow:hidden;text-overflow:ellipsis}
+.pos .l2{font-size:11.5px;opacity:.75;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vhf{flex:none;text-align:center;min-width:64px}
+.vhf .c{font-weight:700;font-size:18px;line-height:1.05}
+.vhf .t{font-size:10px;opacity:.75;text-transform:uppercase;letter-spacing:.06em}
+/* ---------- mapa ---------- */
+#map{position:absolute;inset:0;background:#dfe9ee}
+.leaflet-control-attribution{font-size:9px!important;max-width:60vw;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.leaflet-top.leaflet-left{top:calc(env(safe-area-inset-top) + 72px)}
+.fabs{position:absolute;z-index:1000;right:10px;top:calc(env(safe-area-inset-top) + 72px);display:flex;flex-direction:column;gap:8px}
+.fab{width:44px;height:44px;border-radius:12px;border:0;background:#fff;box-shadow:0 3px 10px rgba(0,0,0,.18);display:grid;place-items:center;cursor:pointer}
+.fab svg{width:22px;height:22px}
+.fab.on{background:var(--sea);color:#fff}
+.layers{position:absolute;z-index:1001;right:62px;top:calc(env(safe-area-inset-top) + 72px);background:#fff;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.2);padding:8px 4px;display:none;min-width:200px}
+.layers.open{display:block}
+.layers label{display:flex;align-items:center;gap:10px;padding:8px 12px;font-size:14px;cursor:pointer}
+.layers hr{border:0;border-top:1px solid var(--line);margin:4px 8px}
+.layers input{width:18px;height:18px;accent-color:var(--sea)}
+/* ---------- panel / hoja ---------- */
+.sheet{position:absolute;z-index:1002;left:0;right:0;bottom:0;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.16);
+  height:calc(var(--sheet-peek) + env(safe-area-inset-bottom));transition:height .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;overflow:hidden}
+.sheet.full{height:min(86vh,calc(100% - env(safe-area-inset-top) - 70px))}
+.grab{flex:none;padding:8px 0 4px;display:flex;justify-content:center;cursor:grab;touch-action:none}
+.grab i{display:block;width:40px;height:5px;border-radius:3px;background:#c7d0d6}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 12px calc(16px + env(safe-area-inset-bottom));overscroll-behavior:contain}
+.sec{margin-top:12px}
+.sec h2{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin:0 2px 7px;display:flex;justify-content:space-between;align-items:baseline;font-weight:650}
+.sec h2 small{font-weight:500;letter-spacing:0;text-transform:none;color:var(--ink3);font-size:11px}
+.card{background:var(--card);border-radius:var(--r);border:1px solid var(--line);padding:12px}
+/* viento ahora */
+.now{display:flex;gap:12px;align-items:center}
+.now .dial{flex:none;width:64px;height:64px;border-radius:50%;background:var(--sea2);display:grid;place-items:center;position:relative}
+.now .dial svg{width:44px;height:44px;transition:transform .4s}
+.now .big{font-size:30px;font-weight:750;letter-spacing:-.02em;line-height:1}
+.now .big span{font-size:14px;font-weight:600;color:var(--ink2);margin-left:3px}
+.now .sub{font-size:13px;color:var(--ink2);margin-top:4px}
+.now .obs{font-size:11.5px;color:var(--ink3);margin-top:4px}
+.now .meta{margin-left:auto;text-align:right;font-size:13px;color:var(--ink2);line-height:1.5}
+.now .meta b{color:var(--ink);font-size:16px}
+/* franja horaria */
+.strip{display:flex;gap:6px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 2px 6px;scroll-snap-type:x proximity;scrollbar-width:thin}
+.h{flex:none;width:58px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:7px 4px 6px;text-align:center}
+.h.cur{border-color:var(--sea);box-shadow:inset 0 0 0 1px var(--sea)}
+.h.day{position:relative}
+.h .hr{font-size:12px;font-weight:650;color:var(--ink2)}
+.h .dl{font-size:9.5px;color:var(--ink3);height:12px;text-transform:uppercase;letter-spacing:.04em}
+.h svg.ar{width:26px;height:26px;margin:2px auto 0;display:block}
+.h .kn{font-size:17px;font-weight:750;line-height:1.1}
+.h .gs{font-size:10.5px;color:var(--ink3)}
+.h .dir{font-size:10.5px;font-weight:650;color:var(--ink2)}
+.h .tm{font-size:13px;font-weight:650;margin-top:4px;border-top:1px solid var(--line);padding-top:4px}
+.h .cl{font-size:10.5px;color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:2px}
+.h .cl svg{width:14px;height:14px}
+.h .pr{font-size:9.5px;color:var(--ink3)}
+.k0{color:var(--w0)}.k1{color:var(--w1)}.k2{color:var(--w2)}.k3{color:var(--w3)}.k4{color:var(--w4)}
+/* grilla de tarjetas */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.kpi .lab{font-size:11px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+.kpi .val{font-size:26px;font-weight:750;letter-spacing:-.02em;margin-top:4px;line-height:1}
+.kpi .val small{font-size:13px;font-weight:600;color:var(--ink2);margin-left:2px}
+.kpi .d{font-size:12px;margin-top:5px;color:var(--ink2)}
+.kpi .d b.up{color:var(--up)}.kpi .d b.dn{color:var(--down)}
+.kpi .src{font-size:10.5px;color:var(--ink3);margin-top:6px}
+.kpi svg.spark{width:100%;height:34px;margin-top:6px;display:block}
+.na{color:var(--ink3);font-size:13px;line-height:1.35;margin-top:6px}
+.prono{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.prono span{font-size:11.5px;background:var(--sea2);color:var(--sea);border-radius:6px;padding:3px 6px;font-weight:600}
+/* buques */
+.ships{list-style:none;margin:0;padding:0}
+.ships li{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px solid var(--line);cursor:pointer}
+.ships li:last-child{border-bottom:0}
+.ships .ic{width:28px;height:28px;flex:none;display:grid;place-items:center;border-radius:8px;background:var(--bg)}
+.ships .nm{font-weight:650;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ships .ds{font-size:12px;color:var(--ink2)}
+.ships .rt{margin-left:auto;text-align:right;font-size:12px;color:var(--ink2);flex:none}
+.ships .rt b{font-size:14px;color:var(--ink)}
+.cnt{display:flex;gap:6px}
+.cnt span{font-size:12px;font-weight:650;border-radius:20px;padding:3px 9px;background:var(--card);border:1px solid var(--line)}
+.cnt .u{color:var(--up)}.cnt .dn{color:var(--down)}
+.info{display:grid;grid-template-columns:auto 1fr;gap:6px 12px;font-size:13.5px}
+.info dt{color:var(--ink2)}.info dd{margin:0;font-weight:600}
+.src-list{font-size:12px;color:var(--ink2);line-height:1.55}
+.src-list .dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;background:#c7d0d6;vertical-align:1px}
+.src-list .ok{background:#22a35a}.src-list .er{background:#d0312d}.src-list .wa{background:#e5a100}
+.src-list a{color:var(--sea)}
+.btn{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--sea);text-decoration:none;cursor:pointer}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.toast{position:absolute;z-index:1005;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 74px);background:var(--navy);color:#fff;font-size:13px;padding:9px 14px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:88vw;display:none}
+.toast.show{display:block}
+.skel{background:linear-gradient(90deg,#eef2f5,#f8fafb,#eef2f5);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:8px;color:transparent!important}
+@keyframes sk{to{background-position:-200% 0}}
+/* marcadores */
+.me{width:18px;height:18px;border-radius:50%;background:#1a73e8;border:3px solid #fff;box-shadow:0 0 0 2px rgba(26,115,232,.35),0 2px 6px rgba(0,0,0,.3)}
+.kmlab{font:600 10.5px var(--font);color:#7a3d00;background:rgba(255,248,235,.92);border:1px solid #f0c48a;border-radius:5px;padding:0 4px;white-space:nowrap;transform:translate(-50%,-50%);display:inline-block}
+.esc{font:700 11px var(--font);background:#fff;border:2px solid var(--sea);color:var(--sea);border-radius:8px;padding:1px 5px;white-space:nowrap;transform:translate(-50%,-110%);display:inline-block;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.esc small{font-weight:600;color:var(--ink2)}
+.shiplab{font:650 10.5px var(--font);color:var(--navy);text-shadow:0 0 3px #fff,0 0 3px #fff,0 0 3px #fff;white-space:nowrap;transform:translate(12px,-6px);display:inline-block}
+.leaflet-tooltip.tt{font:12.5px var(--font);border-radius:8px;padding:6px 9px;line-height:1.4}
+.leaflet-popup-content{font:13px var(--font);margin:10px 12px;line-height:1.45}
+.leaflet-popup-content b{font-size:14px}
+/* ---------- tablet / escritorio ---------- */
+@media (min-width:900px){
+  .sheet{left:auto;top:0;right:0;width:420px;height:auto!important;border-radius:0;box-shadow:-4px 0 18px rgba(0,0,0,.1)}
+  .grab{display:none}
+  .scroll{padding-top:calc(env(safe-area-inset-top) + 12px)}
+  #map{right:420px}
+  .top{right:420px}
+  .fabs{right:430px}
+  .layers{right:482px}
+}
+@media (min-width:600px) and (max-width:899px){
+  .grid{grid-template-columns:repeat(4,1fr)}
+}
+@media (prefers-color-scheme:dark){
+  :root{--ink:#e8eef2;--ink2:#a9b7c1;--ink3:#7a8893;--line:#25333d;--bg:#0f1a21;--card:#16232c;--sea2:#123545;--sea:#43b0d4}
+  .fab{background:#16232c;color:#e8eef2}
+  .layers{background:#16232c}
+  .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#16232c;color:#e8eef2}
+}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="map" role="application" aria-label="Mapa del río"></div>
+
+  <div class="top">
+    <div class="chip pos" id="pos">
+      <div class="l1"><span class="km" id="posKm">Ubicando…</span><span class="rio" id="posRio"></span></div>
+      <div class="l2" id="posL2">Esperando GPS</div>
+    </div>
+    <div class="chip vhf" id="vhfBox" hidden=""><div class="c" id="vhfC">–</div><div class="t" id="vhfT">VHF</div></div>
+  </div>
+
+  <div class="fabs">
+    <button class="fab on" id="bLoc" aria-label="Centrar en mi posición" title="Centrar en mi posición">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg></button>
+    <button class="fab" id="bLay" aria-label="Capas" title="Capas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"></path><path d="m2 13 10 5 10-5"></path></svg></button>
+  </div>
+  <div class="layers" id="layers">
+    <label><input type="radio" name="base" value="ign" checked=""> Argenmap (IGN)</label>
+    <label><input type="radio" name="base" value="sat"> Satélite</label>
+    <hr>
+    <label><input type="checkbox" data-l="ships" checked=""> Buques AIS</label>
+    <label><input type="checkbox" data-l="km" checked=""> Eje VNT y km</label>
+    <label><input type="checkbox" data-l="esc" checked=""> Escalas (altura)</label>
+    <label><input type="checkbox" data-l="ign" checked=""> Boyas, puertos, puentes</label>
+  </div>
+  <div class="toast" id="toast"></div>
+
+  <aside class="sheet" id="sheet">
+    <div class="grab" id="grab" aria-label="Expandir panel"><i></i></div>
+    <div class="scroll" id="scroll">
+
+      <section class="sec">
+        <h2>Viento <small id="wxSrc">pronóstico horario</small></h2>
+        <div class="card now" id="now">
+          <div class="dial"><svg id="nowAr" viewBox="0 0 24 24"><path d="M12 2 L18 20 L12 16 L6 20 Z" fill="var(--sea)"></path></svg></div>
+          <div>
+            <div class="big skel" id="nowKn">00<span>kn</span></div>
+            <div class="sub" id="nowDir">&nbsp;</div>
+            <div class="obs" id="nowObs"></div>
+          </div>
+          <div class="meta"><b id="nowT">–</b><br><span id="nowCl">–</span><br><span id="nowP">–</span></div>
+        </div>
+        <div class="strip" id="strip" style="margin-top:8px"></div>
+      </section>
+
+      <section class="sec">
+        <h2>Río <small id="rioSrc"></small></h2>
+        <div class="grid">
+          <div class="card kpi" id="altCard">
+            <div class="lab">Altura oficial</div>
+            <div class="val skel" id="altV">0,00<small>m</small></div>
+            <div class="d" id="altD">&nbsp;</div>
+            <svg class="spark" id="altSp" viewBox="0 0 100 34" preserveAspectRatio="none"></svg>
+            <div class="src" id="altS"></div>
+            <div class="prono" id="altPr"></div>
+          </div>
+          <div class="card kpi" id="curCard">
+            <div class="lab">Corriente</div>
+            <div class="val" id="curV">–</div>
+            <div class="d" id="curD"></div>
+            <div class="na" id="curN"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="sec">
+        <h2>Buques <div class="cnt" id="cnt"></div></h2>
+        <div class="card" style="padding:4px 12px"><ul class="ships" id="ships"><li class="na" style="cursor:default">Conectando a la red AIS…</li></ul></div>
+      </section>
+
+      <section class="sec">
+        <h2>Navegación</h2>
+        <div class="card"><dl class="info" id="nav"><dt>Posición</dt><dd>–</dd></dl>
+          <div class="row" id="navLinks"></div></div>
+      </section>
+
+      <section class="sec">
+        <h2>Fuentes</h2>
+        <div class="card src-list" id="srcs"></div>
+      </section>
+    </div>
+  </aside>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+(()=>{"use strict";
+/* ====== datos de referencia embebidos ====== */
+const VNT = {"rutas":{"parana_de_las_palmas":{"nombre":"Río Paraná de las Palmas","a":[[49.8,-34.305,-58.47],[60.8,-34.29,-58.56],[75.0,-34.255,-58.72],[93.6,-34.175,-58.915],[97.0,-34.16,-58.95],[103.6,-34.115,-59.0],[107.0,-34.095,-59.03],[114.8,-34.05,-59.1],[126.0,-33.985,-59.195],[136.0,-33.935,-59.28],[141.9,-33.905,-59.33],[155.0,-33.85,-59.4],[165.4,-33.81,-59.44],[174.4,-33.785,-59.47],[180.4,-33.77,-59.485]]},"parana":{"nombre":"Río Paraná","a":[[232.0,-33.77,-59.485],[245.0,-33.735,-59.555],[276.0,-33.665,-59.645],[290.0,-33.62,-59.735],[311.0,-33.595,-59.81],[322.0,-33.525,-59.93],[330.0,-33.475,-60.01],[340.0,-33.4,-60.11],[345.0,-33.355,-60.185],[357.0,-33.29,-60.255],[367.0,-33.235,-60.315],[384.0,-33.18,-60.43],[392.0,-33.145,-60.505],[399.0,-33.1,-60.565],[407.0,-33.045,-60.605],[416.0,-32.975,-60.62],[420.0,-32.945,-60.63],[427.0,-32.885,-60.665],[432.2,-32.845,-60.69],[440.0,-32.79,-60.705],[448.0,-32.74,-60.72],[455.0,-32.7,-60.725],[463.0,-32.655,-60.74],[472.0,-32.6,-60.735],[480.0,-32.55,-60.715],[500.0,-32.42,-60.69],[533.0,-32.065,-60.645],[560.0,-31.905,-60.6],[584.0,-31.745,-60.545],[601.0,-31.72,-60.525],[650.0,-31.47,-60.33],[700.0,-31.225,-59.985],[762.0,-30.74,-59.645],[853.0,-30.01,-59.535],[965.0,-29.14,-59.255],[1050.0,-28.51,-59.04],[1145.0,-27.945,-58.81],[1208.0,-27.465,-58.845],[1238.0,-27.29,-58.61]]},"parana_guazu":{"nombre":"Río Paraná Guazú","a":[[124.0,-34.005,-58.395],[165.0,-33.955,-58.72],[181.0,-33.935,-58.85],[217.0,-33.85,-59.17],[232.0,-33.77,-59.485]]}},"tramos":[{"ruta":"parana_de_las_palmas","nombre":"Río Paraná de las Palmas","km":[49.8,180.4]},{"ruta":"parana","nombre":"Bifurcación Las Palmas/Guazú – Villa Constitución","km":[232,367]},{"ruta":"parana","nombre":"Villa Constitución – Rosario","km":[367,408.7]},{"ruta":"parana","nombre":"Rosario – Puerto San Martín","km":[408.7,460]},{"ruta":"parana","nombre":"Puerto San Martín – Santa Fe (Bella Vista / Correntoso)","km":[460,584]},{"ruta":"parana","nombre":"Paraná Medio (Santa Fe – Esquina)","km":[584,853]},{"ruta":"parana","nombre":"Paraná Superior (Esquina – Confluencia)","km":[853,1238]},{"ruta":"parana_guazu","nombre":"Río Paraná Guazú","km":[124,232]}],"vts":[{"nombre":"VTS Zárate (Sector 1)","ruta":"parana_de_las_palmas","km":[57.6,179.2],"vhf":"Canal 72 (156,625 MHz)","indicativo":"L5T"},{"nombre":"VTS Zárate (Sector 2)","ruta":"parana_guazu","km":[122.5,232],"vhf":"Canal 14 (156,700 MHz)","indicativo":"L5T"},{"nombre":"VTS San Pedro","ruta":"parana","km":[232,310],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6E"},{"nombre":"VTS San Nicolás","ruta":"parana","km":[310,376],"vhf":null,"indicativo":null},{"nombre":"VTS Rosario","ruta":"parana","km":[376,480],"vhf":"Canal 14 (156,700 MHz)","indicativo":"L6I"},{"nombre":"VTS Diamante","ruta":"parana","km":[480,568],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6M"},{"nombre":"VTS Corrientes","ruta":"parana","km":[1135,1242],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6Y"}]};
+const ESCALAS = [[8,"Andresito",-25.5833,-53.9833],[9,"Puerto Iguazú",-25.5833,-54.5667],[10,"Libertad",-25.9167,-54.6211],[11,"El Dorado",-26.3833,-54.7],[12,"Libertador",-26.8,-55.0333],[13,"Santa Ana",-27.3351,-55.5884],[14,"Posadas",-27.3667,-55.8833],[15,"Ituzaingó",-27.5833,-56.7],[16,"Itá Ibaté",-27.4234,-57.3333],[17,"Itatí",-27.2668,-58.2441],[18,"Paso de la Patria",-27.3333,-58.5833],[19,"Corrientes",-27.4636,-58.8389],[20,"Barranqueras",-27.4833,-58.9333],[21,"Empedrado",-27.9541,-58.8185],[22,"Bella Vista",-28.5184,-59.0593],[23,"Goya",-29.1438,-59.273],[24,"Reconquista",-29.2376,-59.5812],[25,"Esquina",-30.0192,-59.5366],[26,"La Paz",-30.7342,-59.6381],[27,"Santa Elena",-30.95,-59.7833],[28,"Hernandarias",-31.2265,-59.9919],[29,"Paraná",-31.7182,-60.5226],[30,"Santa Fe",-31.6515,-60.7002],[31,"Diamante",-32.0716,-60.6432],[32,"Victoria",-32.6558,-60.2196],[33,"San Lorenzo (San Martín)",-32.7336,-60.7257],[34,"Rosario",-32.9433,-60.6308],[35,"Villa Constitución",-33.2354,-60.3091],[36,"San Nicolás",-33.342,-60.1895],[37,"Ramallo",-33.4781,-59.9957],[38,"San Pedro",-33.6745,-59.6497],[39,"Baradero",-33.8007,-59.4956],[40,"Zárate",-34.0988,-59.0109],[41,"Campana",-34.1556,-58.9582],[42,"Escobar",-34.3,-58.7333],[43,"Villa Paranacito",-33.7,-58.65],[44,"Canal Nuevo",-33.8627,-58.6604],[45,"Ibicuy",-33.762,-59.1801],[46,"Puerto Ruiz",-33.2167,-59.3667],[47,"Martín García",-34.1903,-58.253],[48,"Guazucito",-34.0167,-58.4],[49,"Tigre",-34.4159,-58.578],[50,"Dique Luján",-34.3516,-58.6861],[51,"Chaná Miní",-34.2,-58.4833],[52,"San Fernando",-34.4333,-58.55],[53,"San Isidro",-34.4572,-58.5072],[54,"Olivos",-34.5067,-58.4759],[55,"Puerto Pilcomayo",-25.3667,-57.65],[57,"Puerto Formosa",-26.1833,-58.1833],[58,"Bermejo",-26.9263,-58.5062],[59,"Isla del Cerrito",-27.3167,-58.6167],[85,"Buenos Aires",-34.5611,-58.3993],[86,"La Plata",-34.8242,-57.8735]];   // [serieId, nombre, lat, lon]  escalas Prefectura Naval vía INA
+const METEO_INA = [["Guayquiraró - Pblo Libertador",-30.2211,-59.385,6933,6834,6707,6793],
+["PN Ciervo de los Pantanos",-34.2256,-58.8989,37098,37103,37102,37100],
+["INA - Ezeiza",-34.7972,-58.5203,32702,33349,32843,36965],
+["Salto Chico - Gualeguaychú",-32.9842,-58.3492,37538,37543,37542,37540],
+["CIRHBAS - MET INTIYACO",-28.6817,-60.0683,36754,36755,36753,36756],
+["CIRHBAS - MET LINEA PARANA",-28.0086,-60.6464,36768,36769,36767,36770],
+["Met - FICH - UNL Santa Fe",-31.6403,-60.6681,37030,37036,37035,37033],
+["PN El Palmar de Colón",-31.8639,-58.2592,37104,37110,37109,37107],
+["RMA02_LUJ - Luján",-34.5881,-59.0625,37127,37132,37131,37130],
+["RMA02_QUI - Quilmes",-34.7058,-58.2417,37133,37138,37137,37136],
+["RMA02_SAG - San Andrés de Giles",-34.4208,-59.4494,37139,37144,37143,37142],
+["RMA02_ZAR - Zárate",-34.085,-59.0236,37145,37150,37149,37148],
+["RMA04_CBN - Colonia Benítez",-27.3239,-58.9525,37175,37180,37179,37178],
+["RMA08_BVI - Bella Vista",-28.5139,-59.0275,37295,37300,37299,37298],
+["RMET-Lucas González-E. Ríos",-32.3683,-59.5203,37470,37474,37473,37472],
+["RMET-S. J. de Feliciano-E.Ríos",-30.3758,-58.7544,37490,37494,37493,37492],
+["ICA - Corrientes",-27.4719,-58.8222,43103,43107,43106,43105],
+["RMET-Puerto Ibicuy-Entre Ríos",-33.7567,-59.1778,43504,43508,43507,43506],
+["RMET-Uni Nac La Matanza-Bs.As.",-34.6661,-58.5694,43539,43543,43542,43541],
+["Gral. Racedo - Entre Ríos",-31.9817,-60.4081,43979,43984,43983,43982],
+["INTA Oliveros - Santa Fe",-32.5603,-60.8772,44208,44213,44212,44211],
+["RMET-Naré - Santa Fe",-30.9519,-60.4689,44226,44231,44230,44229],
+["Coronel Domínguez - Santa Fe",-33.1828,-60.7197,44955,44960,44959,44958],
+["Antelo - Entre Ríos",-32.5325,-60.0311,46375,46380,46379,46378],
+["La Cruz - Corrientes",-29.1583,-58.6583,46401,46406,46405,46404],
+["Sauce Luna - Entre Ríos",-31.2381,-59.2217,46419,46424,46423,46422],
+["Puerto Itá Ibaté - Corrientes",-27.4278,-57.3489,43181,43185,43184,43183],
+["Posadas - Misiones",-27.4519,-56.0433,45465,45469,45470,45468]];     // [nombre, lat, lon, serieVel, serieDir, serieTemp, seriePres]
+const DEFAULT = {lat:-32.955, lon:-60.627, nombre:"Rosario"};
+
+/* ====== utilidades ====== */
+const $ = id => document.getElementById(id);
+const R = 6371008.8, rad = d => d*Math.PI/180, deg = r => r*180/Math.PI;
+const fmt = (n,d=1) => n==null||isNaN(n) ? "–" : n.toLocaleString("es-AR",{minimumFractionDigits:d,maximumFractionDigits:d});
+function dist(a,b,c,d){const p1=rad(a),p2=rad(c),dp=p2-p1,dl=rad(d-b);const h=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;return 2*R*Math.asin(Math.sqrt(h));}
+function bearing(a,b,c,d){const p1=rad(a),p2=rad(c),dl=rad(d-b);return (deg(Math.atan2(Math.sin(dl)*Math.cos(p2),Math.cos(p1)*Math.sin(p2)-Math.sin(p1)*Math.cos(p2)*Math.cos(dl)))+360)%360;}
+const angDiff = (a,b) => Math.abs(((a-b+540)%360)-180);
+const PUNTOS = ["N","NNE","NE","ENE","E","ESE","SE","SSE","S","SSO","SO","OSO","O","ONO","NO","NNO"];
+const card16 = d => PUNTOS[Math.round(((d%360)+360)%360/22.5)%16];
+const kcls = k => k<7?"k0":k<14?"k1":k<20?"k2":k<27?"k3":"k4";
+const DIAS = ["dom","lun","mar","mié","jue","vie","sáb"];
+// Argentina = UTC-3 fijo (sin horario de verano)
+const arNow = () => new Date(Date.now()-3*3600e3);
+const arISO = (msAgo=0) => new Date(Date.now()-3*3600e3-msAgo).toISOString().slice(0,16);
+async function getJSON(url, ms=15000){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json();}finally{clearTimeout(t);}}
+function toast(msg,ms=4000){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),ms);}
+const store = {get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+
+/* ====== estado de fuentes ====== */
+const FUENTES = {
+  gps:{n:"Posición GPS del dispositivo"},
+  vnt:{n:"Kilometraje VNT (referencia aproximada ±1–2 km, Boletín Fluvial ANPyN / zonas VTS Prefectura)"},
+  ina_alt:{n:"Altura de río: escalas de Prefectura Naval, publicadas por INA (alerta.ina.gob.ar)",u:"https://alerta.ina.gob.ar/pub/gui"},
+  ina_pro:{n:"Pronóstico de altura: INA (modelo tabprono)"},
+  ina_met:{n:"Viento observado: estaciones meteorológicas de la Red Hidrológica Nacional (INA / SSRH)"},
+  wx:{n:"Pronóstico horario de viento, temperatura y nubosidad: Open-Meteo (modelos globales, no oficial; el SMN no publica una API abierta)",u:"https://open-meteo.com"},
+  ais:{n:"AIS: OpenSeaFeed + Open Waters AIS (redes comunitarias, no oficiales)"},
+  ign:{n:"Cartografía base y objetos (boyas, puertos, puentes): IGN Argentina",u:"https://www.ign.gob.ar"},
+};
+function setSrc(k,st,extra=""){FUENTES[k].st=st;FUENTES[k].x=extra;renderSrc();}
+function renderSrc(){
+  $("srcs").innerHTML = Object.values(FUENTES).map(f=>`<div><span class="dot ${f.st||""}"></span>${f.u?`<a href="${f.u}" target="_blank" rel="noopener">${f.n}</a>`:f.n}${f.x?` · <span style="color:var(--ink3)">${f.x}</span>`:""}</div>`).join("")
+   + `<div style="margin-top:8px;color:var(--ink3)">Herramienta de apoyo. No reemplaza la carta náutica oficial del SHN, los avisos a los navegantes ni las instrucciones del VTS.</div>`;
+}
+renderSrc();
+
+/* ====== geometría VNT ====== */
+function proyectar(lat,lon){
+  let best=null;
+  for(const [key,ruta] of Object.entries(VNT.rutas)){
+    const A=ruta.a, kx=Math.cos(rad(lat))*R;
+    for(let i=0;i<A.length-1;i++){
+      const [k1,la1,lo1]=A[i],[k2,la2,lo2]=A[i+1];
+      const x1=rad(lo1-lon)*kx,y1=rad(la1-lat)*R,x2=rad(lo2-lon)*kx,y2=rad(la2-lat)*R;
+      const dx=x2-x1,dy=y2-y1,L2=dx*dx+dy*dy;
+      const t=L2?Math.max(0,Math.min(1,-(x1*dx+y1*dy)/L2)):0;
+      const d=Math.hypot(x1+t*dx,y1+t*dy);
+      if(!best||d<best.d){
+        // km crece aguas arriba → sentido aguas abajo = del km mayor al menor
+        const down = k1>k2 ? bearing(la1,lo1,la2,lo2) : bearing(la2,lo2,la1,lo1);
+        best={d,km:k1+t*(k2-k1),ruta:key,nombre:ruta.nombre,abajo:down,lat:la1+t*(la2-la1),lon:lo1+t*(lo2-lo1)};
+      }
+    }
+  }
+  return best;
+}
+function puntoKm(A,km){for(let i=0;i<A.length-1;i++){const[k1,la1,lo1]=A[i],[k2,la2,lo2]=A[i+1];if(km>=Math.min(k1,k2)&&km<=Math.max(k1,k2)){const t=k2===k1?0:(km-k1)/(k2-k1);return[la1+t*(la2-la1),lo1+t*(lo2-lo1)];}}return null;}
+const tramoDe = p => VNT.tramos.find(t=>t.ruta===p.ruta&&p.km>=t.km[0]&&p.km<=t.km[1]);
+const vtsDe = p => VNT.vts.find(t=>t.ruta===p.ruta&&p.km>=t.km[0]&&p.km<=t.km[1]);
+
+/* ====== mapa ====== */
+const map = L.map("map",{zoomControl:false,attributionControl:true,preferCanvas:false,tap:true}).setView([DEFAULT.lat,DEFAULT.lon],12);
+L.control.zoom({position:"bottomleft"}).addTo(map);
+const BASES = {
+  ign: L.tileLayer("https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/capabaseargenmap@EPSG%3A3857@png/{z}/{x}/{y}.png",{tms:true,maxZoom:19,maxNativeZoom:18,attribution:'<a href="https://www.ign.gob.ar/AreaServicios/Argenmap/Introduccion" target="_blank">Argenmap · IGN</a>'}),
+  sat: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:18,attribution:"Imágenes © Esri, Maxar"})
+};
+BASES.ign.addTo(map);
+BASES.ign.on("tileload",()=>setSrc("ign","ok"));
+BASES.ign.on("tileerror",()=>{ if(FUENTES.ign.st!=="ok") setSrc("ign","er","sin teselas"); });
+const G = {ships:L.layerGroup().addTo(map), km:L.layerGroup().addTo(map), esc:L.layerGroup().addTo(map), ign:L.layerGroup().addTo(map)};
+
+// panel de capas
+$("bLay").onclick=()=>{$("layers").classList.toggle("open");$("bLay").classList.toggle("on");};
+document.querySelectorAll('#layers input[name=base]').forEach(r=>r.onchange=()=>{Object.values(BASES).forEach(b=>map.removeLayer(b));BASES[r.value].addTo(map);store.set("base",r.value);});
+document.querySelectorAll('#layers input[data-l]').forEach(c=>c.onchange=()=>{const g=G[c.dataset.l];c.checked?g.addTo(map):map.removeLayer(g);});
+map.on("click",()=>{$("layers").classList.remove("open");$("bLay").classList.remove("on");});
+{const b=store.get("base");if(b&&BASES[b]){document.querySelector(`#layers input[value=${b}]`).checked=true;map.removeLayer(BASES.ign);BASES[b].addTo(map);}}
+
+// eje VNT + km
+function drawKm(){
+  G.km.clearLayers();
+  const z=map.getZoom(), b=map.getBounds().pad(.3);
+  for(const ruta of Object.values(VNT.rutas)){
+    if(z<9) continue;
+    const step = z>=13?1:z>=11?5:10;
+    const ks=ruta.a.map(a=>a[0]), k0=Math.ceil(Math.min(...ks)/step)*step, k1=Math.max(...ks);
+    for(let k=k0;k<=k1;k+=step){
+      const p=puntoKm(ruta.a,k); if(!p||!b.contains(p)) continue;
+      L.marker(p,{interactive:false,icon:L.divIcon({className:"",html:`<span class="kmlab">km ≈${k}</span>`,iconSize:[0,0]})}).addTo(G.km);
+    }
+  }
+}
+
+/* ====== posición ====== */
+let me=null, meMk=null, meAcc=null, follow=true, lastWxPos=null, lastRioPos=null, manual=false;
+const meIcon=L.divIcon({className:"",html:'<div class="me"></div>',iconSize:[18,18],iconAnchor:[9,9]});
+function setPos(lat,lon,acc,src){
+  me={lat,lon,acc,src,t:Date.now()};
+  if(!meMk){meMk=L.marker([lat,lon],{icon:meIcon,zIndexOffset:2000}).addTo(map);meAcc=L.circle([lat,lon],{radius:acc||0,color:"#1a73e8",weight:1,fillOpacity:.08,interactive:false}).addTo(map);}
+  else{meMk.setLatLng([lat,lon]);meAcc.setLatLng([lat,lon]).setRadius(acc||0);}
+  if(follow) map.setView([lat,lon],Math.max(map.getZoom(),12),{animate:true});
+  updatePos();
+  if(!lastWxPos||dist(lat,lon,lastWxPos[0],lastWxPos[1])>5000){lastWxPos=[lat,lon];loadWx();loadObs();}
+  if(!lastRioPos||dist(lat,lon,lastRioPos[0],lastRioPos[1])>8000){lastRioPos=[lat,lon];loadRio();}
+  store.set("lastpos",[lat,lon]);
+}
+let P=null;
+function updatePos(){
+  P=proyectar(me.lat,me.lon);
+  const tr=tramoDe(P), vts=vtsDe(P), dkm=P.d/1000;
+  const enVia = dkm<4;
+  $("posKm").textContent = enVia ? `km ${fmt(P.km,1)}` : `${fmt(dkm,1)} km del eje`;
+  $("posRio").textContent = enVia ? P.nombre : `cerca de km ${fmt(P.km,0)} · ${P.nombre}`;
+  $("posL2").textContent = `${me.lat.toFixed(5)}, ${me.lon.toFixed(5)}${me.acc?` · ±${Math.round(me.acc)} m`:""} · ${me.src}`;
+  if(vts&&vts.vhf){$("vhfBox").hidden=false;$("vhfC").textContent="Ch "+vts.vhf.match(/\d+/)[0];$("vhfT").textContent=vts.nombre.replace("VTS ","VTS ");}
+  else $("vhfBox").hidden=true;
+  $("nav").innerHTML = `
+    <dt>Posición</dt><dd>${me.lat.toFixed(5)}, ${me.lon.toFixed(5)}</dd>
+    <dt>Vía</dt><dd>${P.nombre}</dd>
+    <dt>Kilómetro</dt><dd>km ${fmt(P.km,1)} <span style="color:var(--ink3);font-weight:500">(aprox.)</span></dd>
+    <dt>Al eje</dt><dd>${dkm<1?Math.round(P.d)+" m":fmt(dkm,1)+" km"}</dd>
+    <dt>Tramo</dt><dd>${tr?tr.nombre:"–"}</dd>
+    <dt>VTS</dt><dd>${vts?`${vts.nombre}${vts.vhf?" · "+vts.vhf:""}${vts.indicativo?" · "+vts.indicativo:""}`:"–"}</dd>
+    <dt>Aguas abajo</dt><dd>${Math.round(P.abajo)}° (${card16(P.abajo)})</dd>`;
+  // links a boletines oficiales del día (profundidades)
+  const hoy=arNow().toISOString().slice(0,10);
+  const suf = P.ruta!=="parana"?"sfo":P.km<584?"sfo":P.km<853?"med":"sup";
+  $("navLinks").innerHTML = `<a class="btn" target="_blank" rel="noopener" href="https://www.argentina.gob.ar/sites/default/files/2025/03/${hoy}_${suf}.pdf">Profundidades del día (ANPyN)</a>
+    <a class="btn" target="_blank" rel="noopener" href="https://www.argentina.gob.ar/transporte/agencia-nacional-de-puertos-y-navegacion">Boletín fluvial</a>
+    <button class="btn" id="bShare">Copiar enlace a esta posición</button>`;
+  $("bShare").onclick=async()=>{const u=location.href.split(/[?#]/)[0]+`?lat=${me.lat.toFixed(5)}&lon=${me.lon.toFixed(5)}`;try{await navigator.clipboard.writeText(u);toast("Enlace copiado");}catch{toast(u,8000);}};
+  setSrc("vnt","ok",`${P.nombre} km ${fmt(P.km,1)}`);
+  // corriente
+  $("curV").innerHTML = `${card16(P.abajo)} <small>${Math.round(P.abajo)}°</small>`;
+  $("curD").textContent = "Sentido aguas abajo";
+  $("curN").textContent = P.ruta==="parana"&&P.km>367 ? "Velocidad: no hay medición oficial publicada en tiempo real para este tramo." : "Tramo con influencia de marea: el sentido puede invertirse. Sin medición oficial de velocidad publicada.";
+  renderShipsList();
+}
+function startGPS(){
+  if(!("geolocation" in navigator)){fallback("Este navegador no ofrece GPS");return;}
+  navigator.geolocation.watchPosition(
+    p=>{ if(manual) return; setSrc("gps","ok",`±${Math.round(p.coords.accuracy)} m`); setPos(p.coords.latitude,p.coords.longitude,p.coords.accuracy,"GPS"); },
+    e=>{ setSrc("gps","er",e.code===1?"permiso denegado":"sin señal"); if(!me) fallback(e.code===1?"Permiso de ubicación denegado":"No se pudo obtener la ubicación"); },
+    {enableHighAccuracy:true,maximumAge:15000,timeout:20000});
+}
+function fallback(msg){
+  const l=store.get("lastpos");
+  toast(`${msg}. Usando ${l?"la última posición":"Rosario"}. Mantené presionado el mapa para elegir un punto.`,7000);
+  setPos(l?l[0]:DEFAULT.lat,l?l[1]:DEFAULT.lon,0,l?"última conocida":"predeterminada");
+}
+map.on("dragstart",()=>{follow=false;$("bLoc").classList.remove("on");});
+$("bLoc").onclick=()=>{follow=true;manual=false;$("bLoc").classList.add("on");if(me)map.setView([me.lat,me.lon],Math.max(map.getZoom(),13));startGPS();};
+map.on("contextmenu",e=>{manual=true;follow=false;$("bLoc").classList.remove("on");setPos(e.latlng.lat,e.latlng.lng,0,"punto elegido");toast("Punto fijado. Tocá ◎ para volver al GPS.");});
+
+/* ====== pronóstico horario ====== */
+const ICON_CL = c => c<20?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5" fill="#f2b705"/></svg>'
+ : c<60?'<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="4" fill="#f2b705"/><path d="M7 19h10a4 4 0 0 0 0-8 5 5 0 0 0-9.6 1.5A3.3 3.3 0 0 0 7 19Z" fill="#b8c4cc"/></svg>'
+ : '<svg viewBox="0 0 24 24"><path d="M6 19h11a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4 2A3.6 3.6 0 0 0 6 19Z" fill="#94a3ad"/></svg>';
+const arrow = (d,cls) => `<svg class="ar ${cls}" viewBox="0 0 24 24" style="transform:rotate(${(d+180)%360}deg)"><path d="M12 2 L18 20 L12 16 L6 20 Z" fill="currentColor"/></svg>`;
+let WX=null;
+async function loadWx(){
+  const {lat,lon}=me;
+  const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lon.toFixed(3)}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,cloud_cover,pressure_msl,precipitation_probability&wind_speed_unit=kn&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=2`;
+  try{
+    const j=await getJSON(u); WX=j.hourly; setSrc("wx","ok","actualizado "+arISO().slice(11));
+    renderWx();
+  }catch(e){setSrc("wx","er",String(e.message||e));$("strip").innerHTML='<div class="na">No se pudo cargar el pronóstico. Reintentando…</div>';setTimeout(loadWx,60000);}
+}
+function renderWx(){
+  if(!WX) return;
+  const cur=arISO().slice(0,13)+":00";
+  let i0=WX.time.indexOf(cur); if(i0<0) i0=0;
+  const cells=[];
+  for(let i=i0;i<Math.min(i0+24,WX.time.length);i++){
+    const t=WX.time[i], h=+t.slice(11,13), d=new Date(t+":00-03:00");
+    const kn=WX.wind_speed_10m[i], g=WX.wind_gusts_10m[i], dir=WX.wind_direction_10m[i];
+    cells.push(`<div class="h ${i===i0?"cur":""}"><div class="hr">${String(h).padStart(2,"0")}h</div><div class="dl">${i===i0?"ahora":h===0?DIAS[new Date(t).getDay()]:""}</div>
+      ${arrow(dir,kcls(kn))}<div class="kn ${kcls(kn)}">${Math.round(kn)}</div><div class="dir">${card16(dir)}</div><div class="gs">r ${Math.round(g)}</div>
+      <div class="tm">${Math.round(WX.temperature_2m[i])}°</div><div class="cl">${ICON_CL(WX.cloud_cover[i])}${WX.cloud_cover[i]}%</div>
+      <div class="pr">${Math.round(WX.pressure_msl[i])} hPa</div></div>`);
+  }
+  $("strip").innerHTML=cells.join("");
+  const kn=WX.wind_speed_10m[i0], dir=WX.wind_direction_10m[i0];
+  if(!OBS){ // si no hay observación oficial cercana, el "ahora" es el pronóstico
+    setNow(kn,WX.wind_gusts_10m[i0],dir,"pronóstico para esta hora");
+  }
+  $("nowT").textContent=Math.round(WX.temperature_2m[i0])+"°C";
+  $("nowCl").innerHTML=`Nubosidad ${WX.cloud_cover[i0]}%`;
+  $("nowP").textContent=Math.round(WX.pressure_msl[i0])+" hPa";
+}
+function setNow(kn,g,dir,obsTxt){
+  const el=$("nowKn"); el.className="big "+kcls(kn);
+  el.innerHTML=`${Math.round(kn)}<span>kn</span>`;
+  $("nowAr").style.transform=`rotate(${(dir+180)%360}deg)`;
+  $("nowDir").innerHTML=`Del <b>${card16(dir)}</b> (${Math.round(dir)}°)${g!=null?` · ráfagas ${Math.round(g)} kn`:""}`;
+  $("nowObs").textContent=obsTxt;
+}
+setInterval(renderWx,5*60e3);
+setInterval(()=>{if(me){loadWx();loadObs();}},30*60e3);
+
+/* ====== viento observado oficial (INA / RHN) ====== */
+let OBS=null;
+async function loadObs(){
+  const {lat,lon}=me;
+  const cands=METEO_INA.map(s=>({s,d:dist(lat,lon,s[1],s[2])})).filter(x=>x.d<60000).sort((a,b)=>a.d-b.d).slice(0,3);
+  if(!cands.length){OBS=null;setSrc("ina_met","wa","sin estación a menos de 60 km");renderWx();return;}
+  const t0=arISO(8*3600e3), t1=arISO(-3600e3);
+  const q=id=>getJSON(`https://alerta.ina.gob.ar/pub/datos/datos&format=json&seriesId=${id}&timeStart=${t0}&timeEnd=${t1}`).then(j=>(j.data||[]).sort((a,b)=>a.timestart<b.timestart?-1:1)).catch(()=>[]);
+  let motivo="";
+  for(const c of cands){
+    const [n,,,sv,sd]=c.s;
+    const [v,d]=await Promise.all([q(sv),q(sd)]);
+    const lv=v.at(-1); if(!lv){motivo=n+": sin datos";continue;}
+    const ageMin=(Date.now()-new Date(lv.timestart+"-03:00"))/60000;
+    if(ageMin>180){motivo=n+": último dato hace "+Math.round(ageMin/60)+" h";continue;}
+    const ld=d.filter(x=>x.timestart<=lv.timestart).at(-1)||d.at(-1);
+    OBS={kn:lv.valor/1.852,dir:ld?+ld.valor:null,n,t:lv.timestart};
+    setNow(OBS.kn,null,OBS.dir??(WX?WX.wind_direction_10m[0]:0),"");
+    $("nowObs").textContent="Observado "+OBS.t.slice(11,16)+" h · "+n+" ("+fmt(c.d/1000,0)+" km) · RHN/INA"+(ld&&ld.timestart!==lv.timestart?" · dirección de las "+ld.timestart.slice(11,16)+" h":"");
+    setSrc("ina_met","ok",n+" "+OBS.t.slice(11,16)+" h");
+    $("wxSrc").textContent="ahora: observado · franja: pronóstico";
+    return;
+  }
+  OBS=null; setSrc("ina_met","wa",motivo||"sin datos"); renderWx();
+}
+
+/* ====== altura del río (Prefectura vía INA) ====== */
+let ESC_VAL={};
+async function loadRio(){
+  const {lat,lon}=me;
+  const near=ESCALAS.map(s=>({s,d:dist(lat,lon,s[2],s[3])})).sort((a,b)=>a.d-b.d);
+  const [sid,nom]=near[0].s, dkm=near[0].d/1000;
+  $("rioSrc").textContent=`escala ${nom} · ${fmt(dkm,0)} km`;
+  try{
+    const ini=new Date(Date.now()-14*864e5).toISOString().slice(0,10);
+    const j=await getJSON(`https://alerta.ina.gob.ar/pub/datos/datos&format=json&seriesId=${sid}&timeStart=${ini}&timeEnd=${arISO(-864e5).slice(0,10)}`);
+    const serie=(j.data||[]).map(x=>({t:x.timestart,v:+x.valor})).filter(x=>!isNaN(x.v)).sort((a,b)=>a.t<b.t?-1:1);
+    if(!serie.length) throw new Error("sin datos");
+    const u=serie.at(-1), p=serie.at(-2);
+    const el=$("altV"); el.classList.remove("skel"); el.innerHTML=`${fmt(u.v,2)}<small>m</small>`;
+    const dd=p?u.v-p.v:null;
+    $("altD").innerHTML = dd==null?"":`<b class="${dd>=0?"up":"dn"}">${dd>=0?"▲":"▼"} ${fmt(Math.abs(dd)*100,0)} cm</b> vs. día anterior`;
+    $("altS").textContent=`${nom} · ${u.t.slice(8,10)}/${u.t.slice(5,7)} · Prefectura Naval`;
+    spark(serie.slice(-12).map(x=>x.v));
+    setSrc("ina_alt","ok",`${nom} ${fmt(u.v,2)} m (${u.t.slice(0,10)})`);
+    ESC_VAL[sid]=u;
+    drawEsc();
+    loadProno(sid);
+  }catch(e){$("altV").classList.remove("skel");$("altV").textContent="–";$("altD").textContent="No disponible";setSrc("ina_alt","er",String(e.message||e));}
+  // valores de las otras escalas cercanas para el mapa
+  for(const n of near.slice(1,5)) if(!ESC_VAL[n.s[0]]) getJSON(`https://alerta.ina.gob.ar/pub/datos/datos&format=json&seriesId=${n.s[0]}&timeStart=${new Date(Date.now()-5*864e5).toISOString().slice(0,10)}&timeEnd=${arISO(-864e5).slice(0,10)}`).then(j=>{const d=(j.data||[]).sort((a,b)=>a.timestart<b.timestart?-1:1).at(-1);if(d){ESC_VAL[n.s[0]]={t:d.timestart,v:+d.valor};drawEsc();}}).catch(()=>{});
+}
+function spark(v){
+  if(v.length<2){$("altSp").innerHTML="";return;}
+  const mn=Math.min(...v),mx=Math.max(...v),rg=(mx-mn)||.1;
+  const pts=v.map((y,i)=>`${(i/(v.length-1)*100).toFixed(1)},${(30-(y-mn)/rg*26).toFixed(1)}`);
+  $("altSp").innerHTML=`<polyline points="0,34 ${pts.join(" ")} 100,34" fill="var(--sea2)" stroke="none"/><polyline points="${pts.join(" ")}" fill="none" stroke="var(--sea)" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="100" cy="${pts.at(-1).split(",")[1]}" r="2.5" fill="var(--sea)"/>`;
+}
+async function loadProno(sid){
+  try{
+    const s=await getJSON(`https://alerta.ina.gob.ar/pub/datos/seriesProno&format=json&siteCode=${sid}`);
+    const pr=(s.data||[]).find(x=>x.varid===2&&/tabprono/.test(x.cal_name||""));
+    if(!pr){$("altPr").innerHTML="";setSrc("ina_pro","wa","sin pronóstico para esta escala");return;}
+    const j=await getJSON(`https://alerta.ina.gob.ar/pub/datos/datosProno&format=json&seriesId=${pr.seriesid}&calId=${pr.calid}&timeStart=${arISO().slice(0,10)}&timeEnd=${new Date(Date.now()+40*864e5).toISOString().slice(0,10)}`);
+    const by={}; for(const x of j.data||[]) (by[x.timestart.slice(0,10)]??=[]).push(+x.valor);
+    const fechas=Object.keys(by).sort().filter(f=>f>arISO().slice(0,10)).slice(0,4);
+    $("altPr").innerHTML=fechas.map(f=>{const a=by[f].sort((x,y)=>x-y);const c=a[Math.floor(a.length/2)];return `<span title="rango ${fmt(a[0],2)}–${fmt(a.at(-1),2)} m">${f.slice(8,10)}/${f.slice(5,7)}: ${fmt(c,2)} m</span>`}).join("");
+    setSrc("ina_pro","ok",`emitido ${String(pr.forecastdate).slice(0,10)}`);
+  }catch(e){setSrc("ina_pro","er",String(e.message||e));}
+}
+function drawEsc(){
+  G.esc.clearLayers();
+  for(const [sid,nom,la,lo] of ESCALAS){
+    const v=ESC_VAL[sid]; if(!v) continue;
+    L.marker([la,lo],{icon:L.divIcon({className:"",html:`<span class="esc">${fmt(v.v,2)} m <small>${nom}</small></span>`,iconSize:[0,0]})})
+      .bindPopup(`<b>Escala ${nom}</b><br>Altura ${fmt(v.v,2)} m · ${v.t.slice(0,10)}<br><span style="color:#667">Prefectura Naval Argentina vía INA</span>`).addTo(G.esc);
+  }
+}
+
+/* ====== objetos IGN (boyas, balizas, faros, puertos, puentes) ====== */
+const IGN_CAPAS=[
+  ["ign:ayuda_a_la_navegacion_BC020","Boya","#d0312d",13],
+  ["ign:ayuda_a_la_navegacion_BC101","Baliza","#16803c",12],
+  ["ign:ayuda_a_la_navegacion_BC050","Faro","#7c3aed",9],
+  ["ign:puntos_de_puertos_y_muelles_BB005","Puerto","#0f6c8c",10],
+  ["ign:puntos_de_cruces_y_enlaces_AQ040","Puente","#475569",11],
+];
+const ignCache=new Map(); let ignTimer=null;
+function loadIGN(){
+  clearTimeout(ignTimer);
+  ignTimer=setTimeout(async()=>{
+    const z=map.getZoom(); const b=map.getBounds().pad(.2);
+    if(z<9){G.ign.clearLayers();return;}
+    // celdas de 0,25° para cachear
+    const s=.25, cells=[];
+    for(let la=Math.floor(b.getSouth()/s)*s;la<b.getNorth();la+=s) for(let lo=Math.floor(b.getWest()/s)*s;lo<b.getEast();lo+=s) cells.push([la,lo]);
+    if(cells.length>16) return;
+    let total=0;
+    await Promise.all(cells.flatMap(([la,lo])=>IGN_CAPAS.map(async capa=>{
+      const key=capa[0]+la.toFixed(2)+lo.toFixed(2);
+      if(!ignCache.has(key)){
+        const u=`https://wms.ign.gob.ar/geoserver/ows?service=WFS&version=2.0.0&request=GetFeature&typeNames=${capa[0]}&outputFormat=application/json&srsName=EPSG:4326&bbox=${lo},${la},${lo+s},${la+s},CRS:84&count=500`;
+        ignCache.set(key,getJSON(u,20000).then(j=>j.features||[]).catch(()=>{ignCache.delete(key);return[];}));
+      }
+      const fs=await ignCache.get(key); total+=fs.length;
+    })));
+    G.ign.clearLayers();
+    for(const capa of IGN_CAPAS){
+      if(z<capa[3]) continue;
+      for(const [key,pr] of ignCache) if(key.startsWith(capa[0])){
+        const fs=await pr;
+        for(const f of fs){
+          const g=f.geometry; if(!g) continue;
+          const c=g.type==="Point"?g.coordinates:g.type==="MultiPoint"?g.coordinates[0]:null; if(!c) continue;
+          const p=f.properties||{}, nom=p.fna||p.nam||capa[1];
+          L.circleMarker([c[1],c[0]],{radius:capa[1]==="Boya"?5:6,color:"#fff",weight:1.5,fillColor:capa[2],fillOpacity:1})
+            .bindPopup(`<b>${nom}</b><br>${capa[1]}${p.fdc?` · ${p.fdc}`:""}<br><span style="color:#667">IGN</span>`).addTo(G.ign);
+        }
+      }
+    }
+  },500);
+}
+
+/* ====== AIS en vivo ====== */
+const SHIPS=new Map(); // mmsi -> {lat,lon,sog,cog,hdg,name,type,dest,t,src}
+let subBox=null; const sockets={};
+function tipoAIS(t){t=+t||0;if(t>=70&&t<80)return"Carga";if(t>=80&&t<90)return"Tanque";if(t>=60&&t<70)return"Pasaje";if(t===52||t===31||t===32)return"Remolcador";if(t===30)return"Pesca";if(t===36||t===37)return"Recreo";if(t===35)return"Militar";if(t===55)return"Autoridad";if(t>=40&&t<50)return"Alta velocidad";return t?"Otro":"";}
+function upsert(mmsi,o){
+  if(!mmsi||o.lat==null||o.lon==null||Math.abs(o.lat)>90||Math.abs(o.lon)>180||(o.lat===0&&o.lon===0)) return;
+  const s=SHIPS.get(mmsi)||{mmsi}; Object.assign(s,Object.fromEntries(Object.entries(o).filter(([,v])=>v!=null&&v!==""))); s.t=Date.now(); SHIPS.set(mmsi,s); dirty=true;
+}
+function wantBox(){
+  const c=map.getCenter(), ref=me||{lat:c.lat,lon:c.lng};
+  const b=map.getBounds(); const h=Math.min(Math.max((b.getNorth()-b.getSouth())*.8,.25),1), w=Math.min(Math.max((b.getEast()-b.getWest())*.8,.25),1);
+  return [c.lat-h,c.lng-w,c.lat+h,c.lng+w];
+}
+function boxInside(a,b){return b&&a[0]>=b[0]&&a[1]>=b[1]&&a[2]<=b[2]&&a[3]<=b[3];}
+function connectAIS(force){
+  const want=wantBox();
+  const inner=[want[0]+.1,want[1]+.1,want[2]-.1,want[3]-.1];
+  if(!force&&boxInside(inner,subBox)) return;
+  subBox=want;
+  openSock("osf","wss://stream.openseafeed.com/v1/stream",{BoundingBoxes:[[[subBox[0],subBox[1]],[subBox[2],subBox[3]]]]},e=>{
+    const j=JSON.parse(e.data), m=j.Message||{}, md=j.MetaData||{};
+    const pr=m.PositionReport||m.StandardClassBPositionReport||m.ExtendedClassBPositionReport;
+    if(pr) upsert(md.MMSI||pr.UserID,{lat:md.latitude??pr.Latitude,lon:md.longitude??pr.Longitude,sog:pr.Sog,cog:pr.Cog,hdg:pr.TrueHeading<360?pr.TrueHeading:null,name:(md.ShipName||"").trim(),type:md.ShipType,src:"OpenSeaFeed"});
+    const sd=m.ShipStaticData; if(sd){const s=SHIPS.get(md.MMSI);if(s){s.name=(sd.Name||s.name||"").trim();s.type=sd.Type||s.type;s.dest=(sd.Destination||"").trim();}}
+  });
+  openSock("ow","wss://ais.openwaters.io/v1/stream",{type:"subscribe",bbox:[[subBox[0],subBox[1],subBox[2],subBox[3]]],snapshot:true},e=>{
+    const j=JSON.parse(e.data); if(j.type!=="event") return; const m=j.message||{};
+    if(/PositionReport/.test(j.msg_type)) upsert(j.mmsi,{lat:j.lat??m.Latitude,lon:j.lon??m.Longitude,sog:m.Sog,cog:m.Cog,hdg:m.TrueHeading<360?m.TrueHeading:null,src:SHIPS.get(j.mmsi)?.src||"Open Waters"});
+    else if(/StaticData|ShipStatic/.test(j.msg_type)){const s=SHIPS.get(j.mmsi)||{};const nm=(m.Name||m.ReportA?.Name||"").trim();if(nm)s.name=nm;if(m.Type||m.ReportB?.ShipType)s.type=m.Type||m.ReportB.ShipType;if(m.Destination)s.dest=m.Destination.trim();if(s.mmsi)SHIPS.set(j.mmsi,s);}
+  });
+}
+function openSock(k,url,sub,onmsg){
+  const old=sockets[k]; if(old){old.closing=true;try{old.ws.close()}catch{}}
+  const o={ws:null,n:0,closing:false}; sockets[k]=o;
+  try{
+    o.ws=new WebSocket(url);
+    o.ws.onopen=()=>o.ws.send(JSON.stringify(sub));
+    o.ws.onmessage=e=>{o.n++;try{onmsg(e)}catch{}};
+    o.ws.onclose=()=>{if(!o.closing) setTimeout(()=>{if(sockets[k]===o) openSock(k,url,sub,onmsg);},8000);aisStatus();};
+    o.ws.onerror=()=>aisStatus();
+  }catch{aisStatus();}
+}
+function aisStatus(){
+  const ok=Object.values(sockets).filter(s=>s.ws&&s.ws.readyState===1);
+  setSrc("ais",ok.length?"ok":"er",ok.length?`${SHIPS.size} buques · ${ok.length} red${ok.length>1?"es":""} conectada${ok.length>1?"s":""}`:"desconectado, reintentando");
+}
+let dirty=false;
+const shipSvg=(c,stop)=>stop?`<svg viewBox="0 0 20 20" width="14" height="14"><circle cx="10" cy="10" r="6" fill="${c}" stroke="#fff" stroke-width="2"/></svg>`
+  :`<svg viewBox="0 0 20 20" width="22" height="22"><path d="M10 1 L16 18 L10 14 L4 18 Z" fill="${c}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
+function sentido(s){
+  if((s.sog??0)<0.8) return {k:"stop",c:"var(--stop)",col:"#7c8a96",t:"detenido"};
+  const p=proyectar(s.lat,s.lon); s.dEje=p.d; s.km=p.km;
+  const crs=s.cog??s.hdg; if(crs==null) return {k:"x",c:"#64748b",col:"#64748b",t:"en movimiento"};
+  const df=angDiff(crs,p.abajo);
+  if(df<60) return {k:"down",c:"var(--down)",col:"#c2410c",t:"bajando"};
+  if(df>120) return {k:"up",c:"var(--up)",col:"#1d7a46",t:"subiendo"};
+  return {k:"x",c:"#64748b",col:"#64748b",t:"cruzando"};
+}
+function drawShips(){
+  if(!dirty) return; dirty=false;
+  const now=Date.now(); for(const [k,s] of SHIPS) if(now-s.t>40*60e3) SHIPS.delete(k);
+  G.ships.clearLayers();
+  const z=map.getZoom(), b=map.getBounds().pad(.2);
+  for(const s of SHIPS.values()){
+    s.sn=sentido(s);
+    if(!b.contains([s.lat,s.lon])) continue;
+    const stop=s.sn.k==="stop", rot=s.hdg??s.cog??0;
+    const icon=L.divIcon({className:"",iconSize:[22,22],iconAnchor:[11,11],html:`<div style="transform:rotate(${stop?0:rot}deg);width:22px;height:22px;display:grid;place-items:center">${shipSvg(s.sn.col,stop)}</div>${z>=13&&s.name?`<span class="shiplab">${s.name}</span>`:""}`});
+    L.marker([s.lat,s.lon],{icon,zIndexOffset:stop?0:500}).bindPopup(()=>shipPop(s)).addTo(G.ships);
+  }
+  renderShipsList(); aisStatus();
+}
+function shipPop(s){
+  const age=Math.round((Date.now()-s.t)/60000);
+  return `<b>${s.name||"MMSI "+s.mmsi}</b><br>${[tipoAIS(s.type),s.sn?.t].filter(Boolean).join(" · ")}<br>
+   ${fmt(s.sog,1)} kn · rumbo ${s.cog!=null?Math.round(s.cog)+"°":"–"}${s.dest?`<br>Destino: ${s.dest}`:""}
+   ${s.km!=null&&s.dEje<4000?`<br>km ${fmt(s.km,1)}`:""}<br><span style="color:#667">MMSI ${s.mmsi} · ${s.src} · hace ${age<1?"<1":age} min</span>`;
+}
+function renderShipsList(){
+  if(!me) return;
+  const arr=[...SHIPS.values()].filter(s=>s.sn&&(s.dEje==null||s.dEje<4000)).map(s=>({s,d:dist(me.lat,me.lon,s.lat,s.lon)})).sort((a,b)=>a.d-b.d);
+  const up=arr.filter(x=>x.s.sn.k==="up").length, dn=arr.filter(x=>x.s.sn.k==="down").length, st=arr.filter(x=>x.s.sn.k==="stop").length;
+  $("cnt").innerHTML=`<span class="u">▲ ${up}</span><span class="dn">▼ ${dn}</span><span>● ${st}</span>`;
+  const mov=arr.filter(x=>x.s.sn.k!=="stop").slice(0,10), list=mov.length?mov:arr.slice(0,6);
+  $("ships").innerHTML = list.length ? list.map(({s,d})=>`<li data-m="${s.mmsi}"><div class="ic" style="color:${s.sn.col}">${s.sn.k==="stop"?"●":s.sn.k==="up"?"▲":s.sn.k==="down"?"▼":"◆"}</div>
+     <div style="min-width:0"><div class="nm">${s.name||"MMSI "+s.mmsi}</div><div class="ds">${[tipoAIS(s.type),s.sn.t,s.km!=null?"km "+fmt(s.km,0):""].filter(Boolean).join(" · ")}</div></div>
+     <div class="rt"><b>${fmt(s.sog,1)} kn</b><br>${fmt(d/1000,1)} km</div></li>`).join("")
+     : `<li class="na" style="cursor:default">Sin buques reportados en la zona todavía.</li>`;
+  $("ships").querySelectorAll("li[data-m]").forEach(li=>li.onclick=()=>{const s=SHIPS.get(+li.dataset.m)||SHIPS.get(li.dataset.m);if(!s)return;follow=false;$("bLoc").classList.remove("on");map.flyTo([s.lat,s.lon],14);if(innerWidth<900)sheet.classList.remove("full");});
+}
+setInterval(drawShips,2000);
+
+/* ====== hoja inferior (móvil) ====== */
+const sheet=$("sheet");
+$("grab").onclick=()=>sheet.classList.toggle("full");
+(()=>{let y0=null;const g=$("grab");
+  g.addEventListener("touchstart",e=>{y0=e.touches[0].clientY},{passive:true});
+  g.addEventListener("touchend",e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0;if(dy<-30)sheet.classList.add("full");else if(dy>30)sheet.classList.remove("full");y0=null;});
+})();
+
+/* ====== arranque ====== */
+map.on("moveend zoomend",()=>{drawKm();loadIGN();dirty=true;connectAIS(false);});
+drawKm();
+const qs=new URLSearchParams(location.search), ql=parseFloat(qs.get("lat")), qn=parseFloat(qs.get("lon"));
+if(!isNaN(ql)&&!isNaN(qn)){manual=true;setSrc("gps","wa","coordenadas recibidas por enlace");setPos(ql,qn,0,"coordenadas recibidas");}
+else startGPS();
+setTimeout(()=>{if(!me) fallback("Esperando GPS");},12000);
+setTimeout(()=>connectAIS(true),300);
+loadIGN();
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){connectAIS(true);if(me){loadObs();renderWx();}}});
+})();</script></body></html>
