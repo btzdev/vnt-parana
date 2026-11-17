@@ -102,6 +102,10 @@ button{font:inherit;color:inherit}
 .ships .ds{font-size:12px;color:var(--ink2)}
 .ships .rt{margin-left:auto;text-align:right;font-size:12px;color:var(--ink2);flex:none}
 .ships .rt b{font-size:14px;color:var(--ink)}
+.ships .ds .eta{color:var(--sea);font-weight:700}
+.bzw{width:20px;height:20px;border-radius:50%;color:#fff;font:800 13px/20px var(--font);text-align:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
+.drg{font:700 10.5px var(--font);color:#fff;background:#334155;border-radius:6px;padding:2px 6px;white-space:nowrap;transform:translate(-50%,-50%);display:inline-block;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.leyenda{font-size:11.5px;color:var(--ink3);margin:6px 4px 0;line-height:1.4}
 .cnt{display:flex;gap:6px}
 .cnt span{font-size:12px;font-weight:650;border-radius:20px;padding:3px 9px;background:var(--card);border:1px solid var(--line)}
 .cnt .u{color:var(--up)}.cnt .dn{color:var(--down)}
@@ -115,6 +119,46 @@ button{font:inherit;color:inherit}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
 .toast{position:absolute;z-index:1005;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 74px);background:var(--navy);color:#fff;font-size:13px;padding:9px 14px;border-radius:10px;box-shadow:0 4px 14px rgba(0,0,0,.25);max-width:88vw;display:none}
 .toast.show{display:block}
+/* pestañas y regata */
+.tabbar{position:absolute;z-index:1004;top:calc(env(safe-area-inset-top) + 8px);left:50%;transform:translateX(-50%);display:flex;gap:2px;background:rgba(11,42,63,.94);padding:3px;border-radius:12px;box-shadow:0 4px 14px rgba(0,0,0,.2)}
+.tabbar button{border:0;background:transparent;color:#cfe3ee;font:650 13.5px var(--font);padding:8px 16px;border-radius:9px;cursor:pointer;white-space:nowrap}
+.tabbar button.on{background:#fff;color:#0b2a3f}
+.top{padding-top:calc(env(safe-area-inset-top) + 56px)}
+.fabs,.layers,.leaflet-top.leaflet-left{top:calc(env(safe-area-inset-top) + 120px)}
+.toast{top:calc(env(safe-area-inset-top) + 122px)}
+.reg{position:absolute;inset:0;z-index:1003;background:var(--bg);overflow-y:auto;-webkit-overflow-scrolling:touch;padding:calc(env(safe-area-inset-top) + 58px) 12px calc(24px + env(safe-area-inset-bottom))}
+.reg[hidden]{display:none}
+.regin{max-width:780px;margin:0 auto}
+.tmr{text-align:center;padding:14px 12px 16px}
+.fase{font:750 15px var(--font);color:var(--sea);text-transform:uppercase;letter-spacing:.07em}
+.fase.go{color:#16a34a}
+.reloj{font:800 clamp(72px,24vw,150px)/1.02 var(--font);font-variant-numeric:tabular-nums;letter-spacing:-.04em;margin:4px 0}
+.prox{color:var(--ink2);font-size:14px}
+.flags{display:flex;gap:14px;justify-content:center;margin-top:12px;min-height:70px;flex-wrap:wrap}
+.flag{display:flex;flex-direction:column;align-items:center;font-size:11.5px;color:var(--ink2);gap:4px;font-weight:600}
+.flag svg{width:96px;height:64px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.3))}
+.rbtns{justify-content:center;margin-top:10px}
+.rb{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:12px 14px;font:650 15px var(--font);cursor:pointer;min-height:48px}
+.rb:active{transform:scale(.97)}
+.rb.pri{background:var(--sea);color:#fff;border-color:var(--sea)}
+.rb.warn{color:#dc2626}
+.kg{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.kg .card .lab{font-size:11px;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em;font-weight:650}
+.kg .card .v{font:800 40px/1.05 var(--font);font-variant-numeric:tabular-nums;margin-top:4px}
+.kg .card .v small{font-size:15px;color:var(--ink2);font-weight:650;margin-left:3px}
+.kg .card .d{font-size:12px;color:var(--ink3);margin-top:4px}
+.cfg{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;font-size:14px;margin-top:12px}
+.cfg label{display:flex;align-items:center;gap:6px}
+.cfg input,.cfg select{font:inherit;padding:7px 9px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.cfg input[type=checkbox]{width:20px;height:20px;padding:0;accent-color:var(--sea)}
+.cfg input[type=range]{padding:0;width:130px;accent-color:var(--sea)}
+.rtit{font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin:16px 2px 7px;font-weight:650}
+.tlog{width:100%;border-collapse:collapse;font-size:12.5px;font-variant-numeric:tabular-nums}
+.tlog th,.tlog td{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.tlog th{color:var(--ink2);font-weight:650}
+.tlog th:first-child,.tlog td:first-child,.tlog th:last-child,.tlog td:last-child{text-align:left}
+.tlog td:last-child{white-space:normal}
+@media (min-width:900px){.tabbar{left:calc((100% - 420px)/2)}}
 .skel{background:linear-gradient(90deg,#eef2f5,#f8fafb,#eef2f5);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:8px;color:transparent!important}
 @keyframes sk{to{background-position:-200% 0}}
 /* marcadores */
@@ -150,13 +194,14 @@ button{font:inherit;color:inherit}
 <body>
 <div id="app">
   <div id="map" role="application" aria-label="Mapa del río"></div>
+  <nav class="tabbar" id="tabbar"><button class="on" data-v="nav">🧭 Navegación</button><button data-v="reg">⏱ Regata</button></nav>
 
   <div class="top">
     <div class="chip pos" id="pos">
       <div class="l1"><span class="km" id="posKm">Ubicando…</span><span class="rio" id="posRio"></span></div>
       <div class="l2" id="posL2">Esperando GPS</div>
     </div>
-    <div class="chip vhf" id="vhfBox" hidden=""><div class="c" id="vhfC">–</div><div class="t" id="vhfT">VHF</div></div>
+    <div class="chip vhf" id="vhfBox" hidden><div class="c" id="vhfC">–</div><div class="t" id="vhfT">VHF</div></div>
   </div>
 
   <div class="fabs">
@@ -166,15 +211,84 @@ button{font:inherit;color:inherit}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"></path><path d="m2 13 10 5 10-5"></path></svg></button>
   </div>
   <div class="layers" id="layers">
-    <label><input type="radio" name="base" value="ign" checked=""> Argenmap (IGN)</label>
+    <label><input type="radio" name="base" value="ign" checked> Argenmap (IGN)</label>
     <label><input type="radio" name="base" value="sat"> Satélite</label>
     <hr>
-    <label><input type="checkbox" data-l="ships" checked=""> Buques AIS</label>
-    <label><input type="checkbox" data-l="km" checked=""> Eje VNT y km</label>
-    <label><input type="checkbox" data-l="esc" checked=""> Escalas (altura)</label>
-    <label><input type="checkbox" data-l="ign" checked=""> Boyas, puertos, puentes</label>
+    <label><input type="checkbox" data-l="ships" checked> Buques AIS</label>
+    <label><input type="checkbox" data-l="km" checked> Eje VNT y km</label>
+    <label><input type="checkbox" data-l="esc" checked> Escalas (altura)</label>
+    <label><input type="checkbox" data-l="bz" checked> Balizamiento y avisos SHN</label>
+    <label><input type="checkbox" data-l="tracks" checked> Estelas y vectores de buques</label>
   </div>
   <div class="toast" id="toast"></div>
+
+  <section class="reg" id="reg" hidden>
+    <div class="regin">
+      <div class="card tmr">
+        <div class="fase" id="rFase">Listo para largar</div>
+        <div class="reloj" id="rReloj">5:00</div>
+        <div class="prox" id="rProx">Elegí la secuencia y tocá Iniciar</div>
+        <div class="flags" id="rFlags"></div>
+      </div>
+      <div class="row rbtns">
+        <button class="rb pri" id="rStart5">▶ Iniciar 5 min</button>
+        <button class="rb" id="rStart3">▶ 3 min</button>
+        <button class="rb" id="rSync">⟲ Sincronizar</button>
+        <button class="rb" id="rMenos">−1 min</button>
+        <button class="rb" id="rMas">+1 min</button>
+        <button class="rb warn" id="rStop">■ Detener</button>
+      </div>
+      <div class="row rbtns">
+        <button class="rb" id="rX">X · Llamada individual</button>
+        <button class="rb" id="rGen">Llamada general (1er rep.)</button>
+        <button class="rb" id="rAP">Postergación (GI)</button>
+      </div>
+      <div class="card cfg">
+        <label>Preparatoria <select id="rPrep"><option value="P">P</option><option value="I">I</option><option value="Z">Z</option><option value="U">U</option><option value="N">Negra</option></select></label>
+        <label>Clase <input id="rClase" value="Clase" maxlength="10" size="8"></label>
+        <label>Volumen <input type="range" id="rVol" min="0" max="100" value="100"></label>
+        <label><input type="checkbox" id="rVoz" checked> Voz</label>
+        <label><input type="checkbox" id="rBip" checked> Pitidos</label>
+        <button class="rb" id="rTest">🔊 Probar</button>
+      </div>
+
+      <div class="rtit">Velocidad</div>
+      <div class="kg">
+        <div class="card"><div class="lab">SOG (fondo)</div><div class="v"><span id="kSog">–</span><small>kn</small></div><div class="d" id="kSogD">esperando GPS</div></div>
+        <div class="card"><div class="lab">COG</div><div class="v" id="kCog">–</div><div class="d">rumbo sobre el fondo</div></div>
+        <div class="card"><div class="lab">Corriente</div><div class="v"><span id="kCur">–</span><small>kn</small></div><div class="d" id="kCurD">sin medir</div></div>
+        <div class="card"><div class="lab">Velocidad real (agua)</div><div class="v"><span id="kStw">–</span><small>kn</small></div><div class="d" id="kStwD">SOG menos corriente</div></div>
+      </div>
+
+      <div class="rtit">Corriente</div>
+      <div class="card">
+        <div class="cfg" style="margin-top:0">
+          <button class="rb pri" id="rMed">Medir corriente (deriva)</button>
+          <label>durante <select id="rMedSeg"><option value="30">30 s</option><option value="60" selected>60 s</option><option value="120">2 min</option></select></label>
+        </div>
+        <div class="na" id="rMedSt">Dejá el barco a la deriva (sin velas ni motor) y tocá Medir: el GPS calcula hacia dónde y a qué velocidad te lleva el agua.</div>
+        <div class="cfg">
+          <label>Manual <input id="rCurKn" type="number" step="0.1" min="0" placeholder="kn" style="width:80px"></label>
+          <label>hacia <input id="rCurDir" type="number" step="1" min="0" max="359" placeholder="°" style="width:80px"></label>
+          <button class="rb" id="rCurRio">Aguas abajo</button>
+          <button class="rb" id="rCurSet">Aplicar</button>
+        </div>
+      </div>
+
+      <div class="rtit">Registro</div>
+      <div class="card">
+        <div class="cfg" style="margin-top:0">
+          <button class="rb pri" id="rMark">📍 Marcar</button>
+          <label><input type="checkbox" id="rAuto"> Cada 30 s en regata</label>
+          <button class="rb" id="rCsv">Descargar CSV</button>
+          <button class="rb" id="rCopy">Copiar</button>
+          <button class="rb warn" id="rClear">Borrar</button>
+        </div>
+        <div style="overflow-x:auto;margin-top:8px"><table class="tlog" id="rLog"></table></div>
+      </div>
+      <div class="leyenda">Las señales siguen la regla 26 del Reglamento de Regatas a Vela (atención 5 min, preparatoria 4, un minuto, largada). Mantené la pantalla encendida: la app lo pide automáticamente al iniciar. La velocidad real es una estimación: SOG del GPS menos la corriente cargada.</div>
+    </div>
+  </section>
 
   <aside class="sheet" id="sheet">
     <div class="grab" id="grab" aria-label="Expandir panel"><i></i></div>
@@ -217,6 +331,13 @@ button{font:inherit;color:inherit}
       <section class="sec">
         <h2>Buques <div class="cnt" id="cnt"></div></h2>
         <div class="card" style="padding:4px 12px"><ul class="ships" id="ships"><li class="na" style="cursor:default">Conectando a la red AIS…</li></ul></div>
+        <div class="leyenda">Línea continua: recorrido de los últimos 45 min. Línea punteada: dónde estará en 6 min si mantiene rumbo y velocidad. Entre reportes AIS la posición se estima.</div>
+      </section>
+
+      <section class="sec">
+        <h2>Balizamiento <small id="bzSrc"></small></h2>
+        <div class="card" style="padding:4px 12px"><ul class="ships" id="bzList"><li class="na" style="cursor:default">Cargando avisos…</li></ul></div>
+        <div class="leyenda">Avisos vigentes del SHN (oficial). Las boyas del mapa vienen de OpenSeaMap (no oficial); con anillo, las que tienen novedad.</div>
       </section>
 
       <section class="sec">
@@ -296,7 +417,9 @@ const FUENTES = {
   ina_met:{n:"Viento observado: estaciones meteorológicas de la Red Hidrológica Nacional (INA / SSRH)"},
   wx:{n:"Pronóstico horario de viento, temperatura y nubosidad: Open-Meteo (modelos globales, no oficial; el SMN no publica una API abierta)",u:"https://open-meteo.com"},
   ais:{n:"AIS: OpenSeaFeed + Open Waters AIS (redes comunitarias, no oficiales)"},
-  ign:{n:"Cartografía base y objetos (boyas, puertos, puentes): IGN Argentina",u:"https://www.ign.gob.ar"},
+  bz_shn:{n:"Novedades de balizamiento y dragado: SHN, Radioavisos Náuticos (oficial)",u:"https://www.hidro.gov.ar/nautica/RadioavisosNauticos.asp?op=11"},
+  bz_osm:{n:"Posición de boyas y balizas: OpenSeaMap / OpenStreetMap (comunitario, no oficial)",u:"https://map.openseamap.org"},
+  ign:{n:"Cartografía base Argenmap: IGN Argentina",u:"https://www.ign.gob.ar"},
 };
 function setSrc(k,st,extra=""){FUENTES[k].st=st;FUENTES[k].x=extra;renderSrc();}
 function renderSrc(){
@@ -339,7 +462,7 @@ const BASES = {
 BASES.ign.addTo(map);
 BASES.ign.on("tileload",()=>setSrc("ign","ok"));
 BASES.ign.on("tileerror",()=>{ if(FUENTES.ign.st!=="ok") setSrc("ign","er","sin teselas"); });
-const G = {ships:L.layerGroup().addTo(map), km:L.layerGroup().addTo(map), esc:L.layerGroup().addTo(map), ign:L.layerGroup().addTo(map)};
+const G = {tracks:L.layerGroup().addTo(map), bz:L.layerGroup().addTo(map), ships:L.layerGroup().addTo(map), km:L.layerGroup().addTo(map), esc:L.layerGroup().addTo(map), ign:L.layerGroup().addTo(map)};
 
 // panel de capas
 $("bLay").onclick=()=>{$("layers").classList.toggle("open");$("bLay").classList.toggle("on");};
@@ -365,7 +488,7 @@ function drawKm(){
 
 /* ====== posición ====== */
 let me=null, meMk=null, meAcc=null, follow=true, lastWxPos=null, lastRioPos=null, manual=false;
-const meIcon=L.divIcon({className:"",html:'<div class="me"></div>',iconSize:[18,18],iconAnchor:[9,9]});
+const meIcon=L.divIcon({className:"",iconSize:[40,40],iconAnchor:[20,20],html:'<div class="mebox" style="width:40px;height:40px;display:grid;place-items:center;transition:transform .6s;filter:drop-shadow(0 1px 3px rgba(0,0,0,.5))"><svg viewBox="0 0 24 40" width="22" height="38"><path d="M12 1C19 9 20.5 21 18.5 38H5.5C3.5 21 5 9 12 1Z" fill="#fff" stroke="#1a73e8" stroke-width="2.2"/><path d="M12 12.5C16.8 19 17 27 13.2 33.5" fill="#cfe3ff" stroke="#1a73e8" stroke-width="1.8"/><path d="M12 12.5V33.5" stroke="#0b2a3f" stroke-width="1.4"/><circle cx="12" cy="12.5" r="2.2" fill="#0b2a3f"/></svg></div>'});
 function setPos(lat,lon,acc,src){
   me={lat,lon,acc,src,t:Date.now()};
   if(!meMk){meMk=L.marker([lat,lon],{icon:meIcon,zIndexOffset:2000}).addTo(map);meAcc=L.circle([lat,lon],{radius:acc||0,color:"#1a73e8",weight:1,fillOpacity:.08,interactive:false}).addTo(map);}
@@ -406,12 +529,12 @@ function updatePos(){
   $("curV").innerHTML = `${card16(P.abajo)} <small>${Math.round(P.abajo)}°</small>`;
   $("curD").textContent = "Sentido aguas abajo";
   $("curN").textContent = P.ruta==="parana"&&P.km>367 ? "Velocidad: no hay medición oficial publicada en tiempo real para este tramo." : "Tramo con influencia de marea: el sentido puede invertirse. Sin medición oficial de velocidad publicada.";
-  renderShipsList();
+  renderShipsList(); renderBzList();
 }
 function startGPS(){
   if(!("geolocation" in navigator)){fallback("Este navegador no ofrece GPS");return;}
   navigator.geolocation.watchPosition(
-    p=>{ if(manual) return; setSrc("gps","ok",`±${Math.round(p.coords.accuracy)} m`); setPos(p.coords.latitude,p.coords.longitude,p.coords.accuracy,"GPS"); },
+    p=>{ navFix(p); if(manual) return; setSrc("gps","ok",`±${Math.round(p.coords.accuracy)} m`); setPos(p.coords.latitude,p.coords.longitude,p.coords.accuracy,"GPS"); },
     e=>{ setSrc("gps","er",e.code===1?"permiso denegado":"sin señal"); if(!me) fallback(e.code===1?"Permiso de ubicación denegado":"No se pudo obtener la ubicación"); },
     {enableHighAccuracy:true,maximumAge:15000,timeout:20000});
 }
@@ -551,14 +674,10 @@ function drawEsc(){
 
 /* ====== objetos IGN (boyas, balizas, faros, puertos, puentes) ====== */
 const IGN_CAPAS=[
-  ["ign:ayuda_a_la_navegacion_BC020","Boya","#d0312d",13],
-  ["ign:ayuda_a_la_navegacion_BC101","Baliza","#16803c",12],
-  ["ign:ayuda_a_la_navegacion_BC050","Faro","#7c3aed",9],
-  ["ign:puntos_de_puertos_y_muelles_BB005","Puerto","#0f6c8c",10],
-  ["ign:puntos_de_cruces_y_enlaces_AQ040","Puente","#475569",11],
 ];
 const ignCache=new Map(); let ignTimer=null;
 function loadIGN(){
+  if(!IGN_CAPAS.length) return;
   clearTimeout(ignTimer);
   ignTimer=setTimeout(async()=>{
     const z=map.getZoom(); const b=map.getBounds().pad(.2);
@@ -593,13 +712,108 @@ function loadIGN(){
   },500);
 }
 
+/* ====== balizamiento: OpenSeaMap (posiciones) + SHN (novedades oficiales) ====== */
+const BZ_URLS=["balizamiento.json","https://raw.githubusercontent.com/btzdev/vnt-parana/main/balizamiento.json"];
+let BZ=null, BZ_OSM=[], BZ_SHN=[], BZ_DR=[];
+const bzRend=L.canvas({padding:.3});
+const LADO_COLOR={babor:"green",estribor:"red"}; // IALA región B
+const BZ_COL={green:"#16a34a",red:"#dc2626",yellow:"#eab308",black:"#111827",white:"#f8fafc",orange:"#f97316"};
+const TIPO_ES={buoy_lateral:"Boya lateral",beacon_lateral:"Baliza lateral",buoy_cardinal:"Boya cardinal",beacon_cardinal:"Baliza cardinal",buoy_isolated_danger:"Boya de peligro aislado",beacon_isolated_danger:"Baliza de peligro aislado",buoy_special_purpose:"Boya especial",beacon_special_purpose:"Baliza especial",buoy_safe_water:"Boya de aguas seguras",light_minor:"Luz",light_major:"Faro",light_vessel:"Buque faro"};
+const COL_ES={green:"verde",red:"roja",yellow:"amarilla",black:"negra",white:"blanca",orange:"naranja"};
+const EST_COL={falta:"#dc2626",sumergida:"#dc2626",garreada:"#ea580c","a la deriva":"#ea580c",apagada:"#7c3aed",reubicada:"#0284c7"};
+const estCol=e=>EST_COL[e]||"#ca8a04";
+const cap=t=>t?t[0].toUpperCase()+t.slice(1):"";
+async function loadBz(){
+  let j=null;
+  for(const u of BZ_URLS){ try{ j=await getJSON(u+"?t="+Math.floor(Date.now()/600e3),20000); break; }catch(e){} }
+  if(!j){ if(!BZ){setSrc("bz_shn","er","no se pudo cargar");setSrc("bz_osm","er","no se pudo cargar");renderBzList();} return; }
+  BZ=j;
+  BZ_OSM=(BZ.osm?.items||[]).map(a=>({lat:a[0],lon:a[1],tipo:a[2],color:a[3],cat:a[4],nom:a[5],luz:a[6],id:a[7]}));
+  for(const b of BZ_OSM){const p=proyectar(b.lat,b.lon);b.ruta=p.ruta;b.km=p.km;b.d=p.d;const m=(b.nom||"").match(/(\d{1,4}[.,]\d{1,2})/);b.kmn=m?parseFloat(m[1].replace(",",".")):null;}
+  BZ_SHN=(BZ.shn?.items||[]).filter(x=>x.ruta&&(x.km!=null||x.km_obs!=null)); BZ_DR=(BZ.shn?.dragas||[]).filter(d=>d.ruta);
+  emparejar();
+  const fc=BZ.shn?.consultado?new Date(BZ.shn.consultado).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
+  setSrc("bz_shn",BZ.shn?.ok===false?"wa":"ok",`${BZ_SHN.length} novedades vigentes${fc?" · consultado "+fc:""}${BZ.shn?.ok===false?" · última consulta falló":""}`);
+  setSrc("bz_osm",BZ.osm?.ok===false?"wa":"ok",`${BZ_OSM.length} señales`);
+  drawBz(); renderBzList();
+}
+function emparejar(){
+  for(const b of BZ_OSM) b.av=null;
+  for(const a of BZ_SHN){
+    a.buoy=null; if(a.km==null) continue;
+    const col=LADO_COLOR[a.lado]; let best=null,bs=1e9;
+    for(const b of BZ_OSM){
+      if(b.ruta!==a.ruta||b.d>3000) continue;
+      if(col&&b.color&&b.color!==col) continue;
+      if(a.tipo==="baliza"&&!/beacon|light/.test(b.tipo)) continue;
+      if(a.tipo==="boya"&&!/buoy/.test(b.tipo)) continue;
+      const dk=Math.abs(b.km-a.km); if(dk>1.5) continue;
+      const sc=(b.kmn!=null&&Math.abs(b.kmn-a.km)<0.15)?0:dk+1;
+      if(sc<bs){bs=sc;best=b;}
+    }
+    if(best&&bs<1.3){a.buoy=best;(best.av??=[]).push(a);}
+  }
+}
+let bzTimer=null;
+function drawBz(){
+  clearTimeout(bzTimer);
+  bzTimer=setTimeout(()=>{
+    G.bz.clearLayers(); if(!BZ) return;
+    const z=map.getZoom(), b=map.getBounds().pad(.2);
+    if(z>=10) for(const s of BZ_OSM){
+      if(!b.contains([s.lat,s.lon])) continue;
+      if(z<12&&!s.av) continue;
+      const fill=BZ_COL[s.color]||(/cardinal|special/.test(s.tipo)?"#eab308":/isolated/.test(s.tipo)?"#111827":/light/.test(s.tipo)?"#f59e0b":"#94a3b8");
+      const beacon=/beacon|light/.test(s.tipo);
+      L.circleMarker([s.lat,s.lon],{renderer:bzRend,radius:beacon?4:5.5,color:beacon?"#1f2937":"#fff",weight:beacon?2:1.5,fillColor:fill,fillOpacity:1}).bindPopup(()=>bzPop(s)).addTo(G.bz);
+      if(s.av) L.circleMarker([s.lat,s.lon],{renderer:bzRend,radius:11,color:estCol(s.av[0].estado),weight:3,fill:false,dashArray:"4 3"}).bindPopup(()=>bzPop(s)).addTo(G.bz);
+    }
+    if(z>=9) for(const a of BZ_SHN){
+      if(a.buoy) continue;
+      const k=a.km??a.km_obs, r=VNT.rutas[a.ruta]; if(k==null||!r) continue;
+      const p=puntoKm(r.a,k); if(!p||!b.contains(p)) continue;
+      L.marker(p,{icon:L.divIcon({className:"",iconSize:[20,20],iconAnchor:[10,10],html:`<div class="bzw" style="background:${estCol(a.estado)}">!</div>`})}).bindPopup(()=>avPop(a,true)).addTo(G.bz);
+    }
+    if(z>=9) for(const d of BZ_DR){
+      const r=VNT.rutas[d.ruta]; if(!r) continue; const p=puntoKm(r.a,(d.km[0]+d.km[1])/2); if(!p||!b.contains(p)) continue;
+      L.marker(p,{icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="drg">⚓ Draga ${d.draga}</span>`})})
+        .bindPopup(`<b>Draga ${d.draga}</b><br>Operando entre km ${fmt(d.km[0],1)} y ${fmt(d.km[1],1)}<br>${d.rio}<br><span style="color:#667">SHN · radioaviso ${d.aviso} · ${d.fecha.split("-").reverse().join("/")}</span>`).addTo(G.bz);
+    }
+  },250);
+}
+function avPop(a,aprox){
+  return `<b style="color:${estCol(a.estado)}">${(a.estado||"novedad").toUpperCase()}</b><br>${a.senal}${a.km!=null?` · km ${fmt(a.km,1)}`:""}${a.detalle?`<br>${a.detalle}`:""}${a.km_obs!=null?`<br>Vista ≈ km ${fmt(a.km_obs,1)}`:""}${aprox?`<br><i>Ubicación aproximada por km: la señal no figura en OpenSeaMap.</i>`:""}<br><span style="color:#667">SHN · radioaviso ${a.aviso} · ${a.fecha.split("-").reverse().join("/")}</span>`;
+}
+function bzPop(s){
+  return `<b>${TIPO_ES[s.tipo]||s.tipo}${s.color?" "+(COL_ES[s.color]||s.color):""}</b>${s.nom?`<br>${s.nom}`:""}${s.luz?`<br>Luz: ${s.luz}`:""}${s.d<3000?`<br>≈ km ${fmt(s.km,1)}`:""}${(s.av||[]).map(a=>"<hr style='border:0;border-top:1px solid #ccc;margin:6px 0'>"+avPop(a,false)).join("")}<br><span style="color:#667">Posición: OpenSeaMap (no oficial)</span>`;
+}
+function renderBzList(){
+  const el=$("bzList"); if(!el||!P) return;
+  if(!BZ){el.innerHTML='<li class="na" style="cursor:default">Cargando avisos…</li>';return;}
+  const RK=25, kk=a=>a.km??a.km_obs;
+  const near=BZ_SHN.filter(a=>a.ruta===P.ruta&&Math.abs(kk(a)-P.km)<=RK).sort((x,y)=>Math.abs(kk(x)-P.km)-Math.abs(kk(y)-P.km));
+  const dr=BZ_DR.filter(d=>d.ruta===P.ruta&&P.km>=d.km[0]-RK&&P.km<=d.km[1]+RK);
+  $("bzSrc").textContent=`SHN · ±${RK} km de tu posición`;
+  const rows=[...dr.map(d=>`<li data-k="${(d.km[0]+d.km[1])/2}"><div class="ic">⚓</div><div style="min-width:0"><div class="nm">Draga ${d.draga}</div><div class="ds">Operando entre km ${fmt(d.km[0],1)} y ${fmt(d.km[1],1)}</div></div><div class="rt">${d.fecha.slice(8,10)}/${d.fecha.slice(5,7)}</div></li>`),
+    ...near.slice(0,15).map(a=>{const k=kk(a);return `<li data-k="${k}" data-b="${a.buoy?a.buoy.id:""}"><div class="ic" style="color:#fff;background:${estCol(a.estado)};font-weight:800">!</div><div style="min-width:0"><div class="nm">${cap(a.estado)||"Novedad"} · km ${fmt(k,1)}</div><div class="ds">${a.senal}${a.detalle?" · "+a.detalle:""}</div></div><div class="rt"><b>${k>=P.km?"▲":"▼"} ${fmt(Math.abs(k-P.km),1)}</b><br>km</div></li>`})];
+  el.innerHTML=rows.length?rows.join(""):`<li class="na" style="cursor:default">Sin novedades del SHN a ±${RK} km de tu posición.</li>`;
+  el.querySelectorAll("li[data-k]").forEach(n=>n.onclick=()=>{const b=BZ_OSM.find(x=>String(x.id)===n.dataset.b);const p=b?[b.lat,b.lon]:puntoKm(VNT.rutas[P.ruta].a,+n.dataset.k);if(!p)return;follow=false;$("bLoc").classList.remove("on");map.flyTo(p,15);if(innerWidth<900)$("sheet").classList.remove("full");});
+}
+
 /* ====== AIS en vivo ====== */
 const SHIPS=new Map(); // mmsi -> {lat,lon,sog,cog,hdg,name,type,dest,t,src}
 let subBox=null; const sockets={};
 function tipoAIS(t){t=+t||0;if(t>=70&&t<80)return"Carga";if(t>=80&&t<90)return"Tanque";if(t>=60&&t<70)return"Pasaje";if(t===52||t===31||t===32)return"Remolcador";if(t===30)return"Pesca";if(t===36||t===37)return"Recreo";if(t===35)return"Militar";if(t===55)return"Autoridad";if(t>=40&&t<50)return"Alta velocidad";return t?"Otro":"";}
+const TRAIL_MIN=45, VEC_MIN=6;
+function dims(s,d){ if(!d) return; const Lm=(+d.A||0)+(+d.B||0), Bm=(+d.C||0)+(+d.D||0); if(Lm>=5&&Lm<=460){ s.len=Lm; s.beam=(Bm>=2&&Bm<=70)?Bm:null; dirty=true; } }
 function upsert(mmsi,o){
   if(!mmsi||o.lat==null||o.lon==null||Math.abs(o.lat)>90||Math.abs(o.lon)>180||(o.lat===0&&o.lon===0)) return;
-  const s=SHIPS.get(mmsi)||{mmsi}; Object.assign(s,Object.fromEntries(Object.entries(o).filter(([,v])=>v!=null&&v!==""))); s.t=Date.now(); SHIPS.set(mmsi,s); dirty=true;
+  const now=Date.now(), s=SHIPS.get(mmsi)||{mmsi,tr:[]};
+  Object.assign(s,Object.fromEntries(Object.entries(o).filter(([,v])=>v!=null&&v!==""))); s.t=now; s.tr??=[];
+  const l=s.tr.at(-1);
+  if(!l||dist(l[1],l[2],s.lat,s.lon)>25||now-l[0]>120e3) s.tr.push([now,+(+s.lat).toFixed(5),+(+s.lon).toFixed(5)]);
+  while(s.tr.length&&(now-s.tr[0][0]>TRAIL_MIN*60e3||s.tr.length>180)) s.tr.shift();
+  SHIPS.set(mmsi,s); dirty=true;
 }
 function wantBox(){
   const c=map.getCenter(), ref=me||{lat:c.lat,lon:c.lng};
@@ -616,12 +830,12 @@ function connectAIS(force){
     const j=JSON.parse(e.data), m=j.Message||{}, md=j.MetaData||{};
     const pr=m.PositionReport||m.StandardClassBPositionReport||m.ExtendedClassBPositionReport;
     if(pr) upsert(md.MMSI||pr.UserID,{lat:md.latitude??pr.Latitude,lon:md.longitude??pr.Longitude,sog:pr.Sog,cog:pr.Cog,hdg:pr.TrueHeading<360?pr.TrueHeading:null,name:(md.ShipName||"").trim(),type:md.ShipType,src:"OpenSeaFeed"});
-    const sd=m.ShipStaticData; if(sd){const s=SHIPS.get(md.MMSI);if(s){s.name=(sd.Name||s.name||"").trim();s.type=sd.Type||s.type;s.dest=(sd.Destination||"").trim();}}
+    const sd=m.ShipStaticData||m.StaticDataReport; if(sd){const s=SHIPS.get(md.MMSI||sd.UserID);if(s){const nm=(sd.Name||sd.ReportA?.Name||"").trim();if(nm)s.name=nm;const ty=sd.Type||sd.ReportB?.ShipType;if(ty)s.type=ty;if(sd.Destination)s.dest=sd.Destination.trim();dims(s,sd.Dimension||sd.ReportB?.Dimension);}}
   });
   openSock("ow","wss://ais.openwaters.io/v1/stream",{type:"subscribe",bbox:[[subBox[0],subBox[1],subBox[2],subBox[3]]],snapshot:true},e=>{
     const j=JSON.parse(e.data); if(j.type!=="event") return; const m=j.message||{};
     if(/PositionReport/.test(j.msg_type)) upsert(j.mmsi,{lat:j.lat??m.Latitude,lon:j.lon??m.Longitude,sog:m.Sog,cog:m.Cog,hdg:m.TrueHeading<360?m.TrueHeading:null,src:SHIPS.get(j.mmsi)?.src||"Open Waters"});
-    else if(/StaticData|ShipStatic/.test(j.msg_type)){const s=SHIPS.get(j.mmsi)||{};const nm=(m.Name||m.ReportA?.Name||"").trim();if(nm)s.name=nm;if(m.Type||m.ReportB?.ShipType)s.type=m.Type||m.ReportB.ShipType;if(m.Destination)s.dest=m.Destination.trim();if(s.mmsi)SHIPS.set(j.mmsi,s);}
+    else if(/StaticData|ShipStatic/.test(j.msg_type)){const s=SHIPS.get(j.mmsi)||{};const nm=(m.Name||m.ReportA?.Name||"").trim();if(nm)s.name=nm;if(m.Type||m.ReportB?.ShipType)s.type=m.Type||m.ReportB.ShipType;if(m.Destination)s.dest=m.Destination.trim();dims(s,m.Dimension||m.ReportB?.Dimension);if(s.mmsi)SHIPS.set(j.mmsi,s);}
   });
 }
 function openSock(k,url,sub,onmsg){
@@ -639,51 +853,311 @@ function aisStatus(){
   const ok=Object.values(sockets).filter(s=>s.ws&&s.ws.readyState===1);
   setSrc("ais",ok.length?"ok":"er",ok.length?`${SHIPS.size} buques · ${ok.length} red${ok.length>1?"es":""} conectada${ok.length>1?"s":""}`:"desconectado, reintentando");
 }
-let dirty=false;
+let dirty=false; const MK=new Map();
 const shipSvg=(c,stop)=>stop?`<svg viewBox="0 0 20 20" width="14" height="14"><circle cx="10" cy="10" r="6" fill="${c}" stroke="#fff" stroke-width="2"/></svg>`
   :`<svg viewBox="0 0 20 20" width="22" height="22"><path d="M10 1 L16 18 L10 14 L4 18 Z" fill="${c}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
 function sentido(s){
-  if((s.sog??0)<0.8) return {k:"stop",c:"var(--stop)",col:"#7c8a96",t:"detenido"};
-  const p=proyectar(s.lat,s.lon); s.dEje=p.d; s.km=p.km;
-  const crs=s.cog??s.hdg; if(crs==null) return {k:"x",c:"#64748b",col:"#64748b",t:"en movimiento"};
+  const p=proyectar(s.lat,s.lon); s.dEje=p.d; s.km=p.km; s.ruta=p.ruta;
+  if((s.sog??0)<0.8) return {k:"stop",col:"#7c8a96",t:"detenido"};
+  const crs=s.cog??s.hdg; if(crs==null) return {k:"x",col:"#64748b",t:"en movimiento"};
   const df=angDiff(crs,p.abajo);
-  if(df<60) return {k:"down",c:"var(--down)",col:"#c2410c",t:"bajando"};
-  if(df>120) return {k:"up",c:"var(--up)",col:"#1d7a46",t:"subiendo"};
-  return {k:"x",c:"#64748b",col:"#64748b",t:"cruzando"};
+  if(df<60) return {k:"down",col:"#c2410c",t:"bajando"};
+  if(df>120) return {k:"up",col:"#1d7a46",t:"subiendo"};
+  return {k:"x",col:"#64748b",t:"cruzando"};
+}
+function cascoPx(s,z,lat){ // eslora/manga reales en píxeles para el zoom actual
+  if(!s.len) return null;
+  const mpp=156543.03392*Math.cos(rad(lat))/2**z;
+  return {Lp:Math.round(Math.min(420,Math.max(16,s.len/mpp))), Bp:Math.round(Math.min(90,Math.max(6,(s.beam||s.len/6.5)/mpp)))};
+}
+function cascoSvg(c,Lp,Bp){
+  return `<svg width="${Bp}" height="${Lp}" viewBox="0 0 ${Bp} ${Lp}" style="overflow:visible"><path d="M${Bp/2} 0C${Bp} ${Lp*.1} ${Bp} ${Lp*.22} ${Bp} ${Lp*.32}L${Bp} ${Lp}L0 ${Lp}L0 ${Lp*.32}C0 ${Lp*.22} 0 ${Lp*.1} ${Bp/2} 0Z" fill="${c}" fill-opacity=".88" stroke="#fff" stroke-width="1.3"/>${Lp>=34?`<rect x="${Bp*.15}" y="${Lp*.8}" width="${Bp*.7}" height="${Lp*.09}" rx="1" fill="#fff" fill-opacity=".85"/>`:""}</svg>`;
+}
+function iconoBuque(s,stop,rot,lab,px){
+  if(px){ const S=Math.max(px.Lp,22);
+    return L.divIcon({className:"",iconSize:[S,S],iconAnchor:[S/2,S/2],html:`<div style="transform:rotate(${rot}deg);width:${S}px;height:${S}px;display:grid;place-items:center">${cascoSvg(s.sn.col,px.Lp,px.Bp)}</div>${lab?`<span class="shiplab" style="position:absolute;left:${S/2+8}px;top:${S/2-8}px;transform:none">${lab}</span>`:""}`}); }
+  return L.divIcon({className:"",iconSize:[22,22],iconAnchor:[11,11],html:`<div style="transform:rotate(${stop?0:rot}deg);width:22px;height:22px;display:grid;place-items:center">${shipSvg(s.sn.col,stop)}</div>${lab?`<span class="shiplab">${lab}</span>`:""}`});
+}
+function mover(lat,lon,sog,cog,seg){const d=sog*0.514444*seg,br=rad(cog);return [lat+deg(d*Math.cos(br)/R),lon+deg(d*Math.sin(br)/(R*Math.cos(rad(lat))))];}
+function estima(s,now){ // navegación a la estima entre reportes (máx. 5 min)
+  const dt=Math.min((now-s.t)/1000,300);
+  if(!(s.sog>=0.8)||s.cog==null||dt<=0) return [s.lat,s.lon];
+  return mover(s.lat,s.lon,s.sog,s.cog,dt);
+}
+function eta(s){ // minutos hasta pasar frente a mi posición, por km de vía
+  if(!P||!s.sn||s.sn.k==="stop"||s.sn.k==="x"||s.ruta!==P.ruta||s.dEje>4000||P.d>4000||!(s.sog>=0.8)) return null;
+  const dk=P.km-s.km;
+  if((s.sn.k==="up"&&dk>0)||(s.sn.k==="down"&&dk<0)) return Math.abs(dk)/(s.sog*1.852)*60;
+  return null;
+}
+function recorrido(s){ // distancia y velocidad media del historial
+  if(!s.tr||s.tr.length<2) return null;
+  let d=0; for(let i=1;i<s.tr.length;i++) d+=dist(s.tr[i-1][1],s.tr[i-1][2],s.tr[i][1],s.tr[i][2]);
+  const min=(s.tr.at(-1)[0]-s.tr[0][0])/60000; if(min<2) return null;
+  return {km:d/1000,min,kn:(d/1852)/(min/60)};
 }
 function drawShips(){
   if(!dirty) return; dirty=false;
   const now=Date.now(); for(const [k,s] of SHIPS) if(now-s.t>40*60e3) SHIPS.delete(k);
-  G.ships.clearLayers();
-  const z=map.getZoom(), b=map.getBounds().pad(.2);
+  for(const s of SHIPS.values()) s.sn=sentido(s);
+  renderShipsList(); aisStatus(); guardarAIS();
+}
+function animShips(){
+  if(document.hidden) return;
+  const now=Date.now(), z=map.getZoom(), b=map.getBounds().pad(.25), conTr=map.hasLayer(G.tracks), vivos=new Set();
   for(const s of SHIPS.values()){
-    s.sn=sentido(s);
-    if(!b.contains([s.lat,s.lon])) continue;
-    const stop=s.sn.k==="stop", rot=s.hdg??s.cog??0;
-    const icon=L.divIcon({className:"",iconSize:[22,22],iconAnchor:[11,11],html:`<div style="transform:rotate(${stop?0:rot}deg);width:22px;height:22px;display:grid;place-items:center">${shipSvg(s.sn.col,stop)}</div>${z>=13&&s.name?`<span class="shiplab">${s.name}</span>`:""}`});
-    L.marker([s.lat,s.lon],{icon,zIndexOffset:stop?0:500}).bindPopup(()=>shipPop(s)).addTo(G.ships);
+    if(!s.sn) continue;
+    const p=estima(s,now);
+    if(!b.contains(p)) continue;
+    vivos.add(s.mmsi);
+    const stop=s.sn.k==="stop", rot=Math.round((s.hdg??(stop?null:s.cog)??0)/3)*3, lab=z>=13&&s.name?s.name:"", px=cascoPx(s,z,p[0]), key=s.sn.col+stop+rot+lab+(px?px.Lp+"x"+px.Bp:"");
+    let o=MK.get(s.mmsi);
+    if(!o){
+      o={m:L.marker(p,{zIndexOffset:stop?0:500}).bindPopup(()=>shipPop(s)).addTo(G.ships),
+         tr:L.polyline([],{color:s.sn.col,weight:3,opacity:.5,lineCap:"round",interactive:false}).addTo(G.tracks),
+         v:L.polyline([],{color:s.sn.col,weight:2,opacity:.95,dashArray:"5 5",interactive:false}).addTo(G.tracks)};
+      MK.set(s.mmsi,o);
+    }
+    if(o.key!==key){
+      o.key=key;
+      o.m.setIcon(iconoBuque(s,stop,rot,lab,px));
+      o.m.setZIndexOffset(stop?0:500); o.tr.setStyle({color:s.sn.col}); o.v.setStyle({color:s.sn.col});
+    }
+    o.m.setLatLng(p);
+    if(conTr){
+      const pts=(s.tr||[]).map(x=>[x[1],x[2]]); if(!stop) pts.push(p);
+      o.tr.setLatLngs(pts.length>1?pts:[]);
+      o.v.setLatLngs(!stop&&s.cog!=null?[p,mover(p[0],p[1],s.sog,s.cog,VEC_MIN*60)]:[]);
+    }
   }
-  renderShipsList(); aisStatus();
+  for(const [k,o] of MK) if(!vivos.has(k)){G.ships.removeLayer(o.m);G.tracks.removeLayer(o.tr);G.tracks.removeLayer(o.v);MK.delete(k);}
 }
 function shipPop(s){
-  const age=Math.round((Date.now()-s.t)/60000);
+  const age=Math.round((Date.now()-s.t)/60000), rc=recorrido(s), e=eta(s);
   return `<b>${s.name||"MMSI "+s.mmsi}</b><br>${[tipoAIS(s.type),s.sn?.t].filter(Boolean).join(" · ")}<br>
-   ${fmt(s.sog,1)} kn · rumbo ${s.cog!=null?Math.round(s.cog)+"°":"–"}${s.dest?`<br>Destino: ${s.dest}`:""}
-   ${s.km!=null&&s.dEje<4000?`<br>km ${fmt(s.km,1)}`:""}<br><span style="color:#667">MMSI ${s.mmsi} · ${s.src} · hace ${age<1?"<1":age} min</span>`;
+   ${fmt(s.sog,1)} kn · rumbo ${s.cog!=null?Math.round(s.cog)+"°":"–"}${s.dest?`<br>Destino: ${s.dest}`:""}${s.len?`<br>Eslora ${Math.round(s.len)} m${s.beam?` · manga ${Math.round(s.beam)} m`:""}`:""}
+   ${s.km!=null&&s.dEje<4000?`<br>km ${fmt(s.km,1)}`:""}${e!=null?`<br><b>Pasa frente a vos en ≈ ${e<60?Math.round(e)+" min":fmt(e/60,1)+" h"}</b>`:""}
+   ${rc?`<br>Últimos ${Math.round(rc.min)} min: ${fmt(rc.km,1)} km · media ${fmt(rc.kn,1)} kn`:""}
+   <br><span style="color:#667">MMSI ${s.mmsi} · ${s.src||""} · último reporte hace ${age<1?"<1":age} min</span>`;
 }
 function renderShipsList(){
   if(!me) return;
-  const arr=[...SHIPS.values()].filter(s=>s.sn&&(s.dEje==null||s.dEje<4000)).map(s=>({s,d:dist(me.lat,me.lon,s.lat,s.lon)})).sort((a,b)=>a.d-b.d);
+  const arr=[...SHIPS.values()].filter(s=>s.sn&&(s.dEje==null||s.dEje<4000)).map(s=>({s,d:dist(me.lat,me.lon,s.lat,s.lon),e:eta(s)})).sort((a,b)=>a.d-b.d);
   const up=arr.filter(x=>x.s.sn.k==="up").length, dn=arr.filter(x=>x.s.sn.k==="down").length, st=arr.filter(x=>x.s.sn.k==="stop").length;
   $("cnt").innerHTML=`<span class="u">▲ ${up}</span><span class="dn">▼ ${dn}</span><span>● ${st}</span>`;
   const mov=arr.filter(x=>x.s.sn.k!=="stop").slice(0,10), list=mov.length?mov:arr.slice(0,6);
-  $("ships").innerHTML = list.length ? list.map(({s,d})=>`<li data-m="${s.mmsi}"><div class="ic" style="color:${s.sn.col}">${s.sn.k==="stop"?"●":s.sn.k==="up"?"▲":s.sn.k==="down"?"▼":"◆"}</div>
-     <div style="min-width:0"><div class="nm">${s.name||"MMSI "+s.mmsi}</div><div class="ds">${[tipoAIS(s.type),s.sn.t,s.km!=null?"km "+fmt(s.km,0):""].filter(Boolean).join(" · ")}</div></div>
+  $("ships").innerHTML = list.length ? list.map(({s,d,e})=>`<li data-m="${s.mmsi}"><div class="ic" style="color:${s.sn.col}">${s.sn.k==="stop"?"●":s.sn.k==="up"?"▲":s.sn.k==="down"?"▼":"◆"}</div>
+     <div style="min-width:0"><div class="nm">${s.name||"MMSI "+s.mmsi}</div><div class="ds">${e!=null?`<span class="eta">pasa en ${e<60?Math.round(e)+" min":fmt(e/60,1)+" h"}</span> · `:""}${[tipoAIS(s.type),s.sn.t,s.km!=null?"km "+fmt(s.km,0):""].filter(Boolean).join(" · ")}</div></div>
      <div class="rt"><b>${fmt(s.sog,1)} kn</b><br>${fmt(d/1000,1)} km</div></li>`).join("")
      : `<li class="na" style="cursor:default">Sin buques reportados en la zona todavía.</li>`;
-  $("ships").querySelectorAll("li[data-m]").forEach(li=>li.onclick=()=>{const s=SHIPS.get(+li.dataset.m)||SHIPS.get(li.dataset.m);if(!s)return;follow=false;$("bLoc").classList.remove("on");map.flyTo([s.lat,s.lon],14);if(innerWidth<900)sheet.classList.remove("full");});
+  $("ships").querySelectorAll("li[data-m]").forEach(li=>li.onclick=()=>{const s=SHIPS.get(+li.dataset.m)||SHIPS.get(li.dataset.m);if(!s)return;follow=false;$("bLoc").classList.remove("on");map.flyTo(estima(s,Date.now()),14);if(innerWidth<900)$("sheet").classList.remove("full");});
 }
+let ultGuardado=0;
+function guardarAIS(){
+  const now=Date.now(); if(now-ultGuardado<20e3) return; ultGuardado=now;
+  try{localStorage.setItem("ais",JSON.stringify([...SHIPS.values()].filter(s=>now-s.t<30*60e3).map(({mmsi,lat,lon,sog,cog,hdg,name,type,dest,src,t,tr,len,beam})=>({mmsi,lat,lon,sog,cog,hdg,name,type,dest,src,t,tr,len,beam}))));}catch{}
+}
+try{const a=JSON.parse(localStorage.getItem("ais")||"[]"),now=Date.now();for(const s of a) if(s&&s.mmsi&&now-s.t<30*60e3){s.tr??=[];SHIPS.set(s.mmsi,s);} dirty=SHIPS.size>0;}catch{}
 setInterval(drawShips,2000);
+setInterval(animShips,1000);
+
+/* ====== regata: secuencia de largada, sonidos, corriente y velocidad real ====== */
+const NAV={sog:null,cog:null,t:0,hist:[]};
+function navFix(p){
+  const c=p.coords, t=p.timestamp||Date.now();
+  let sog=(c.speed!=null&&!isNaN(c.speed))?c.speed*1.943844:null, cog=(c.heading!=null&&!isNaN(c.heading))?c.heading:null;
+  const last=NAV.hist.at(-1);
+  if(last){ const dt=(t-last.t)/1000; if(dt<0.9) return;
+    const d=dist(last.lat,last.lon,c.latitude,c.longitude);
+    if(sog==null&&dt<=30) sog=d/dt*1.943844;
+    if(cog==null&&d>4) cog=bearing(last.lat,last.lon,c.latitude,c.longitude); }
+  NAV.hist.push({t,lat:c.latitude,lon:c.longitude,acc:c.accuracy}); while(NAV.hist.length>900) NAV.hist.shift();
+  if(sog!=null) NAV.sog=NAV.sog==null?sog:NAV.sog*.5+sog*.5;
+  if(cog!=null&&(NAV.sog??0)>=0.5) NAV.cog=cog;
+  NAV.t=t; NAV.lat=c.latitude; NAV.lon=c.longitude; NAV.acc=c.accuracy;
+  rotarMe(); renderRegNav(); if(MED) medirTick();
+}
+function rotarMe(){ const el=meMk&&meMk.getElement&&meMk.getElement(), b=el&&el.querySelector(".mebox"); if(b&&NAV.cog!=null&&(NAV.sog??0)>=0.5) b.style.transform=`rotate(${NAV.cog}deg)`; }
+let CUR=store.get("corriente")||{kn:0,dir:null,src:"sin dato",t:0}, MED=null, LOG=store.get("regLog")||[];
+function vel(sog,cog,cur){
+  if(sog==null) return null;
+  const c=cur&&cur.dir!=null&&cur.kn>0?cur:null, a=rad(cog??0);
+  const vx=sog*Math.sin(a)-(c?c.kn*Math.sin(rad(c.dir)):0), vy=sog*Math.cos(a)-(c?c.kn*Math.cos(rad(c.dir)):0);
+  return {kn:Math.hypot(vx,vy),rumbo:(deg(Math.atan2(vx,vy))+360)%360};
+}
+function renderRegNav(){
+  if($("reg").hidden) return;
+  const ok=NAV.sog!=null&&(Date.now()-NAV.t)<15000;
+  $("kSog").textContent=ok?fmt(NAV.sog,1):"–";
+  $("kSogD").textContent=NAV.acc?`GPS ±${Math.round(NAV.acc)} m${ok?"":" · sin datos recientes"}`:"esperando GPS";
+  $("kCog").textContent=ok&&NAV.cog!=null&&NAV.sog>=0.5?Math.round(NAV.cog)+"°":"–";
+  $("kCur").textContent=CUR.dir!=null?fmt(CUR.kn,1):"–";
+  $("kCurD").textContent=CUR.dir!=null?`hacia ${Math.round(CUR.dir)}° (${card16(CUR.dir)}) · ${CUR.src}`:"sin medir";
+  const w=ok?vel(NAV.sog,NAV.cog,CUR):null;
+  $("kStw").textContent=w?fmt(w.kn,1):"–";
+  $("kStwD").textContent=CUR.dir==null?"igual a SOG: falta cargar la corriente":w?`rumbo en el agua ${Math.round(w.rumbo)}°`:"SOG menos corriente";
+}
+function medirInicio(){
+  if(MED){ medirFin(); return; }
+  if(!NAV.t){ toast("Todavía no hay posición GPS"); return; }
+  MED={t0:Date.now(),seg:+$("rMedSeg").value||60};
+  $("rMed").textContent="■ Terminar medición"; medirTick();
+}
+function medirTick(){
+  if(!MED) return;
+  const el=(Date.now()-MED.t0)/1000;
+  $("rMedSt").textContent=`Midiendo deriva… ${Math.floor(el)} de ${MED.seg} s. Sin velas ni motor.`;
+  if(el>=MED.seg) medirFin();
+}
+function medirFin(){
+  const m=MED; MED=null; $("rMed").textContent="Medir corriente (deriva)";
+  const fx=NAV.hist.filter(h=>h.t>=m.t0-1500);
+  if(fx.length<2){ $("rMedSt").textContent="No hubo suficientes posiciones GPS. Probá de nuevo."; return; }
+  const a=fx[0], b=fx.at(-1), dt=(b.t-a.t)/1000;
+  if(dt<20){ $("rMedSt").textContent="La medición fue muy corta (mínimo 20 s)."; return; }
+  const d=dist(a.lat,a.lon,b.lat,b.lon), kn=d/dt*1.943844, dir=bearing(a.lat,a.lon,b.lat,b.lon), err=((a.acc||10)+(b.acc||10))/dt*1.943844;
+  CUR={kn,dir,src:"medida "+new Date().toTimeString().slice(0,5),t:Date.now()}; store.set("corriente",CUR);
+  $("rCurKn").value=kn.toFixed(2); $("rCurDir").value=Math.round(dir);
+  $("rMedSt").textContent=`Corriente: ${fmt(kn,2)} kn hacia ${Math.round(dir)}° (${card16(dir)}), medida en ${Math.round(dt)} s. Margen por precisión GPS ±${fmt(err,1)} kn.`;
+  registrar("Corriente medida"); renderRegNav();
+}
+function registrar(nota){
+  const ok=NAV.sog!=null&&(Date.now()-NAV.t)<15000, w=ok?vel(NAV.sog,NAV.cog,CUR):null;
+  LOG.push({t:Date.now(),lat:NAV.lat??me?.lat,lon:NAV.lon??me?.lon,sog:ok?NAV.sog:null,cog:ok?NAV.cog:null,ck:CUR.dir!=null?CUR.kn:null,cd:CUR.dir,stw:w?.kn??null,nota:nota||""});
+  if(LOG.length>3000) LOG.shift(); store.set("regLog",LOG); renderLog();
+}
+function renderLog(){
+  const f=x=>x==null?"–":fmt(x,1);
+  $("rLog").innerHTML=`<tr><th>Hora</th><th>SOG</th><th>COG</th><th>Corr.</th><th>Real</th><th>Nota</th></tr>`+(LOG.length?LOG.slice(-50).reverse().map(r=>`<tr><td>${new Date(r.t).toTimeString().slice(0,8)}</td><td>${f(r.sog)}</td><td>${r.cog!=null?Math.round(r.cog)+"°":"–"}</td><td>${r.ck!=null?fmt(r.ck,1)+" → "+Math.round(r.cd)+"°":"–"}</td><td>${f(r.stw)}</td><td>${r.nota}</td></tr>`).join(""):`<tr><td colspan="6" style="text-align:left;color:var(--ink3)">Sin marcas todavía.</td></tr>`);
+}
+function csv(){
+  return "hora,lat,lon,sog_kn,cog_grados,corriente_kn,corriente_hacia_grados,vel_real_kn,nota\n"+LOG.map(r=>[new Date(r.t).toISOString(),r.lat!=null?r.lat.toFixed(6):"",r.lon!=null?r.lon.toFixed(6):"",r.sog!=null?r.sog.toFixed(2):"",r.cog!=null?Math.round(r.cog):"",r.ck!=null?r.ck.toFixed(2):"",r.cd!=null?Math.round(r.cd):"",r.stw!=null?r.stw.toFixed(2):"",`"${(r.nota||"").replace(/"/g,"'")}"`].join(",")).join("\n");
+}
+/* sonidos */
+let AC=null;
+function ac(){ try{ if(!AC) AC=new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==="suspended") AC.resume(); }catch{} return AC; }
+const vol=()=>Math.max(0,Math.min(1,(+$("rVol").value||0)/100));
+function bocina(t0,dur){
+  const a=ac(); if(!a) return;
+  const g=a.createGain(), comp=a.createDynamicsCompressor();
+  comp.threshold.value=-14; comp.knee.value=4; comp.ratio.value=8; comp.attack.value=.002; comp.release.value=.08;
+  const V=vol(); g.gain.setValueAtTime(0,t0); g.gain.linearRampToValueAtTime(V,t0+.02); g.gain.setValueAtTime(V,t0+dur-.05); g.gain.linearRampToValueAtTime(0,t0+dur);
+  g.connect(comp); comp.connect(a.destination);
+  for(const [f,ty,gv] of [[311,"sawtooth",.5],[415,"square",.32],[523,"sawtooth",.38],[830,"square",.14]]){
+    const o=a.createOscillator(), og=a.createGain(); o.type=ty; o.frequency.value=f; og.gain.value=gv; o.connect(og); og.connect(g); o.start(t0); o.stop(t0+dur+.05);
+  }
+}
+function sonar(n,largo){
+  const a=ac(); if(!a) return; let t=a.currentTime+.03;
+  for(let i=0;i<(n||1);i++){ const d=largo?2.4:.8; bocina(t,d); t+=d+.45; }
+  try{ navigator.vibrate&&navigator.vibrate(Array.from({length:n||1},()=>[largo?1600:500,300]).flat()); }catch{}
+}
+function bip(f=1250,d=.13){
+  const a=ac(); if(!a) return; const o=a.createOscillator(), g=a.createGain(), t=a.currentTime+.01;
+  o.type="square"; o.frequency.value=f; g.gain.setValueAtTime(vol()*.55,t); g.gain.setValueAtTime(0,t+d); o.connect(g); g.connect(a.destination); o.start(t); o.stop(t+d+.02);
+}
+function decir(txt){
+  if(!$("rVoz").checked||!("speechSynthesis" in window)) return;
+  try{ const u=new SpeechSynthesisUtterance(txt); u.lang="es-AR"; u.rate=1.05; u.volume=1; speechSynthesis.cancel(); speechSynthesis.speak(u); }catch{}
+}
+let WL=null;
+async function despierto(){ try{ if("wakeLock" in navigator&&!WL){ WL=await navigator.wakeLock.request("screen"); WL.addEventListener("release",()=>{WL=null;}); } }catch{} }
+/* banderas */
+const BAND={
+  P:'<rect width="60" height="40" fill="#1d4ed8"/><rect x="18" y="12" width="24" height="16" fill="#fff"/>',
+  I:'<rect width="60" height="40" fill="#facc15"/><circle cx="30" cy="20" r="11" fill="#111"/>',
+  Z:'<rect width="60" height="40" fill="#111"/><path d="M0 0H60L30 20Z" fill="#facc15"/><path d="M60 0V40L30 20Z" fill="#dc2626"/><path d="M0 40H60L30 20Z" fill="#1d4ed8"/>',
+  U:'<rect width="60" height="40" fill="#fff"/><rect width="30" height="20" fill="#dc2626"/><rect x="30" y="20" width="30" height="20" fill="#dc2626"/>',
+  N:'<rect width="60" height="40" fill="#111"/>',
+  X:'<rect width="60" height="40" fill="#fff"/><rect x="25" width="10" height="40" fill="#1d4ed8"/><rect y="15" width="60" height="10" fill="#1d4ed8"/>',
+  S1:'<path d="M0 0L60 20L0 40Z" fill="#1d4ed8"/><path d="M5 8.5L40 20L5 31.5Z" fill="#facc15"/>',
+  AP:'<path d="M0 0L60 14V26L0 40Z" fill="#fff"/><path d="M0 0L12 2.8V37.2L0 40Z" fill="#dc2626"/><path d="M24 5.6L36 8.4V31.6L24 34.4Z" fill="#dc2626"/><path d="M48 11.2L60 14V26L48 28.8Z" fill="#dc2626"/>'
+};
+const NOMB={P:"P · preparatoria",I:"I · preparatoria",Z:"Z · preparatoria",U:"U · preparatoria",N:"Negra · preparatoria",X:"X · llamada individual",S1:"1er repetidor · llamada general",AP:"GI · postergación"};
+function banderaClase(){ const n=($("rClase").value||"Clase").slice(0,10).replace(/[<&>"]/g,""); return `<rect x="2" y="2" width="56" height="36" fill="#fff" stroke="#0f6c8c" stroke-width="4"/><text x="30" y="24.5" font-size="${n.length>6?9:12}" font-weight="800" text-anchor="middle" fill="#0f6c8c" font-family="sans-serif">${n}</text>`; }
+const flagHtml=(svg,lab)=>`<div class="flag"><svg viewBox="0 0 60 40">${svg}</svg><span>${lab}</span></div>`;
+/* secuencia (RRS 26) */
+const RG={modo:"idle",largo:5,tL:0,disp:new Set(),xHasta:0,ultSeg:null,flagsK:""};
+const SEN=n=>[[n*60,"Señal de atención",1,false],[(n-1)*60,"Preparatoria",1,false],[60,"Un minuto",1,true],[0,"Largada",1,false]];
+const mmss=s=>{ s=Math.floor(s); const h=Math.floor(s/3600), m=Math.floor(s%3600/60), x=s%60; return (h?h+":"+String(m).padStart(2,"0"):m)+":"+String(x).padStart(2,"0"); };
+function iniciar(n){ ac(); RG.modo="seq"; RG.largo=n; RG.tL=Date.now()+n*60000+300; RG.disp=new Set(); RG.ultSeg=null; RG.xHasta=0; despierto(); registrar(`Inicio secuencia ${n} min`); tick(); }
+function sincronizar(){
+  ac(); if(RG.modo!=="seq"){ iniciar(RG.largo||5); return; }
+  const m=Math.max(0,Math.round((RG.tL-Date.now())/60000)); RG.tL=Date.now()+m*60000;
+  for(const [o] of SEN(RG.largo)) if(o>=m*60) RG.disp.add(o); else RG.disp.delete(o);
+  RG.ultSeg=null; registrar(`Sincronizado a ${m} min`); tick();
+}
+function ajustar(d){
+  if(RG.modo!=="seq") return; RG.tL+=d*60000; const r=(RG.tL-Date.now())/1000;
+  for(const [o] of SEN(RG.largo)) if(o>=r) RG.disp.add(o); else RG.disp.delete(o);
+  RG.ultSeg=null; tick();
+}
+function nuevaSecuencia(){ RG.modo="seq"; RG.tL=Date.now()+(RG.largo+1)*60000; RG.disp=new Set(); RG.ultSeg=null; despierto(); }
+function tick(){
+  const now=Date.now();
+  if(RG.modo==="idle"&&$("reg").hidden) return;
+  let fase="",prox="",reloj="",fl=[];
+  if(RG.modo==="seq"){
+    const r=(RG.tL-now)/1000;
+    for(const [o,nom,n,lg] of SEN(RG.largo)) if(r<=o&&!RG.disp.has(o)){
+      RG.disp.add(o);
+      if(r>o-3){ sonar(n,lg); const txt=o===0?"Largada":o===60?"Un minuto":`${o/60} minutos`; setTimeout(()=>decir(txt),lg?2700:1000); registrar(nom); }
+      if(o===0){ RG.modo="race"; RG.xHasta=0; }
+    }
+    if(RG.modo==="seq"){
+      const s=Math.ceil(r);
+      if(s!==RG.ultSeg){ RG.ultSeg=s; const m=s%60;
+        if(s>0&&s<=10){ bip(s<=5?1500:1200,.15); setTimeout(()=>decir(String(s)),180); }
+        else if($("rBip").checked&&s<=RG.largo*60&&(m===10||(m>0&&m<=5))) bip();
+        else if([90,45,30,20,15].includes(s)) decir(`${s} segundos`);
+      }
+      const T=RG.largo*60;
+      fase=r>T?"Esperando señal de atención":r>(RG.largo-1)*60?"Señal de atención":r>60?"Preparatoria":"Último minuto";
+      reloj=mmss(Math.max(0,r));
+      const sig=SEN(RG.largo).find(x=>x[0]<r);
+      prox=sig?`Próxima señal: ${sig[1].toLowerCase()} en ${mmss(r-sig[0])}`:"";
+      if(r<=T) fl.push(["C",banderaClase(),$("rClase").value||"Clase"]);
+      if(r<=(RG.largo-1)*60&&r>60) fl.push([$("rPrep").value,BAND[$("rPrep").value],NOMB[$("rPrep").value]]);
+    }
+  }
+  if(RG.modo==="race"){ fase="En regata"; reloj=mmss((now-RG.tL)/1000); prox="Tiempo desde la largada"; if(RG.xHasta>now) fl.push(["X",BAND.X,NOMB.X]); }
+  if(RG.modo==="gen"){ fase="Llamada general"; reloj="– –"; prox="Tocá «Arriar 1er repetidor»: la señal de atención se da 1 minuto después."; fl.push(["S1",BAND.S1,NOMB.S1]); }
+  if(RG.modo==="ap"){ fase="Postergación"; reloj="– –"; prox="Tocá «Arriar GI»: la señal de atención se da 1 minuto después."; fl.push(["AP",BAND.AP,NOMB.AP]); }
+  if(RG.modo==="idle"){ fase="Listo para largar"; reloj=mmss(RG.largo*60); prox="Elegí la secuencia y tocá Iniciar"; }
+  $("rFase").textContent=fase; $("rFase").classList.toggle("go",RG.modo==="race"); $("rReloj").textContent=reloj; $("rProx").textContent=prox;
+  const k=fl.map(f=>f[0]+f[2]).join("|"); if(k!==RG.flagsK){ RG.flagsK=k; $("rFlags").innerHTML=fl.map(f=>flagHtml(f[1],f[2])).join(""); }
+  $("rGen").textContent=RG.modo==="gen"?"Arriar 1er repetidor":"Llamada general (1er rep.)";
+  $("rAP").textContent=RG.modo==="ap"?"Arriar GI":"Postergación (GI)";
+}
+function vista(v){
+  $("reg").hidden=v!=="reg";
+  document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
+  if(v==="reg"){ renderRegNav(); renderLog(); tick(); } else setTimeout(()=>map.invalidateSize(),50);
+  try{ history.replaceState(null,"",location.pathname+location.search+(v==="reg"?"#regata":"")); }catch{}
+}
+document.querySelectorAll("#tabbar button").forEach(b=>b.onclick=()=>vista(b.dataset.v));
+$("rStart5").onclick=()=>iniciar(5); $("rStart3").onclick=()=>iniciar(3); $("rSync").onclick=sincronizar;
+$("rMas").onclick=()=>ajustar(1); $("rMenos").onclick=()=>ajustar(-1);
+$("rStop").onclick=()=>{ if(RG.modo!=="idle") registrar("Secuencia detenida"); RG.modo="idle"; try{WL&&WL.release();}catch{} tick(); };
+$("rX").onclick=()=>{ ac(); if(RG.modo!=="race"){ toast("La llamada individual se hace después de la largada"); return; } RG.xHasta=Math.max(now4(),Date.now()+60000); sonar(1); registrar("Llamada individual (X)"); tick(); };
+function now4(){ return Math.min(RG.tL+240000,Date.now()+240000); }
+$("rGen").onclick=()=>{ ac(); if(RG.modo==="gen"){ sonar(1); nuevaSecuencia(); registrar("Arriado 1er repetidor"); } else { RG.modo="gen"; sonar(2); registrar("Llamada general"); } tick(); };
+$("rAP").onclick=()=>{ ac(); if(RG.modo==="ap"){ sonar(1); nuevaSecuencia(); registrar("Arriada GI"); } else { RG.modo="ap"; sonar(2); registrar("Postergación (GI)"); } tick(); };
+$("rTest").onclick=()=>{ ac(); sonar(1,false); };
+$("rMark").onclick=()=>registrar("Marca");
+$("rMed").onclick=medirInicio;
+$("rCurSet").onclick=()=>{ const kn=parseFloat(String($("rCurKn").value).replace(",",".")), d=parseFloat($("rCurDir").value); if(isNaN(kn)||isNaN(d)){ toast("Cargá velocidad (kn) y dirección (°)"); return; } CUR={kn,dir:((d%360)+360)%360,src:"manual",t:Date.now()}; store.set("corriente",CUR); registrar("Corriente manual"); renderRegNav(); };
+$("rCurRio").onclick=()=>{ if(P){ $("rCurDir").value=Math.round(P.abajo); toast(`Aguas abajo: ${Math.round(P.abajo)}° (${card16(P.abajo)})`); } };
+$("rCopy").onclick=async()=>{ try{ await navigator.clipboard.writeText(csv()); toast("Registro copiado"); }catch{ toast("No se pudo copiar"); } };
+$("rCsv").onclick=()=>{ const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv()],{type:"text/csv"})); a.download="registro-regata-"+new Date().toISOString().slice(0,16).replace(/[:T]/g,"-")+".csv"; document.body.appendChild(a); a.click(); a.remove(); };
+$("rClear").onclick=()=>{ const b=$("rClear"); if(LOG.length&&!b.dataset.ok){ b.dataset.ok="1"; b.textContent="¿Borrar todo? Tocá de nuevo"; setTimeout(()=>{ delete b.dataset.ok; b.textContent="Borrar"; },3000); return; } LOG=[]; store.set("regLog",LOG); renderLog(); delete b.dataset.ok; b.textContent="Borrar"; };
+for(const id of ["rVol","rPrep","rClase","rMedSeg"]){ const v=store.get("reg_"+id); if(v!=null) $(id).value=v; $(id).addEventListener("change",()=>{ store.set("reg_"+id,$(id).value); RG.flagsK=""; }); }
+for(const id of ["rVoz","rBip","rAuto"]){ const v=store.get("reg_"+id); if(v!=null) $(id).checked=v; $(id).addEventListener("change",()=>store.set("reg_"+id,$(id).checked)); }
+if(CUR.dir!=null){ $("rCurKn").value=CUR.kn.toFixed(2); $("rCurDir").value=Math.round(CUR.dir); }
+setInterval(tick,100); setInterval(()=>{ medirTick(); renderRegNav(); },1000);
+let ultAuto=0; setInterval(()=>{ if($("rAuto").checked&&RG.modo==="race"&&Date.now()-ultAuto>=30000){ ultAuto=Date.now(); registrar("auto"); } },1000);
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&RG.modo!=="idle") despierto(); });
+if(location.hash==="#regata") vista("reg");
 
 /* ====== hoja inferior (móvil) ====== */
 const sheet=$("sheet");
@@ -694,13 +1168,13 @@ $("grab").onclick=()=>sheet.classList.toggle("full");
 })();
 
 /* ====== arranque ====== */
-map.on("moveend zoomend",()=>{drawKm();loadIGN();dirty=true;connectAIS(false);});
+map.on("moveend zoomend",()=>{drawKm();loadIGN();drawBz();dirty=true;connectAIS(false);animShips();});
 drawKm();
 const qs=new URLSearchParams(location.search), ql=parseFloat(qs.get("lat")), qn=parseFloat(qs.get("lon"));
 if(!isNaN(ql)&&!isNaN(qn)){manual=true;setSrc("gps","wa","coordenadas recibidas por enlace");setPos(ql,qn,0,"coordenadas recibidas");}
 else startGPS();
 setTimeout(()=>{if(!me) fallback("Esperando GPS");},12000);
 setTimeout(()=>connectAIS(true),300);
-loadIGN();
+loadIGN(); loadBz(); setInterval(loadBz,30*60e3);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){connectAIS(true);if(me){loadObs();renderWx();}}});
 })();</script></body></html>
