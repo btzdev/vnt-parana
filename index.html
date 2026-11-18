@@ -6,6 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>VNT Paraná · Navegación en vivo</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icon.svg">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
 <style>
 :root{
@@ -165,6 +168,17 @@ button{font:inherit;color:inherit}
 .tlog th:first-child,.tlog td:first-child,.tlog th:last-child,.tlog td:last-child{text-align:left}
 .tlog td:last-child{white-space:normal}
 @media (min-width:900px){.tabbar{left:calc((100% - 420px)/2)}}
+.tabbar button{padding:8px 11px;font-size:13px}
+#vel .kg .card .v{font-size:clamp(46px,15vw,80px)}
+#vel .kg .card .lab{font-size:12px}
+.off{position:absolute;z-index:1004;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 52px);background:#b45309;color:#fff;font:600 12px var(--font);padding:4px 10px;border-radius:8px;display:none}
+.off.show{display:block}
+.ficha{position:absolute;z-index:1010;left:8px;right:8px;bottom:calc(env(safe-area-inset-bottom) + 10px);max-height:72vh;overflow:auto;-webkit-overflow-scrolling:touch;background:var(--card);color:var(--ink);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.4);padding:14px 14px 12px;display:none;font-size:13.5px;line-height:1.45}
+.ficha.show{display:block}
+.ficha .fx{position:sticky;top:0;float:right;margin:-4px -4px 6px 8px;width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--bg);color:var(--ink);font-size:19px;font-weight:700;cursor:pointer;z-index:2}
+.ficha b{font-size:15px}
+.ficha .bzdat td{border-top-color:var(--line)}
+@media (min-width:900px){.ficha{left:12px;right:auto;width:400px;bottom:16px}}
 .skel{background:linear-gradient(90deg,#eef2f5,#f8fafb,#eef2f5);background-size:200% 100%;animation:sk 1.2s infinite;border-radius:8px;color:transparent!important}
 @keyframes sk{to{background-position:-200% 0}}
 /* marcadores */
@@ -200,7 +214,9 @@ button{font:inherit;color:inherit}
 <body>
 <div id="app">
   <div id="map" role="application" aria-label="Mapa del río"></div>
-  <nav class="tabbar" id="tabbar"><button class="on" data-v="nav">🧭 Navegación</button><button data-v="reg">⏱ Regata</button></nav>
+  <nav class="tabbar" id="tabbar"><button class="on" data-v="nav">🧭 Navegación</button><button data-v="reg">⏱ Regata</button><button data-v="vel">⚡ Velocidad</button></nav>
+  <div class="off" id="offBadge">Sin conexión · GPS activo</div>
+  <div class="ficha" id="ficha" role="dialog" aria-modal="false"><button class="fx" id="fichaX" aria-label="Cerrar">✕</button><div id="fichaC"></div></div>
 
   <div class="top">
     <div class="chip pos" id="pos">
@@ -258,6 +274,12 @@ button{font:inherit;color:inherit}
         <button class="rb" id="rTest">🔊 Probar</button>
       </div>
 
+      <div class="leyenda">Las señales siguen la regla 26 del Reglamento de Regatas a Vela (atención 5 min, preparatoria 4, un minuto, largada). Mantené la pantalla encendida: la app lo pide automáticamente al iniciar. La velocidad real es una estimación: SOG del GPS menos la corriente cargada.</div>
+    </div>
+  </section>
+
+  <section class="reg" id="vel" hidden>
+    <div class="regin">
       <div class="rtit">Velocidad</div>
       <div class="kg">
         <div class="card"><div class="lab">SOG (fondo)</div><div class="v"><span id="kSog">–</span><small>kn</small></div><div class="d" id="kSogD">esperando GPS</div></div>
@@ -292,7 +314,7 @@ button{font:inherit;color:inherit}
         </div>
         <div style="overflow-x:auto;margin-top:8px"><table class="tlog" id="rLog"></table></div>
       </div>
-      <div class="leyenda">Las señales siguen la regla 26 del Reglamento de Regatas a Vela (atención 5 min, preparatoria 4, un minuto, largada). Mantené la pantalla encendida: la app lo pide automáticamente al iniciar. La velocidad real es una estimación: SOG del GPS menos la corriente cargada.</div>
+      <div class="leyenda">SOG: velocidad sobre el fondo medida por el GPS del teléfono (máxima precisión, sin posiciones guardadas). Velocidad real: SOG menos la corriente cargada, es decir, la estimación de la velocidad sobre el agua. La corriente se mide dejando el barco a la deriva o se carga a mano.</div>
     </div>
   </section>
 
@@ -343,13 +365,21 @@ button{font:inherit;color:inherit}
       <section class="sec">
         <h2>Balizamiento <small id="bzSrc"></small></h2>
         <div class="card" style="padding:4px 12px"><ul class="ships" id="bzList"><li class="na" style="cursor:default">Cargando avisos…</li></ul></div>
-        <div class="leyenda">Avisos vigentes del SHN (oficial). Las boyas del mapa vienen de OpenSeaMap (no oficial); con anillo, las que tienen novedad. El canal (franja celeste) se traza uniendo las boyas laterales: es orientativo.</div>
+        <div class="leyenda">Avisos vigentes del SHN (oficial). Las boyas del mapa vienen de OpenSeaMap (no oficial); con anillo, las que tienen novedad. Canal en azul: por donde navegan realmente los buques según AIS (se acumula hora a hora). Línea violeta: derrota recomendada de OpenStreetMap.</div>
       </section>
 
       <section class="sec">
         <h2>Navegación</h2>
         <div class="card"><dl class="info" id="nav"><dt>Posición</dt><dd>–</dd></dl>
           <div class="row" id="navLinks"></div></div>
+      </section>
+
+      <section class="sec">
+        <h2>Sin conexión</h2>
+        <div class="card">
+          <div class="na" style="margin-top:0" id="offSt">La app queda guardada en el teléfono y el GPS funciona sin internet. Antes de salir, guardá el mapa de la zona.</div>
+          <div class="row"><button class="btn" id="bOff10">Guardar mapa · 10 km</button><button class="btn" id="bOff30">Guardar mapa · 30 km</button></div>
+        </div>
       </section>
 
       <section class="sec">
@@ -420,10 +450,11 @@ const FUENTES = {
   vnt:{n:"Kilometraje VNT (referencia aproximada ±1–2 km, Boletín Fluvial ANPyN / zonas VTS Prefectura)"},
   ina_alt:{n:"Altura de río: escalas de Prefectura Naval, publicadas por INA (alerta.ina.gob.ar)",u:"https://alerta.ina.gob.ar/pub/gui"},
   ina_pro:{n:"Pronóstico de altura: INA (modelo tabprono)"},
-  ina_met:{n:"Viento observado: estaciones meteorológicas de la Red Hidrológica Nacional (INA / SSRH)"},
+  ina_met:{n:"Viento medido: METAR oficial del SMN (aeropuertos) o estaciones de la Red Hidrológica Nacional (INA), hasta 90 min de antigüedad"},
   wx:{n:"Pronóstico horario de viento, temperatura y nubosidad: Open-Meteo (modelos globales, no oficial; el SMN no publica una API abierta)",u:"https://open-meteo.com"},
   ais:{n:"AIS: OpenSeaFeed + Open Waters AIS (redes comunitarias, no oficiales)"},
   bz_shn:{n:"Novedades de balizamiento y dragado: SHN, Radioavisos Náuticos (oficial)",u:"https://www.hidro.gov.ar/nautica/RadioavisosNauticos.asp?op=11"},
+  canal:{n:"Canal: traza real de los buques (densidad AIS acumulada cada hora, buques clase A navegando a más de 3 kn) y derrotas recomendadas de OpenStreetMap",u:"https://github.com/btzdev/vnt-parana"},
   bz_osm:{n:"Posición de boyas y balizas: OpenSeaMap / OpenStreetMap (comunitario, no oficial)",u:"https://map.openseamap.org"},
   ign:{n:"Cartografía base Argenmap: IGN Argentina",u:"https://www.ign.gob.ar"},
 };
@@ -542,7 +573,7 @@ function startGPS(){
   navigator.geolocation.watchPosition(
     p=>{ navFix(p); if(manual) return; setSrc("gps","ok",`±${Math.round(p.coords.accuracy)} m`); setPos(p.coords.latitude,p.coords.longitude,p.coords.accuracy,"GPS"); },
     e=>{ setSrc("gps","er",e.code===1?"permiso denegado":"sin señal"); if(!me) fallback(e.code===1?"Permiso de ubicación denegado":"No se pudo obtener la ubicación"); },
-    {enableHighAccuracy:true,maximumAge:15000,timeout:20000});
+    {enableHighAccuracy:true,maximumAge:0,timeout:30000});
 }
 function fallback(msg){
   const l=store.get("lastpos");
@@ -558,12 +589,12 @@ const ICON_CL = c => c<20?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5
  : c<60?'<svg viewBox="0 0 24 24"><circle cx="9" cy="9" r="4" fill="#f2b705"/><path d="M7 19h10a4 4 0 0 0 0-8 5 5 0 0 0-9.6 1.5A3.3 3.3 0 0 0 7 19Z" fill="#b8c4cc"/></svg>'
  : '<svg viewBox="0 0 24 24"><path d="M6 19h11a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4 2A3.6 3.6 0 0 0 6 19Z" fill="#94a3ad"/></svg>';
 const arrow = (d,cls) => `<svg class="ar ${cls}" viewBox="0 0 24 24" style="transform:rotate(${(d+180)%360}deg)"><path d="M12 2 L18 20 L12 16 L6 20 Z" fill="currentColor"/></svg>`;
-let WX=null;
+let WX=null, WXC=null;
 async function loadWx(){
   const {lat,lon}=me;
-  const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lon.toFixed(3)}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,cloud_cover,pressure_msl,precipitation_probability&wind_speed_unit=kn&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=2`;
+  const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lon.toFixed(3)}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,cloud_cover,pressure_msl,precipitation_probability&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,cloud_cover,pressure_msl&wind_speed_unit=kn&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=2`;
   try{
-    const j=await getJSON(u); WX=j.hourly; setSrc("wx","ok","actualizado "+arISO().slice(11));
+    const j=await getJSON(u); WX=j.hourly; WXC=j.current||null; setSrc("wx","ok","actualizado "+arISO().slice(11));
     renderWx();
   }catch(e){setSrc("wx","er",String(e.message||e));$("strip").innerHTML='<div class="na">No se pudo cargar el pronóstico. Reintentando…</div>';setTimeout(loadWx,60000);}
 }
@@ -581,19 +612,16 @@ function renderWx(){
       <div class="pr">${Math.round(WX.pressure_msl[i])} hPa</div></div>`);
   }
   $("strip").innerHTML=cells.join("");
-  const kn=WX.wind_speed_10m[i0], dir=WX.wind_direction_10m[i0];
-  if(!OBS){ // si no hay observación oficial cercana, el "ahora" es el pronóstico
-    setNow(kn,WX.wind_gusts_10m[i0],dir,"pronóstico para esta hora");
-  }
-  $("nowT").textContent=Math.round(WX.temperature_2m[i0])+"°C";
-  $("nowCl").innerHTML=`Nubosidad ${WX.cloud_cover[i0]}%`;
-  $("nowP").textContent=Math.round(WX.pressure_msl[i0])+" hPa";
+  const C=WXC||{wind_speed_10m:WX.wind_speed_10m[i0],wind_direction_10m:WX.wind_direction_10m[i0],wind_gusts_10m:WX.wind_gusts_10m[i0],temperature_2m:WX.temperature_2m[i0],cloud_cover:WX.cloud_cover[i0],pressure_msl:WX.pressure_msl[i0],time:WX.time[i0]};
+  if(!OBS){ setNow(C.wind_speed_10m,C.wind_gusts_10m,C.wind_direction_10m,`Modelo Open-Meteo, ${String(C.time).slice(11,16)} h. No hay medición oficial de los últimos 90 min cerca.`); $("wxSrc").textContent="ahora y franja: modelo"; }
+  $("nowT").textContent=Math.round(C.temperature_2m)+"°C";
+  $("nowCl").innerHTML=`Nubosidad ${C.cloud_cover}%`;
+  $("nowP").textContent=Math.round(C.pressure_msl)+" hPa";
 }
 function setNow(kn,g,dir,obsTxt){
-  const el=$("nowKn"); el.className="big "+kcls(kn);
-  el.innerHTML=`${Math.round(kn)}<span>kn</span>`;
-  $("nowAr").style.transform=`rotate(${(dir+180)%360}deg)`;
-  $("nowDir").innerHTML=`Del <b>${card16(dir)}</b> (${Math.round(dir)}°)${g!=null?` · ráfagas ${Math.round(g)} kn`:""}`;
+  const el=$("nowKn"); el.className="big "+kcls(kn); el.innerHTML=`${Math.round(kn)}<span>kn</span>`;
+  if(dir!=null) $("nowAr").style.transform=`rotate(${(dir+180)%360}deg)`;
+  $("nowDir").innerHTML=dir!=null?`Del <b>${card16(dir)}</b> (${Math.round(dir)}°)${g!=null?` · ráfagas ${Math.round(g)} kn`:""}`:`Dirección variable${g!=null?` · ráfagas ${Math.round(g)} kn`:""}`;
   $("nowObs").textContent=obsTxt;
 }
 setInterval(renderWx,5*60e3);
@@ -601,28 +629,38 @@ setInterval(()=>{if(me){loadWx();loadObs();}},30*60e3);
 
 /* ====== viento observado oficial (INA / RHN) ====== */
 let OBS=null;
+const hhmm=iso=>new Date(iso).toLocaleTimeString("es-AR",{hour:"2-digit",minute:"2-digit",hour12:false,timeZone:"America/Argentina/Buenos_Aires"});
+const OBS_MAX_MIN=90;
 async function loadObs(){
-  const {lat,lon}=me;
+  const {lat,lon}=me; let motivo="";
+  // 1) METAR oficial del SMN (aeropuertos), descargado cada hora por la tarea del repositorio
+  let j=null;
+  for(const u of ["meteo.json","https://raw.githubusercontent.com/btzdev/vnt-parana/main/meteo.json"]){ try{ j=await getJSON(u+"?t="+Math.floor(Date.now()/300e3),15000); break; }catch{} }
+  const ms=(j?.metar||[]).filter(m=>m.lat!=null&&m.wspd!=null).map(m=>({m,d:dist(lat,lon,m.lat,m.lon)})).filter(x=>x.d<70000).sort((a,b)=>a.d-b.d);
+  for(const {m,d} of ms){
+    const age=(Date.now()-new Date(m.time))/60000;
+    if(!(age<=OBS_MAX_MIN)){ motivo=`${m.id}: METAR de hace ${Math.round(age)} min`; continue; }
+    const dir=typeof m.wdir==="number"?m.wdir:null;
+    OBS={kn:m.wspd,dir,n:m.name||m.id,t:m.time};
+    setNow(m.wspd,m.wgst??null,dir,`Medido ${hhmm(m.time)} h · ${m.name||m.id} (${m.id}, a ${fmt(d/1000,0)} km) · METAR oficial SMN`);
+    setSrc("ina_met","ok",`${m.id} ${hhmm(m.time)} h (METAR SMN)`); $("wxSrc").textContent="ahora: medido · franja: pronóstico"; return;
+  }
+  // 2) estaciones RHN / INA
   const cands=METEO_INA.map(s=>({s,d:dist(lat,lon,s[1],s[2])})).filter(x=>x.d<60000).sort((a,b)=>a.d-b.d).slice(0,3);
-  if(!cands.length){OBS=null;setSrc("ina_met","wa","sin estación a menos de 60 km");renderWx();return;}
   const t0=arISO(8*3600e3), t1=arISO(-3600e3);
   const q=id=>getJSON(`https://alerta.ina.gob.ar/pub/datos/datos&format=json&seriesId=${id}&timeStart=${t0}&timeEnd=${t1}`).then(j=>(j.data||[]).sort((a,b)=>a.timestart<b.timestart?-1:1)).catch(()=>[]);
-  let motivo="";
   for(const c of cands){
     const [n,,,sv,sd]=c.s;
-    const [v,d]=await Promise.all([q(sv),q(sd)]);
-    const lv=v.at(-1); if(!lv){motivo=n+": sin datos";continue;}
-    const ageMin=(Date.now()-new Date(lv.timestart+"-03:00"))/60000;
-    if(ageMin>180){motivo=n+": último dato hace "+Math.round(ageMin/60)+" h";continue;}
-    const ld=d.filter(x=>x.timestart<=lv.timestart).at(-1)||d.at(-1);
+    const [v,dd]=await Promise.all([q(sv),q(sd)]);
+    const lv=v.at(-1); if(!lv){ motivo=motivo||n+": sin datos"; continue; }
+    const age=(Date.now()-new Date(lv.timestart+"-03:00"))/60000;
+    if(age>OBS_MAX_MIN){ motivo=motivo||`${n}: último dato hace ${Math.round(age/60*10)/10} h`; continue; }
+    const ld=dd.filter(x=>x.timestart<=lv.timestart).at(-1);
     OBS={kn:lv.valor/1.852,dir:ld?+ld.valor:null,n,t:lv.timestart};
-    setNow(OBS.kn,null,OBS.dir??(WX?WX.wind_direction_10m[0]:0),"");
-    $("nowObs").textContent="Observado "+OBS.t.slice(11,16)+" h · "+n+" ("+fmt(c.d/1000,0)+" km) · RHN/INA"+(ld&&ld.timestart!==lv.timestart?" · dirección de las "+ld.timestart.slice(11,16)+" h":"");
-    setSrc("ina_met","ok",n+" "+OBS.t.slice(11,16)+" h");
-    $("wxSrc").textContent="ahora: observado · franja: pronóstico";
-    return;
+    setNow(OBS.kn,null,OBS.dir,`Medido ${OBS.t.slice(11,16)} h · ${n} (a ${fmt(c.d/1000,0)} km) · RHN/INA (${lv.valor} km/h)`);
+    setSrc("ina_met","ok",`${n} ${OBS.t.slice(11,16)} h`); $("wxSrc").textContent="ahora: medido · franja: pronóstico"; return;
   }
-  OBS=null; setSrc("ina_met","wa",motivo||"sin datos"); renderWx();
+  OBS=null; setSrc("ina_met","wa",(motivo||"sin estaciones cercanas")+" → se usa el modelo"); renderWx();
 }
 
 /* ====== altura del río (Prefectura vía INA) ====== */
@@ -674,7 +712,7 @@ function drawEsc(){
   for(const [sid,nom,la,lo] of ESCALAS){
     const v=ESC_VAL[sid]; if(!v) continue;
     L.marker([la,lo],{icon:L.divIcon({className:"",html:`<span class="esc">${fmt(v.v,2)} m <small>${nom}</small></span>`,iconSize:[0,0]})})
-      .bindPopup(`<b>Escala ${nom}</b><br>Altura ${fmt(v.v,2)} m · ${v.t.slice(0,10)}<br><span style="color:#667">Prefectura Naval Argentina vía INA</span>`).addTo(G.esc);
+      .on("click",()=>ficha(`<b>Escala ${nom}</b><br>Altura ${fmt(v.v,2)} m · ${v.t.slice(0,10)}<br><span style="color:#667">Prefectura Naval Argentina vía INA</span>`)).addTo(G.esc);
   }
 }
 
@@ -799,32 +837,21 @@ async function loadBz(){
   BZ_OSM=(BZ.osm?.items||[]).map(a=>({lat:a[0],lon:a[1],tipo:a[2],color:a[3],cat:a[4],nom:a[5],luz:a[6],id:a[7]}));
   for(const b of BZ_OSM){const p=proyectar(b.lat,b.lon);b.ruta=p.ruta;b.km=p.km;b.d=p.d;const m=(b.nom||"").match(/(\d{1,4}[.,]\d{1,2})/);b.kmn=m?parseFloat(m[1].replace(",",".")):null;}
   BZ_SHN=(BZ.shn?.items||[]).filter(x=>x.ruta&&(x.km!=null||x.km_obs!=null)); BZ_DR=(BZ.shn?.dragas||[]).filter(d=>d.ruta);
-  emparejar(); armarCanal();
+  emparejar();
   const fc=BZ.shn?.consultado?new Date(BZ.shn.consultado).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
   setSrc("bz_shn",BZ.shn?.ok===false?"wa":"ok",`${BZ_SHN.length} novedades vigentes${fc?" · consultado "+fc:""}${BZ.shn?.ok===false?" · última consulta falló":""}`);
   setSrc("bz_osm",BZ.osm?.ok===false?"wa":"ok",`${BZ_OSM.length} señales`);
-  drawBz(); renderBzList();
+  drawBz(); renderBzList(); loadCanal();
 }
-let CANAL={lineas:[],bandas:[]};
-function armarCanal(){ // bordes del canal: une boyas laterales del mismo color ordenadas por km
-  const lineas=[], bandas=[];
-  const corridas=arr=>{ const out=[]; let cur=[];
-    for(const b of arr){ if(cur.length&&(b.km-cur.at(-1).km>2.5||dist(b.lat,b.lon,cur.at(-1).lat,cur.at(-1).lon)>3000)){ if(cur.length>1) out.push(cur); cur=[]; } cur.push(b); }
-    if(cur.length>1) out.push(cur); return out; };
-  for(const ruta of Object.keys(VNT.rutas)){
-    const lat=BZ_OSM.filter(b=>b.ruta===ruta&&b.d<3000&&/lateral/.test(b.tipo)&&!/preferred/.test(b.cat||""));
-    const lado=c=>lat.filter(b=>coloresBoya(b).tc===c).sort((a,b)=>a.km-b.km);
-    const V=corridas(lado(CB.verde)), Ro=corridas(lado(CB.roja));
-    for(const r of V) lineas.push({c:CB.verde,p:r.map(b=>[b.lat,b.lon])});
-    for(const r of Ro) lineas.push({c:CB.roja,p:r.map(b=>[b.lat,b.lon])});
-    for(const v of V) for(const r of Ro){
-      const k0=Math.max(v[0].km,r[0].km), k1=Math.min(v.at(-1).km,r.at(-1).km); if(k1-k0<0.3) continue;
-      const vv=v.filter(b=>b.km>=k0-0.6&&b.km<=k1+0.6), rr=r.filter(b=>b.km>=k0-0.6&&b.km<=k1+0.6);
-      if(vv.length<2||rr.length<2) continue;
-      bandas.push([...vv.map(b=>[b.lat,b.lon]),...rr.slice().reverse().map(b=>[b.lat,b.lon])]);
-    }
+let CANAL_AIS=null, CANAL_OSM=[];
+async function loadCanal(){
+  for(const u of ["canal.json","https://raw.githubusercontent.com/btzdev/vnt-parana/main/canal.json"]){
+    try{ const j=await getJSON(u+"?t="+Math.floor(Date.now()/1800e3),20000); CANAL_AIS=j; break; }catch{}
   }
-  CANAL={lineas,bandas};
+  CANAL_OSM=(BZ?.osm?.trazas)||[];
+  const n=CANAL_AIS?Object.keys(CANAL_AIS.c||{}).length:0;
+  setSrc("canal",n||CANAL_OSM.length?"ok":"wa",n?`${n} celdas de tráfico real (${CANAL_AIS.corridas||0} muestreos)${CANAL_OSM.length?` · ${CANAL_OSM.length} derrotas OSM`:""}`:(CANAL_OSM.length?`${CANAL_OSM.length} derrotas OSM; la traza AIS se está acumulando`:"la traza AIS se está acumulando"));
+  drawBz();
 }
 function emparejar(){
   for(const b of BZ_OSM) b.av=null;
@@ -849,26 +876,30 @@ function drawBz(){
   bzTimer=setTimeout(()=>{
     G.bz.clearLayers(); if(!BZ) return;
     const z=map.getZoom(), b=map.getBounds().pad(.2);
-    if(z>=10){
-      for(const pg of CANAL.bandas) L.polygon(pg,{renderer:bzRend,stroke:false,fillColor:"#38bdf8",fillOpacity:.2,interactive:false}).addTo(G.bz);
-      for(const l of CANAL.lineas) L.polyline(l.p,{renderer:bzRend,color:l.c,weight:2.2,opacity:.8,dashArray:"7 5",interactive:false}).addTo(G.bz);
+    if(z>=10&&CANAL_AIS&&CANAL_AIS.c){ // canal real: densidad de tráfico AIS de buques en navegación
+      const C=CANAL_AIS.cel||0.0015, mx=Math.max(1,CANAL_AIS.max||1);
+      const i0=Math.floor(b.getSouth()/C), i1=Math.floor(b.getNorth()/C), j0=Math.floor(b.getWest()/C), j1=Math.floor(b.getEast()/C);
+      for(const k in CANAL_AIS.c){ const w=CANAL_AIS.c[k]; if(w<(CANAL_AIS.umbral||0.8)) continue;
+        const p=k.indexOf("_"), i=+k.slice(0,p), j=+k.slice(p+1); if(i<i0||i>i1||j<j0||j>j1) continue;
+        L.rectangle([[i*C,j*C],[(i+1)*C,(j+1)*C]],{renderer:bzRend,stroke:false,fillColor:"#2563eb",fillOpacity:Math.min(.5,.14+.36*Math.sqrt(w/mx)),interactive:false}).addTo(G.bz); }
     }
+    if(z>=9) for(const t of CANAL_OSM) L.polyline(t.g,{renderer:bzRend,color:"#7c3aed",weight:2.5,opacity:.85,dashArray:t.t==="fairway"?null:"8 6",interactive:false}).addTo(G.bz);
     if(z>=10) for(const s of BZ_OSM){
       if(!b.contains([s.lat,s.lon])) continue;
       if(z<12&&!s.av) continue;
-      L.marker([s.lat,s.lon],{icon:iconoBoya(s,z),keyboard:false}).bindPopup(()=>bzPop(s),{maxWidth:330,minWidth:260}).addTo(G.bz);
-      if(s.av) L.circleMarker([s.lat,s.lon],{renderer:bzRend,radius:11,color:estCol(s.av[0].estado),weight:3,fill:false,dashArray:"4 3"}).bindPopup(()=>bzPop(s),{maxWidth:330,minWidth:260}).addTo(G.bz);
+      L.marker([s.lat,s.lon],{icon:iconoBoya(s,z),keyboard:false}).on("click",()=>ficha(bzPop(s),"z"+s.id)).addTo(G.bz);
+      if(s.av) L.circleMarker([s.lat,s.lon],{renderer:bzRend,radius:11,color:estCol(s.av[0].estado),weight:3,fill:false,dashArray:"4 3"}).on("click",()=>ficha(bzPop(s),"z"+s.id)).addTo(G.bz);
     }
     if(z>=9) for(const a of BZ_SHN){
       if(a.buoy) continue;
       const k=a.km??a.km_obs, r=VNT.rutas[a.ruta]; if(k==null||!r) continue;
       const p=puntoKm(r.a,k); if(!p||!b.contains(p)) continue;
-      L.marker(p,{icon:L.divIcon({className:"",iconSize:[20,20],iconAnchor:[10,10],html:`<div class="bzw" style="background:${estCol(a.estado)}">!</div>`})}).bindPopup(()=>avPop(a,true)).addTo(G.bz);
+      L.marker(p,{icon:L.divIcon({className:"",iconSize:[20,20],iconAnchor:[10,10],html:`<div class="bzw" style="background:${estCol(a.estado)}">!</div>`})}).on("click",()=>ficha(avPop(a,true))).addTo(G.bz);
     }
     if(z>=9) for(const d of BZ_DR){
       const r=VNT.rutas[d.ruta]; if(!r) continue; const p=puntoKm(r.a,(d.km[0]+d.km[1])/2); if(!p||!b.contains(p)) continue;
       L.marker(p,{icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="drg">⚓ Draga ${d.draga}</span>`})})
-        .bindPopup(`<b>Draga ${d.draga}</b><br>Operando entre km ${fmt(d.km[0],1)} y ${fmt(d.km[1],1)}<br>${d.rio}<br><span style="color:#667">SHN · radioaviso ${d.aviso} · ${d.fecha.split("-").reverse().join("/")}</span>`).addTo(G.bz);
+        .on("click",()=>ficha(`<b>Draga ${d.draga}</b><br>Operando entre km ${fmt(d.km[0],1)} y ${fmt(d.km[1],1)}<br>${d.rio}<br><span style="color:#667">SHN · radioaviso ${d.aviso} · ${d.fecha.split("-").reverse().join("/")}</span>`)).addTo(G.bz);
     }
   },250);
 }
@@ -998,8 +1029,8 @@ function dimsBuque(s){ // dimensiones reales (AIS) o promedio por tipo
   const d=DIM_TIPO[tipoAIS(s.type)]||[80,14]; return {L:d[0],B:d[1],est:true};
 }
 function cascoPx(s,z,lat){ // píxeles: escala real; con zoom lejano, escala mínima común (se conservan las proporciones entre buques)
-  const d=dimsBuque(s), mpp=156543.03392*Math.cos(rad(lat))/2**z, f=Math.max(1/mpp,0.12);
-  return {Lp:Math.round(Math.min(420,Math.max(10,d.L*f))), Bp:Math.round(Math.min(90,Math.max(4,d.B*f))), est:d.est, tipo:tipoAIS(s.type)};
+  const d=dimsBuque(s), mpp=156543.03392*Math.cos(rad(lat))/2**z, f=Math.max(1/mpp,0.26);
+  return {Lp:Math.round(Math.min(460,Math.max(16,d.L*f))), Bp:Math.round(Math.min(100,Math.max(7,d.B*f*1.25))), est:d.est, tipo:tipoAIS(s.type)};
 }
 function cascoSvg(c,Lp,Bp,est,tipo){
   const W=Bp, H=Lp, det=H>=26;
@@ -1044,6 +1075,7 @@ function drawShips(){
   const now=Date.now(); for(const [k,s] of SHIPS) if(now-s.t>40*60e3) SHIPS.delete(k);
   for(const s of SHIPS.values()) s.sn=sentido(s);
   renderShipsList(); aisStatus(); guardarAIS();
+  if(FICHA_ID&&FICHA_ID[0]==="b"){ const s=SHIPS.get(+FICHA_ID.slice(1))||SHIPS.get(FICHA_ID.slice(1)); if(s) $("fichaC").innerHTML=shipPop(s); }
 }
 function animShips(){
   if(document.hidden) return;
@@ -1056,7 +1088,7 @@ function animShips(){
     const stop=s.sn.k==="stop", rot=Math.round((s.hdg??(stop?null:s.cog)??0)/3)*3, lab=z>=13&&s.name?s.name:"", px=cascoPx(s,z,p[0]), key=s.sn.col+stop+rot+lab+px.Lp+"x"+px.Bp+px.est;
     let o=MK.get(s.mmsi);
     if(!o){
-      o={m:L.marker(p,{zIndexOffset:stop?0:500}).bindPopup(()=>shipPop(s)).addTo(G.ships),
+      o={m:L.marker(p,{zIndexOffset:stop?0:500}).on("click",()=>ficha(shipPop(s),"b"+s.mmsi)).addTo(G.ships),
          tr:L.polyline([],{color:s.sn.col,weight:3,opacity:.5,lineCap:"round",interactive:false}).addTo(G.tracks),
          v:L.polyline([],{color:s.sn.col,weight:2,opacity:.95,dashArray:"5 5",interactive:false}).addTo(G.tracks)};
       MK.set(s.mmsi,o);
@@ -1129,7 +1161,7 @@ function vel(sog,cog,cur){
   return {kn:Math.hypot(vx,vy),rumbo:(deg(Math.atan2(vx,vy))+360)%360};
 }
 function renderRegNav(){
-  if($("reg").hidden) return;
+  if($("vel").hidden) return;
   const ok=NAV.sog!=null&&(Date.now()-NAV.t)<15000;
   $("kSog").textContent=ok?fmt(NAV.sog,1):"–";
   $("kSogD").textContent=NAV.acc?`GPS ±${Math.round(NAV.acc)} m${ok?"":" · sin datos recientes"}`:"esperando GPS";
@@ -1273,10 +1305,10 @@ function tick(){
   $("rAP").textContent=RG.modo==="ap"?"Arriar GI":"Postergación (GI)";
 }
 function vista(v){
-  $("reg").hidden=v!=="reg";
+  $("reg").hidden=v!=="reg"; $("vel").hidden=v!=="vel";
   document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
-  if(v==="reg"){ renderRegNav(); renderLog(); tick(); } else setTimeout(()=>map.invalidateSize(),50);
-  try{ history.replaceState(null,"",location.pathname+location.search+(v==="reg"?"#regata":"")); }catch{}
+  if(v==="reg") tick(); if(v==="vel"){ renderRegNav(); renderLog(); } if(v==="nav") setTimeout(()=>map.invalidateSize(),50);
+  try{ history.replaceState(null,"",location.pathname+location.search+(v==="reg"?"#regata":v==="vel"?"#velocidad":"")); }catch{}
 }
 document.querySelectorAll("#tabbar button").forEach(b=>b.onclick=()=>vista(b.dataset.v));
 $("rStart5").onclick=()=>iniciar(5); $("rStart3").onclick=()=>iniciar(3); $("rSync").onclick=sincronizar;
@@ -1300,7 +1332,46 @@ if(CUR.dir!=null){ $("rCurKn").value=CUR.kn.toFixed(2); $("rCurDir").value=Math.
 setInterval(tick,100); setInterval(()=>{ medirTick(); renderRegNav(); },1000);
 let ultAuto=0; setInterval(()=>{ if($("rAuto").checked&&RG.modo==="race"&&Date.now()-ultAuto>=30000){ ultAuto=Date.now(); registrar("auto"); } },1000);
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&RG.modo!=="idle") despierto(); });
-if(location.hash==="#regata") vista("reg");
+if(location.hash==="#regata") vista("reg"); else if(location.hash==="#velocidad") vista("vel");
+
+/* ====== ficha de detalle ====== */
+let FICHA_ID=null;
+function ficha(html,id){ $("fichaC").innerHTML=html; $("ficha").classList.add("show"); $("ficha").scrollTop=0; FICHA_ID=id||null; }
+function cerrarFicha(){ $("ficha").classList.remove("show"); FICHA_ID=null; }
+$("fichaX").onclick=cerrarFicha;
+document.addEventListener("keydown",e=>{ if(e.key==="Escape") cerrarFicha(); });
+["click","touchstart","pointerdown","wheel"].forEach(ev=>$("ficha").addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
+
+/* ====== uso sin conexión ====== */
+if("serviceWorker" in navigator){ navigator.serviceWorker.register("sw.js").catch(()=>{}); }
+function estadoRed(){ const off=!navigator.onLine; $("offBadge").classList.toggle("show",off); }
+window.addEventListener("offline",()=>{ estadoRed(); toast("Sin conexión: el GPS sigue funcionando; se muestran el mapa y los datos guardados",6000); });
+window.addEventListener("online",()=>{ estadoRed(); toast("Conexión recuperada"); if(me){ loadWx(); loadObs(); loadRio(); } loadBz(); connectAIS(true); });
+estadoRed();
+function teselasZona(lat,lon,radioKm,zMin,zMax){
+  const out=[], dLat=radioKm/111, dLon=radioKm/(111*Math.cos(rad(lat)));
+  const xy=(la,lo,z)=>{ const n=2**z; return [Math.floor((lo+180)/360*n), Math.floor((1-Math.log(Math.tan(rad(la))+1/Math.cos(rad(la)))/Math.PI)/2*n)]; };
+  for(let z=zMin;z<=zMax;z++){ const n=2**z, [x0,y0]=xy(lat+dLat,lon-dLon,z), [x1,y1]=xy(lat-dLat,lon+dLon,z);
+    for(let x=x0;x<=x1;x++) for(let y=y0;y<=y1;y++) out.push(`https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/capabaseargenmap@EPSG%3A3857@png/${z}/${x}/${n-1-y}.png`); }
+  return out;
+}
+let guardando=false;
+async function guardarZona(radioKm,zMax){
+  if(guardando) return; if(!("caches" in window)){ toast("Este navegador no permite guardar el mapa"); return; }
+  if(!navigator.onLine){ toast("Necesitás conexión para descargar el mapa"); return; }
+  guardando=true; const c=me?{lat:me.lat,lon:me.lon}:{lat:map.getCenter().lat,lon:map.getCenter().lng};
+  const urls=teselasZona(c.lat,c.lon,radioKm,7,zMax), cache=await caches.open("vnt-tiles"), st=$("offSt");
+  let hechas=0, i=0;
+  const trabajador=async()=>{ while(i<urls.length){ const u=urls[i++]; try{ if(!(await cache.match(u))){ const r=await fetch(u,{mode:"no-cors"}); await cache.put(u,r); } }catch{} hechas++; if(hechas%25===0) st.textContent=`Guardando mapa… ${hechas} de ${urls.length}`; } };
+  await Promise.all(Array.from({length:6},trabajador));
+  // también datos de la zona
+  try{ await loadBz(); }catch{}
+  st.textContent=`Mapa guardado: ${urls.length} teselas, radio ${radioKm} km alrededor de ${c.lat.toFixed(3)}, ${c.lon.toFixed(3)} (zoom hasta ${zMax}). Funciona sin internet.`;
+  store.set("offZona",{...c,radioKm,zMax,t:Date.now()}); guardando=false;
+}
+$("bOff10").onclick=()=>guardarZona(10,16);
+$("bOff30").onclick=()=>guardarZona(30,14);
+{ const z=store.get("offZona"); if(z) $("offSt").textContent=`Mapa guardado el ${new Date(z.t).toLocaleDateString("es-AR")} (radio ${z.radioKm} km). La app y el GPS funcionan sin internet.`; }
 
 /* ====== hoja inferior (móvil) ====== */
 const sheet=$("sheet");
