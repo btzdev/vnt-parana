@@ -177,6 +177,26 @@ def bajar_osm():
     raise RuntimeError(f"Overpass sin respuesta: {ultimo}")
 
 
+def bajar_trazas_osm():
+    """Derrotas recomendadas, canales y líneas de navegación cargadas en OpenStreetMap."""
+    s, o, n, e = BBOX
+    q = (f'[out:json][timeout:180];way["seamark:type"~"^(fairway|recommended_track|navigation_line|dredged_area)$"]'
+         f"({s},{o},{n},{e});out geom tags;")
+    for url in OVERPASS:
+        try:
+            els = json.loads(bajar(url, data=urllib.parse.urlencode({"data": q}).encode(), timeout=200))["elements"]
+            out = []
+            for w in els:
+                g = [[round(p["lat"], 5), round(p["lon"], 5)] for p in w.get("geometry", [])]
+                if len(g) >= 2:
+                    t = w.get("tags", {})
+                    out.append({"t": t.get("seamark:type", ""), "n": t.get("seamark:name") or t.get("name") or "", "g": g})
+            return out
+        except Exception as ex:
+            print("Overpass trazas falló", url, ex, file=sys.stderr)
+    return None
+
+
 def compactar_osm(elems):
     out = []
     for e in elems:
@@ -194,8 +214,43 @@ def compactar_osm(elems):
     return out
 
 
+# ---------------------------------------------------------------- METAR (SMN)
+METAR_IDS = "SAAR,SAAV,SAAP,SADF,SABE,SAEZ,SADP,SAAG,SAAC,SATR,SARC,SARE,SARP,SATG,SAAJ,SADM,SAAU,SAAM"
+
+
+def bajar_metar():
+    url = "https://aviationweather.gov/api/data/metar?format=json&hours=3&ids=" + METAR_IDS
+    datos = json.loads(bajar(url, timeout=60))
+    ult = {}
+    for m in datos:
+        i = m.get("icaoId")
+        ot = m.get("obsTime")
+        if not i or ot is None:
+            continue
+        t = datetime.fromtimestamp(int(ot), timezone.utc).isoformat(timespec="seconds")
+        if i not in ult or t > ult[i]["time"]:
+            ult[i] = {"id": i, "name": (m.get("name") or "").split(",")[0], "lat": m.get("lat"), "lon": m.get("lon"),
+                      "time": t, "wdir": m.get("wdir"), "wspd": m.get("wspd"), "wgst": m.get("wgst"),
+                      "temp": m.get("temp"), "altim": m.get("altim"), "raw": m.get("rawOb")}
+    return sorted(ult.values(), key=lambda x: x["id"])
+
+
+def escribir_meteo():
+    ruta = os.path.join(os.path.dirname(SALIDA), "meteo.json")
+    try:
+        metar = bajar_metar()
+        with open(ruta, "w", encoding="utf-8") as f:
+            json.dump({"generado": datetime.now(timezone.utc).isoformat(timespec="seconds"),
+                       "fuente": "METAR del SMN (aeropuertos) via aviationweather.gov", "metar": metar},
+                      f, ensure_ascii=False, separators=(",", ":"))
+        print(f"METAR: {len(metar)} estaciones")
+    except Exception as ex:
+        print("METAR fall\u00f3:", ex, file=sys.stderr)
+
+
 # ---------------------------------------------------------------- main
 def main():
+    escribir_meteo()
     previo = {}
     if os.path.exists(SALIDA):
         try:
@@ -220,6 +275,8 @@ def main():
         osm = {"ok": True, "consultado": ahora, "fuente": url,
                "campos": ["lat", "lon", "tipo", "color", "categoria", "nombre", "luz", "osm_id"],
                "items": compactar_osm(elems)}
+        trazas = bajar_trazas_osm()
+        osm["trazas"] = trazas if trazas is not None else previo.get("osm", {}).get("trazas", [])
         print(f"OSM: {len(osm['items'])} señales")
     except Exception as ex:
         osm = dict(osm, ok=False, error=str(ex)[:300])
