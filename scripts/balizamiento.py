@@ -197,6 +197,35 @@ def bajar_trazas_osm():
     return None
 
 
+def bajar_cascos():
+    """Naufragios y obstrucciones cargados en OpenSeaMap/OpenStreetMap."""
+    s, o, n, e = BBOX
+    bb = f"({s},{o},{n},{e})"
+    q = (f'[out:json][timeout:180];(nwr["seamark:type"~"^(wreck|obstruction)$"]{bb};'
+         f'nwr["historic"="wreck"]{bb};);out center tags;')
+    for url in OVERPASS:
+        try:
+            els = json.loads(bajar(url, data=urllib.parse.urlencode({"data": q}).encode(), timeout=200))["elements"]
+            out = []
+            for x in els:
+                lat = x.get("lat", x.get("center", {}).get("lat"))
+                lon = x.get("lon", x.get("center", {}).get("lon"))
+                if lat is None or lon is None:
+                    continue
+                t = x.get("tags", {})
+                st = t.get("seamark:type") or ("wreck" if t.get("historic") == "wreck" else "")
+                cat = t.get(f"seamark:{st}:category", "") or t.get("wreck:type", "")
+                prof = t.get(f"seamark:{st}:height") or t.get("seamark:sounding") or t.get("depth") or ""
+                nivel = t.get(f"seamark:{st}:water_level", "")
+                nom = (t.get("seamark:name") or t.get("name") or "")[:50]
+                out.append([round(lat, 6), round(lon, 6), st, cat, nom, prof, nivel, x["id"], "OpenStreetMap"])
+            out.sort(key=lambda r: (r[0], r[1]))
+            return out
+        except Exception as ex:
+            print("Overpass naufragios falló", url, ex, file=sys.stderr)
+    return None
+
+
 def compactar_osm(elems):
     out = []
     for e in elems:
@@ -208,8 +237,10 @@ def compactar_osm(elems):
         per = t.get("seamark:light:period") or t.get("seamark:light:1:period") or ""
         grp = t.get("seamark:light:group") or ""
         luz = (car + (f"({grp})" if grp else "") + (f" {per}s" if per else "")).strip()
+        lcol = t.get("seamark:light:colour") or t.get("seamark:light:1:colour") or ""
         out.append([round(e["lat"], 6), round(e["lon"], 6), st, col[0] if col and col[0] else "", cat,
-                    (t.get("seamark:name") or t.get("name") or "")[:40], luz, e["id"]])
+                    (t.get("seamark:name") or t.get("name") or "")[:40], luz, e["id"],
+                    ";".join(c for c in col if c), lcol])
     out.sort(key=lambda x: (x[0], x[1]))
     return out
 
@@ -273,10 +304,13 @@ def main():
     try:
         elems, url = bajar_osm()
         osm = {"ok": True, "consultado": ahora, "fuente": url,
-               "campos": ["lat", "lon", "tipo", "color", "categoria", "nombre", "luz", "osm_id"],
+               "campos": ["lat", "lon", "tipo", "color", "categoria", "nombre", "luz", "osm_id", "colores", "color_luz"],
                "items": compactar_osm(elems)}
         trazas = bajar_trazas_osm()
         osm["trazas"] = trazas if trazas is not None else previo.get("osm", {}).get("trazas", [])
+        cascos = bajar_cascos()
+        osm["cascos"] = cascos if cascos is not None else previo.get("osm", {}).get("cascos", [])
+        print(f"OSM: {len(osm['cascos'])} naufragios/obstrucciones")
         print(f"OSM: {len(osm['items'])} señales")
     except Exception as ex:
         osm = dict(osm, ok=False, error=str(ex)[:300])
