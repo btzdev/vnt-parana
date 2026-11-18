@@ -310,6 +310,8 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
 #bTema span{font-size:19px;line-height:1}
 </style>
 <script>try{const t=localStorage.getItem("vntTema")||"auto";document.documentElement.classList.toggle("osc",t==="oscuro"||(t==="auto"&&matchMedia("(prefers-color-scheme:dark)").matches));}catch(e){}</script>
+<!-- estadísticas de visitas: GoatCounter (sin cookies ni datos personales) -->
+<script data-goatcounter="https://vnt-parana.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
 </head>
 <body>
 <div id="app">
@@ -1829,7 +1831,9 @@ function tick(){
   $("rGen").textContent=RG.modo==="gen"?"Arriar 1er repetidor":"Llamada general (1er rep.)";
   $("rAP").textContent=RG.modo==="ap"?"Arriar GI":"Postergación (GI)";
 }
-function vista(v){
+// cuenta qué pestañas se usan (evento anónimo, sin posición ni datos del barco)
+function gcEvento(n){ try{ if(navigator.onLine&&window.goatcounter&&window.goatcounter.count) window.goatcounter.count({path:n,title:n,event:true}); }catch{} }
+function vista(v){ gcEvento("pestaña-"+v);
   $("reg").hidden=v!=="reg"; $("vel").hidden=v!=="vel"; $("rad").hidden=v!=="rad"; $("ripa").hidden=v!=="ripa"; if(v==="rad") renderRadio(); if(v==="ripa") ripaRender();
   document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   if(v==="reg"){ tick(); renderLog(); } if(v==="vel"){ renderRegNav(); } if(v==="nav") setTimeout(()=>map.invalidateSize(),50);
@@ -1945,7 +1949,7 @@ function recPlay(){
   const paso=now=>{ if(!REC.play) return; let fr=(now-ini)/D; if(fr>=1){ fr=1; } $("recPos").value=Math.round(fr*1000); recDibujar(fr); if(fr>=1){ recPausa(); return; } REC.raf=requestAnimationFrame(paso); };
   REC.raf=requestAnimationFrame(paso);
 }
-$("recPlay").onclick=recPlay;
+$("recPlay").onclick=()=>{ if(!REC.play) gcEvento("simular-recorrido"); recPlay(); };
 $("recStop").onclick=()=>{ recPausa(); $("recPos").value=0; recDibujar(0); };
 $("recPos").oninput=()=>{ recPausa(); recDibujar(); };
 $("recDesde").onchange=()=>{ recPausa(); $("recPos").value=1000; recDibujar(1); };
@@ -2378,8 +2382,8 @@ async function usoMem(){
 $("bOffLib").onclick=async()=>{ try{ await caches.delete("vnt-tiles"); await caches.delete("vnt-datos"); }catch{} toast("Se borró el mapa visto. La zona guardada y tus registros siguen."); usoMem(); };
 try{ navigator.storage?.persist?.(); }catch{}
 setTimeout(usoMem,3000);
-$("bOff10").onclick=()=>guardarZona(10,16);
-$("bOff30").onclick=()=>guardarZona(30,14);
+$("bOff10").onclick=()=>{ gcEvento("guardar-mapa-10km"); guardarZona(10,16); };
+$("bOff30").onclick=()=>{ gcEvento("guardar-mapa-30km"); guardarZona(30,14); };
 { const z=store.get("offZona"); if(z) $("offSt").textContent=`Mapa guardado el ${new Date(z.t).toLocaleDateString("es-AR")} (radio ${z.radioKm} km). La app y el GPS funcionan sin internet.`; }
 
 /* ====== hoja inferior (móvil) ====== */
