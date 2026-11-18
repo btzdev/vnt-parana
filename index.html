@@ -77,7 +77,12 @@ button{font:inherit;color:inherit}
 .h .dl{font-size:9.5px;color:var(--ink3);height:12px;text-transform:uppercase;letter-spacing:.04em}
 .h svg.ar{width:26px;height:26px;margin:2px auto 0;display:block}
 .h .kn{font-size:17px;font-weight:750;line-height:1.1}
-.h .gs{font-size:10.5px;color:var(--ink3)}
+.h .gs{font-size:17px;font-weight:750;line-height:1.1}.h .gs small{font-size:9.5px;font-weight:650;color:var(--ink3);margin-right:1px}
+.now .big.gst{margin-top:4px}
+.wxley{font-size:11.5px;color:var(--ink3);margin:6px 2px 0}.wxley span{font-size:13px}
+.wxprov{margin-top:10px}.wxpt{font-size:11.5px;color:var(--ink3);text-transform:uppercase;letter-spacing:.05em;margin:0 2px 5px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}.chip2{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;padding:6px 11px;font:600 13px var(--font)}.chip2.on{background:var(--sea);border-color:var(--sea);color:#fff}
+.wxt{width:100%;border-collapse:collapse;margin-top:8px;font-size:13px;text-align:center;background:var(--card);border-radius:10px;overflow:hidden}.wxt th,.wxt td{padding:5px 3px;border-bottom:1px solid var(--line)}.wxt th:first-child{text-align:left;font-size:12px;padding-left:8px}.wxt td b{font-size:14.5px}.wxt td small{display:block;font-size:10px;color:var(--ink3)}.wxt tr[data-mod]{cursor:pointer}.wxt tr.on{background:rgba(14,116,144,.12)}
 .h .dir{font-size:10.5px;font-weight:650;color:var(--ink2)}
 .h .tm{font-size:13px;font-weight:650;margin-top:4px;border-top:1px solid var(--line);padding-top:4px}
 .h .cl{font-size:10.5px;color:var(--ink2);display:flex;align-items:center;justify-content:center;gap:2px}
@@ -166,6 +171,9 @@ button{font:inherit;color:inherit}
 .rec .recsel{font-size:13px;margin-bottom:6px}
 .rec .recsel select{font:600 13px var(--font);padding:5px;border-radius:8px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
 .rec svg{display:block;width:100%;max-width:520px;margin:0 auto;border-radius:12px}
+.rec .recwrap{position:relative;width:100%;max-width:520px;margin:0 auto;aspect-ratio:320/260;border-radius:12px;overflow:hidden;background:#dff3fb}
+.rec #recMap{position:absolute;inset:0;z-index:0}
+.rec .recwrap #recSvg{position:absolute;inset:0;height:100%;max-width:none;z-index:500;pointer-events:none;border-radius:0}
 .rec .recinfo{font-size:13px;text-align:center;margin:6px 0 2px;font-variant-numeric:tabular-nums}
 .rec input[type=range]{width:100%}
 .rec .recctl{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:13.5px;margin-top:4px}
@@ -367,7 +375,7 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
         </div>
         <div class="rec">
           <div class="recsel"><label>Recorrido <select id="recDesde"><option value="todo">Todo el registro</option><option value="hoy">Hoy</option><option value="3h">Últimas 3 horas</option><option value="1h">Última hora</option></select></label></div>
-          <svg id="recSvg" viewBox="0 0 320 230" aria-label="Recorrido registrado"></svg>
+          <div class="recwrap"><div id="recMap"></div><svg id="recSvg" viewBox="0 0 320 230" aria-label="Recorrido registrado"></svg></div>
           <div class="recinfo" id="recInfo"></div>
           <div class="na" id="regUso" style="margin-top:6px"></div>
           <input type="range" id="recPos" min="0" max="1000" value="1000" aria-label="Momento del recorrido">
@@ -534,12 +542,18 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
           <div class="dial"><svg id="nowAr" viewBox="0 0 24 24"><path d="M12 2 L18 20 L12 16 L6 20 Z" fill="var(--sea)"></path></svg></div>
           <div>
             <div class="big skel" id="nowKn">00<span>kn</span></div>
+            <div class="big gst" id="nowG"></div>
             <div class="sub" id="nowDir">&nbsp;</div>
             <div class="obs" id="nowObs"></div>
           </div>
           <div class="meta"><b id="nowT">–</b><br><span id="nowCl">–</span><br><span id="nowP">–</span></div>
         </div>
         <div class="strip" id="strip" style="margin-top:8px"></div>
+        <div class="wxley"><span class="k0">●</span><span class="k1">●</span> baja &lt;14 kn · <span class="k2">●</span> media 14–19 · <span class="k3">●</span><span class="k4">●</span> alta ≥20 · arriba viento medio, abajo «r» racha</div>
+        <div class="wxprov"><div class="wxpt">Pronóstico de</div><div class="chips" id="wxMods"></div>
+          <button class="btn" id="wxCmpB" style="margin-top:8px">Comparar todos los modelos (próximas 12 h)</button>
+          <div id="wxCmp"></div>
+          <div class="wxpt" style="margin-top:10px">Ver en otros sitios (se abren aparte)</div><div class="row" id="wxExt"></div></div>
       </section>
 
       <section class="sec">
@@ -839,11 +853,17 @@ const ICON_CL = c => c<20?'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5
  : '<svg viewBox="0 0 24 24"><path d="M6 19h11a4.5 4.5 0 0 0 0-9 6 6 0 0 0-11.4 2A3.6 3.6 0 0 0 6 19Z" fill="#94a3ad"/></svg>';
 const arrow = (d,cls) => `<svg class="ar ${cls}" viewBox="0 0 24 24" style="transform:rotate(${(d+180)%360}deg)"><path d="M12 2 L18 20 L12 16 L6 20 Z" fill="currentColor"/></svg>`;
 let WX=null, WXC=null;
+/* ====== varios proveedores de pronóstico (modelos vía Open-Meteo, licencia CC BY 4.0) ====== */
+const nivelK=k=>k<14?"baja":k<20?"media":"alta";
+const MODS=[["best_match","Automático","la mejor combinación para el lugar"],["ecmwf_ifs025","ECMWF","Centro Europeo"],["gfs_seamless","GFS","NOAA, EE. UU."],["icon_seamless","ICON","DWD, Alemania"],["gem_seamless","GEM","Canadá"],["meteofrance_seamless","Météo-France","ARPEGE"],["ukmo_seamless","UKMO","Met Office, Reino Unido"]];
+const MOD_N=m=>(MODS.find(x=>x[0]===m)||[0,m])[1];
+let WX_MOD=store.get("wxModelo")||"best_match";
 async function loadWx(){
   const {lat,lon}=me;
-  const u=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lon.toFixed(3)}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,cloud_cover,pressure_msl,precipitation_probability&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,cloud_cover,pressure_msl&wind_speed_unit=kn&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=2`;
+  const m=WX_MOD, u=`https://api.open-meteo.com/v1/forecast?latitude=${lat.toFixed(3)}&longitude=${lon.toFixed(3)}&hourly=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,cloud_cover,pressure_msl,precipitation_probability${m==="best_match"?"&current=wind_speed_10m,wind_direction_10m,wind_gusts_10m,temperature_2m,cloud_cover,pressure_msl":"&models="+m}&wind_speed_unit=kn&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=2`;
+  pintarMods();
   try{
-    const j=await getJSON(u); WX=j.hourly; WXC=j.current||null; setSrc("wx","ok","actualizado "+arISO().slice(11));
+    const j=await getJSON(u); WX=j.hourly; WXC=j.current||null; if(m!=="best_match"&&WX.wind_speed_10m.every(v=>v==null)) throw new Error(MOD_N(m)+" no cubre esta zona"); setSrc("wx","ok","actualizado "+arISO().slice(11));
     renderWx();
   }catch(e){setSrc("wx","er",String(e.message||e));$("strip").innerHTML='<div class="na">No se pudo cargar el pronóstico. Reintentando…</div>';setTimeout(loadWx,60000);}
 }
@@ -856,13 +876,13 @@ function renderWx(){
     const t=WX.time[i], h=+t.slice(11,13), d=new Date(t+":00-03:00");
     const kn=WX.wind_speed_10m[i], g=WX.wind_gusts_10m[i], dir=WX.wind_direction_10m[i];
     cells.push(`<div class="h ${i===i0?"cur":""}"><div class="hr">${String(h).padStart(2,"0")}h</div><div class="dl">${i===i0?"ahora":h===0?DIAS[new Date(t).getDay()]:""}</div>
-      ${arrow(dir,kcls(kn))}<div class="kn ${kcls(kn)}">${Math.round(kn)}</div><div class="dir">${card16(dir)}</div><div class="gs">r ${Math.round(g)}</div>
+      ${arrow(dir,kcls(kn))}<div class="kn ${kcls(kn)}">${Math.round(kn)}</div><div class="gs ${g!=null?kcls(g):""}"><small>r</small>${g!=null?Math.round(g):"–"}</div><div class="dir">${card16(dir)}</div>
       <div class="tm">${Math.round(WX.temperature_2m[i])}°</div><div class="cl">${ICON_CL(WX.cloud_cover[i])}${WX.cloud_cover[i]}%</div>
       <div class="pr">${Math.round(WX.pressure_msl[i])} hPa</div></div>`);
   }
   $("strip").innerHTML=cells.join("");
   const C=WXC||{wind_speed_10m:WX.wind_speed_10m[i0],wind_direction_10m:WX.wind_direction_10m[i0],wind_gusts_10m:WX.wind_gusts_10m[i0],temperature_2m:WX.temperature_2m[i0],cloud_cover:WX.cloud_cover[i0],pressure_msl:WX.pressure_msl[i0],time:WX.time[i0]};
-  if(!OBS){ setNow(C.wind_speed_10m,C.wind_gusts_10m,C.wind_direction_10m,`Modelo Open-Meteo, ${String(C.time).slice(11,16)} h. No hay medición oficial de los últimos 90 min cerca.`); $("wxSrc").textContent="ahora y franja: modelo"; }
+  if(!OBS){ setNow(C.wind_speed_10m,C.wind_gusts_10m,C.wind_direction_10m,`Modelo ${MOD_N(WX_MOD)} (Open-Meteo), ${String(C.time).slice(11,16)} h. No hay medición oficial de los últimos 90 min cerca.`); $("wxSrc").textContent="ahora y franja: modelo"; }
   $("nowT").textContent=Math.round(C.temperature_2m)+"°C";
   $("nowCl").innerHTML=`Nubosidad ${C.cloud_cover}%`;
   $("nowP").textContent=Math.round(C.pressure_msl)+" hPa";
@@ -871,10 +891,32 @@ let WIND_NOW=null;
 function setNow(kn,g,dir,obsTxt){ WIND_NOW=dir;
   const el=$("nowKn"); el.className="big "+kcls(kn); el.innerHTML=`${Math.round(kn)}<span>kn</span>`;
   if(dir!=null) $("nowAr").style.transform=`rotate(${(dir+180)%360}deg)`;
-  $("nowDir").innerHTML=dir!=null?`Del <b>${card16(dir)}</b> (${Math.round(dir)}°)${g!=null?` · rachas de viento ${Math.round(g)} kn`:""}`:`Dirección variable${g!=null?` · rachas de viento ${Math.round(g)} kn`:""}`;
+  const gEl=$("nowG"); if(g!=null){ gEl.className="big gst "+kcls(g); gEl.innerHTML=`${Math.round(g)}<span>kn racha · ${nivelK(g)}</span>`; } else { gEl.className="big gst"; gEl.innerHTML=`–<span>sin dato de racha</span>`; }
+  el.innerHTML=`${Math.round(kn)}<span>kn viento · ${nivelK(kn)}</span>`;
+  $("nowDir").innerHTML=dir!=null?`Del <b>${card16(dir)}</b> (${Math.round(dir)}°)`:`Dirección variable`;
   $("nowObs").textContent=obsTxt;
 }
 setInterval(renderWx,5*60e3);
+function pintarMods(){
+  $("wxMods").innerHTML=MODS.map(([id,n,d])=>`<button class="chip2${id===WX_MOD?" on":""}" data-mod="${id}" title="${d}">${n}</button>`).join("");
+  const la=me?me.lat.toFixed(3):"-32.950", lo=me?me.lon.toFixed(3):"-60.640";
+  $("wxExt").innerHTML=[["Windguru",`https://www.windguru.cz/map/?lat=${la}&lon=${lo}&zoom=11`],["Windy",`https://www.windy.com/?gust,${la},${lo},11`],["Windfinder","https://www.windfinder.com/locations/argentina/santa_fe"],["SMN",`https://www.smn.gob.ar/pronostico`]].map(([n,u])=>`<a class="btn" target="_blank" rel="noopener" href="${u}">${n} ↗</a>`).join("");
+}
+$("wxMods").addEventListener("click",e=>{ const b=e.target.closest("[data-mod]"); if(!b) return; WX_MOD=b.dataset.mod; store.set("wxModelo",WX_MOD); pintarMods(); if(me) loadWx(); toast("Pronóstico: "+MOD_N(WX_MOD)); });
+$("wxCmpB").onclick=async()=>{
+  if(!me) return; const out=$("wxCmp"); out.innerHTML='<div class="na">Consultando modelos…</div>';
+  const ids=MODS.slice(1).map(x=>x[0]);
+  try{
+    const j=await getJSON(`https://api.open-meteo.com/v1/forecast?latitude=${me.lat.toFixed(3)}&longitude=${me.lon.toFixed(3)}&hourly=wind_speed_10m,wind_gusts_10m,wind_direction_10m&models=${ids.join(",")}&wind_speed_unit=kn&timezone=America%2FArgentina%2FBuenos_Aires&forecast_days=2`);
+    const H=j.hourly, cur=arISO().slice(0,13)+":00"; let i0=H.time.indexOf(cur); if(i0<0) i0=0;
+    const cols=[0,3,6,9,12].map(d=>i0+d).filter(i=>i<H.time.length);
+    const fila=id=>{ const v=H["wind_speed_10m_"+id], g=H["wind_gusts_10m_"+id], d=H["wind_direction_10m_"+id]; if(!v||v.every(x=>x==null)) return "";
+      return `<tr data-mod="${id}"${id===WX_MOD?' class="on"':""}><th>${MOD_N(id)}</th>${cols.map(i=>v[i]==null?"<td>–</td>":`<td><b class="${kcls(v[i])}">${Math.round(v[i])}</b><br><b class="${kcls(g[i])}">r${Math.round(g[i])}</b><small>${card16(d[i])}</small></td>`).join("")}</tr>`; };
+    out.innerHTML=`<table class="wxt"><tr><th></th>${cols.map(i=>`<th>${i===i0?"ahora":H.time[i].slice(11,13)+"h"}</th>`).join("")}</tr>${ids.map(fila).join("")}</table><div class="na" style="margin-top:4px">Nudos: viento medio y racha. Tocá un modelo para usarlo arriba. Si difieren mucho, el pronóstico es incierto.</div>`;
+  }catch(e){ out.innerHTML=`<div class="na">No se pudo comparar: ${e.message||e}</div>`; }
+};
+$("wxCmp").addEventListener("click",e=>{ const r=e.target.closest("tr[data-mod]"); if(!r) return; WX_MOD=r.dataset.mod; store.set("wxModelo",WX_MOD); pintarMods(); $("wxCmp").querySelectorAll("tr").forEach(x=>x.classList.toggle("on",x===r)); if(me) loadWx(); });
+pintarMods();
 setInterval(()=>{if(me){loadWx();loadObs();}},30*60e3);
 
 /* ====== viento observado oficial (INA / RHN) ====== */
@@ -1700,18 +1742,40 @@ function recPuntos(){
   return p;
 }
 function recEscala(m){ const n=[5,10,20,50,100,200,500,1000,2000,5000,10000,20000]; return n.find(x=>x>=m)||m; }
+function recMapa(){
+  if(REC.m) return REC.m; if(typeof L==="undefined") return null;
+  const el=$("recMap"); if(!el||!el.offsetWidth) return null;
+  const m=L.map(el,{zoomControl:false,attributionControl:false,scrollWheelZoom:false,keyboard:false});
+  const b=BASES[store.get("base")]||BASES.ign; L.tileLayer(b._url,Object.assign({},b.options)).addTo(m);
+  m.on("moveend",()=>{ if(!REC.fit&&!REC.play) recDibujar(); });
+  REC.m=m; return m;
+}
 function recDibujar(fr){
   const p=recPuntos(), sv=$("recSvg");
   if(p.length<2){
-    sv.innerHTML=`<text x="160" y="110" text-anchor="middle" font-size="12" fill="#64748b" font-family="system-ui">Todavía no hay recorrido para mostrar.</text><text x="160" y="128" text-anchor="middle" font-size="11" fill="#64748b" font-family="system-ui">Activá «Guardar cada 30 s» o tocá Marcar mientras navegás.</text>`;
+    sv.setAttribute("viewBox","0 0 320 230"); sv.innerHTML=`<rect width="320" height="230" fill="#dff3fb"/><text x="160" y="110" text-anchor="middle" font-size="12" fill="#64748b" font-family="system-ui">Todavía no hay recorrido para mostrar.</text><text x="160" y="128" text-anchor="middle" font-size="11" fill="#64748b" font-family="system-ui">Activá «Guardar cada 30 s» o tocá Marcar mientras navegás.</text>`;
     $("recInfo").textContent=""; $("recRes").textContent=""; return;
   }
   if(fr==null) fr=+$("recPos").value/1000;
-  const W=320,H=230,pad=20, lat0=p.reduce((a,r)=>a+r.lat,0)/p.length, kx=Math.cos(rad(lat0))*111320, ky=110540;
-  const xy=p.map(r=>[r.lon*kx,-r.lat*ky]);
-  const xs=xy.map(q=>q[0]), ys=xy.map(q=>q[1]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
-  const s=Math.min((W-2*pad)/Math.max(x1-x0,30),(H-2*pad)/Math.max(y1-y0,30)), cx=(x0+x1)/2, cy=(y0+y1)/2;
-  const P=xy.map(([x,y])=>[W/2+(x-cx)*s,H/2+(y-cy)*s]);
+  // el recorrido se dibuja sobre el mapa real del río (mismas teselas que el mapa principal)
+  let W=320,H=260,P,s,mapa=false;
+  const m=recMapa();
+  if(m){
+    const key=$("recDesde").value+"|"+p.length+"|"+p[0].t;
+    if(REC.k!==key){ REC.fit=true; m.invalidateSize(); m.fitBounds(L.latLngBounds(p.map(r=>[r.lat,r.lon])).pad(.15),{animate:false,maxZoom:17}); REC.fit=false; REC.k=key; }
+    const sz=m.getSize();
+    if(sz.x>0){ W=sz.x; H=sz.y; mapa=true; P=p.map(r=>{ const q=m.latLngToContainerPoint([r.lat,r.lon]); return [q.x,q.y]; });
+      const a=m.containerPointToLatLng([0,H/2]), b=m.containerPointToLatLng([100,H/2]); s=100/Math.max(1e-6,dist(a.lat,a.lng,b.lat,b.lng)); }
+    else REC.k=null;
+  }
+  if(!mapa){
+    const pad=20, lat0=p.reduce((a,r)=>a+r.lat,0)/p.length, kx=Math.cos(rad(lat0))*111320, ky=110540;
+    const xy=p.map(r=>[r.lon*kx,-r.lat*ky]);
+    const xs=xy.map(q=>q[0]), ys=xy.map(q=>q[1]), x0=Math.min(...xs), x1=Math.max(...xs), y0=Math.min(...ys), y1=Math.max(...ys);
+    s=Math.min((W-2*pad)/Math.max(x1-x0,30),(H-2*pad)/Math.max(y1-y0,30)); const cx=(x0+x1)/2, cy=(y0+y1)/2;
+    P=xy.map(([x,y])=>[W/2+(x-cx)*s,H/2+(y-cy)*s]);
+  }
+  sv.setAttribute("viewBox",`0 0 ${W} ${H}`);
   const d=[0], v=[0];
   for(let i=1;i<p.length;i++){ const dd=dist(p[i-1].lat,p[i-1].lon,p[i].lat,p[i].lon), dt=(p[i].t-p[i-1].t)/1000;
     d.push(d[i-1]+dd); v.push(p[i].sog!=null?p[i].sog:(dt>0?dd/dt*1.943844:0)); }
@@ -1732,7 +1796,7 @@ function recDibujar(fr){
   }
   const notas=p.map((r,i)=>r.nota&&r.nota!=="auto"?`<circle cx="${P[i][0]}" cy="${P[i][1]}" r="3.4" fill="#fff" stroke="#0b2a3f" stroke-width="1.4"><title>${new Date(r.t).toTimeString().slice(0,8)} · ${r.nota}</title></circle>`:"").join("");
   const mEsc=recEscala(80/s), px=mEsc*s;
-  sv.innerHTML=`<rect width="${W}" height="${H}" rx="12" fill="#dff3fb"/>
+  sv.innerHTML=`${mapa?`<rect x="${W-112}" y="${H-26}" width="108" height="20" rx="5" fill="rgba(255,255,255,.85)"/><rect x="6" y="${H-30}" width="${Math.max(60,recEscala(80/s)*s+12)}" height="26" rx="5" fill="rgba(255,255,255,.85)"/>`:`<rect width="${W}" height="${H}" fill="#dff3fb"/>`}
     ${seg}${notas}
     <circle cx="${P[0][0]}" cy="${P[0][1]}" r="5" fill="#16a34a" stroke="#fff" stroke-width="1.5"/>
     <rect x="${P.at(-1)[0]-4.5}" y="${P.at(-1)[1]-4.5}" width="9" height="9" fill="#111827" stroke="#fff" stroke-width="1.5"/>
