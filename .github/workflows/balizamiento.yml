@@ -15,19 +15,25 @@ concurrency:
 jobs:
   actualizar:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Bajar avisos SHN y señales OpenSeaMap
+      - name: Bajar avisos SHN, señales OpenSeaMap y METAR SMN
         run: python scripts/balizamiento.py
+      - name: Acumular traza real del canal (AIS)
+        continue-on-error: true
+        run: |
+          pip install --quiet websockets
+          python scripts/canal_ais.py
       - name: Guardar cambios
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898699+github-actions[bot]@users.noreply.github.com"
           git add balizamiento.json
+          for f in meteo.json canal.json; do if [ -f "$f" ]; then git add "$f"; fi; done
           if git diff --cached --quiet; then
             echo "Sin cambios"
           else
