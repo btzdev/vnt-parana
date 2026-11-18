@@ -1102,15 +1102,24 @@ async function loadBz(){
   drawBz(); renderBzList(); loadCanal();
 }
 let CANAL_AIS=null, CANAL_OSM=[], CASCOS=[];
-// ícono de naufragio tipo carta náutica: casco hundido dentro de la línea de peligro punteada
+// íconos de naufragio y obstrucción con la simbología estándar de las cartas (OHI INT 1, sección K), la misma que usan Navionics y las cartas electrónicas
 function svgCasco(c,W){
-  const visible=/hull_showing|mast_showing/.test(c.cat)||/covers|awash|always_dry|^dry$/.test(c.nivel||"");
-  const obstr=c.tipo==="obstruction";
-  const casco=visible
-    ? `<path d="M6 17.5L9 22H27L31 16.5Z" fill="#1f2937"/><path d="M14 17V9M20 17V7" stroke="#1f2937" stroke-width="1.6"/><path d="M4 18.5Q18 15.5 32 18.5" stroke="#0ea5e9" stroke-width="1.6" fill="none"/>`
-    : obstr ? `<text x="18" y="21" text-anchor="middle" font-size="9.5" font-weight="800" fill="#1f2937" font-family="system-ui">Obstn</text>`
-    : `<path d="M7 15H29" stroke="#1f2937" stroke-width="2"/><path d="M12 10.5V19.5M18 8.5V21.5M24 10.5V19.5" stroke="#1f2937" stroke-width="2"/>`;
-  return `<svg class="wrk" width="${W}" height="${Math.round(W*.83)}" viewBox="0 0 36 30"><ellipse cx="18" cy="15" rx="16.5" ry="12" fill="rgba(255,255,255,.75)" stroke="#a21caf" stroke-width="1.6" stroke-dasharray="2.2 2"/>${casco}</svg>`;
+  const cat=c.cat||"", niv=c.nivel||"", obstr=c.tipo==="obstruction";
+  const visible=/hull_showing|mast_showing/.test(cat)||/covers|awash|always_dry|^dry$/.test(niv);
+  const noPel=/non.?dangerous/.test(cat), sucio=/foul|stump/.test(cat);
+  const p=c.prof!=null&&c.prof!==""?String(c.prof).replace(".",","):"";
+  const tinta="#1f2937", halo='stroke="#fff" stroke-width="4" stroke-linejoin="round" stroke-linecap="round" fill="none"';
+  const peligro=`<ellipse cx="18" cy="15" rx="16" ry="12" fill="#bfe3f5" fill-opacity=".85" stroke="${tinta}" stroke-width="1.9" stroke-linecap="round" stroke-dasharray=".1 3.1"/>`;
+  const marca=(d,sw)=>`<path d="${d}" ${halo}/><path d="${d}" stroke="${tinta}" stroke-width="${sw}" fill="none" stroke-linecap="round"/>`;
+  const casco="M6 15H30M12 11V19M18 8.5V21.5M24 11V19";          // K28/K29: casco hundido
+  let g;
+  if(visible) g=marca("M5 19.5H31",1.6)+`<path d="M8 19.5L10.5 14H25.5L29 19.5Z" fill="${tinta}" stroke="#fff" stroke-width=".8"/><path d="M15 14V7.5M21 14V6" stroke="${tinta}" stroke-width="1.7" stroke-linecap="round"/>`; // K24: casco a la vista
+  else if(sucio) g=marca("M11 9.5L9.5 21M18.5 9.5L17 21M8 13H21M7 18H20",1.5)+(p?`<text x="27" y="19.5" text-anchor="middle" font-size="8.5" font-style="italic" font-weight="700" fill="${tinta}" font-family="Georgia,serif">${p}</text>`:""); // K31: fondo sucio
+  else if(obstr) g=peligro+`<text x="18" y="${p?14:18.5}" text-anchor="middle" font-size="8.6" font-style="italic" font-weight="700" fill="${tinta}" font-family="Georgia,serif">Obstn</text>`+(p?`<text x="18" y="23.5" text-anchor="middle" font-size="8.6" font-weight="800" fill="${tinta}" font-family="system-ui">${p}</text>`:""); // K40/K41
+  else if(p) g=peligro+`<text x="18" y="14" text-anchor="middle" font-size="8" font-style="italic" font-weight="700" fill="${tinta}" font-family="Georgia,serif">Wk</text><text x="18" y="23.5" text-anchor="middle" font-size="8.6" font-weight="800" fill="${tinta}" font-family="system-ui">${p}</text>`; // K26: profundidad conocida
+  else if(noPel) g=marca(casco,1.8);                                // K29: no peligroso, sin línea de peligro
+  else g=peligro+`<path d="${casco}" stroke="${tinta}" stroke-width="1.9" fill="none" stroke-linecap="round"/>`; // K28: peligroso
+  return `<svg class="wrk" width="${W}" height="${Math.round(W*.83)}" viewBox="0 0 36 30">${g}</svg>`;
 }
 function cascoPop(c){
   const CAT={dangerous:"Naufragio peligroso","non-dangerous":"Naufragio no peligroso",foul_ground:"Fondo sucio (restos)",stump:"Troncos o pilotes",plane:"Avión hundido",dangerous_wreck:"Naufragio peligroso",non_dangerous_wreck:"Naufragio no peligroso",distributed_remains_of_wreck:"Restos dispersos",wreck_showing_mast:"Asoma el mástil",wreck_showing_any_portion_of_hull:"Asoma parte del casco",hull_showing:"Asoma el casco",mast_showing:"Asoma el mástil"};
@@ -1821,7 +1830,7 @@ function drawPuntos(){
   G.cl.clearLayers(); const z=map.getZoom(); if(z<11) return;
   for(const p of LUGARES){ if(p.lat==null) continue;
     const cls=p.t==="pna"?"clb pna":p.star?"clb star":"clb";
-    const txt=p.t==="pna"?"⚓ PNA":(z>=14?p.n.replace(/^Club (de |Náutico )?/,"").slice(0,22):(p.star?"★ CVR":"⛵"))+(p.t==="club"&&p.vhf&&z>=14?" · ch "+p.vhf:"");
+    const txt=p.t==="pna"?"⚓ PNA":(z>=14?(p.n.length>30?p.n.slice(0,29)+"…":p.n):(p.star?"★ CVR":"⛵"))+(p.t==="club"&&p.vhf&&z>=14?" · ch "+p.vhf:"");
     L.marker([p.lat,p.lon],{icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="${cls}">${txt}</span>`}),keyboard:false,zIndexOffset:500})
       .on("click",()=>ficha(itemPunto(p).replace(/<button data-ver[^<]*<\/button>/,""))).addTo(G.cl);
   }
