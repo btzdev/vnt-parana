@@ -1,0 +1,16 @@
+{
+  "name": "VNT Paraná · Navegación",
+  "short_name": "VNT Paraná",
+  "description": "Mapa del río Paraná con GPS, viento, altura oficial, buques AIS, balizamiento y contador de regata.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#0b2a3f",
+  "theme_color": "#0b2a3f",
+  "lang": "es-AR",
+  "icons": [
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}
