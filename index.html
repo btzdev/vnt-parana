@@ -106,6 +106,12 @@ button{font:inherit;color:inherit}
 .bzw{width:20px;height:20px;border-radius:50%;color:#fff;font:800 13px/20px var(--font);text-align:center;border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35)}
 .drg{font:700 10.5px var(--font);color:#fff;background:#334155;border-radius:6px;padding:2px 6px;white-space:nowrap;transform:translate(-50%,-50%);display:inline-block;box-shadow:0 1px 4px rgba(0,0,0,.3)}
 .leyenda{font-size:11.5px;color:var(--ink3);margin:6px 4px 0;line-height:1.4}
+.bzpop{display:flex;gap:12px;align-items:flex-start}
+.bzimg{flex:none;width:84px;height:116px;display:grid;place-items:end center;border-radius:10px;background:linear-gradient(180deg,#e0f2fe 0%,#bae6fd 84%,#38bdf8 84%,#0ea5e9 100%);padding-bottom:2px;overflow:hidden}
+.bzsig{font-size:12.5px;margin-top:5px;line-height:1.42}
+.bzdat{font-size:12px;margin-top:8px;border-collapse:collapse;width:100%}
+.bzdat td{padding:3px 8px 3px 0;vertical-align:top;border-top:1px solid #e5e7eb}
+.bzdat td:first-child{color:#667;white-space:nowrap}
 .cnt{display:flex;gap:6px}
 .cnt span{font-size:12px;font-weight:650;border-radius:20px;padding:3px 9px;background:var(--card);border:1px solid var(--line)}
 .cnt .u{color:var(--up)}.cnt .dn{color:var(--down)}
@@ -217,7 +223,7 @@ button{font:inherit;color:inherit}
     <label><input type="checkbox" data-l="ships" checked> Buques AIS</label>
     <label><input type="checkbox" data-l="km" checked> Eje VNT y km</label>
     <label><input type="checkbox" data-l="esc" checked> Escalas (altura)</label>
-    <label><input type="checkbox" data-l="bz" checked> Balizamiento y avisos SHN</label>
+    <label><input type="checkbox" data-l="bz" checked> Boyas, canal y avisos SHN</label>
     <label><input type="checkbox" data-l="tracks" checked> Estelas y vectores de buques</label>
   </div>
   <div class="toast" id="toast"></div>
@@ -337,7 +343,7 @@ button{font:inherit;color:inherit}
       <section class="sec">
         <h2>Balizamiento <small id="bzSrc"></small></h2>
         <div class="card" style="padding:4px 12px"><ul class="ships" id="bzList"><li class="na" style="cursor:default">Cargando avisos…</li></ul></div>
-        <div class="leyenda">Avisos vigentes del SHN (oficial). Las boyas del mapa vienen de OpenSeaMap (no oficial); con anillo, las que tienen novedad.</div>
+        <div class="leyenda">Avisos vigentes del SHN (oficial). Las boyas del mapa vienen de OpenSeaMap (no oficial); con anillo, las que tienen novedad. El canal (franja celeste) se traza uniendo las boyas laterales: es orientativo.</div>
       </section>
 
       <section class="sec">
@@ -723,6 +729,68 @@ const COL_ES={green:"verde",red:"roja",yellow:"amarilla",black:"negra",white:"bl
 const EST_COL={falta:"#dc2626",sumergida:"#dc2626",garreada:"#ea580c","a la deriva":"#ea580c",apagada:"#7c3aed",reubicada:"#0284c7"};
 const estCol=e=>EST_COL[e]||"#ca8a04";
 const cap=t=>t?t[0].toUpperCase()+t.slice(1):"";
+/* íconos de boyas y balizas (IALA región B) */
+const CB={verde:"#16a34a",roja:"#dc2626",amarilla:"#facc15",negra:"#111827",blanca:"#ffffff"};
+function coloresBoya(s){
+  const t=s.tipo, c=(s.cat||"").toLowerCase();
+  if(/cardinal/.test(t)){
+    if(/north/.test(c)) return {b:[CB.negra,CB.amarilla],tope:"N"};
+    if(/south/.test(c)) return {b:[CB.amarilla,CB.negra],tope:"S"};
+    if(/east/.test(c))  return {b:[CB.negra,CB.amarilla,CB.negra],tope:"E"};
+    if(/west/.test(c))  return {b:[CB.amarilla,CB.negra,CB.amarilla],tope:"W"};
+    return {b:[CB.amarilla,CB.negra],tope:""};
+  }
+  if(/isolated/.test(t)) return {b:[CB.negra,CB.roja,CB.negra],tope:"PA"};
+  if(/safe_water/.test(t)) return {b:[CB.roja,CB.blanca],vert:true,tope:"AS"};
+  if(/special/.test(t)) return {b:[CB.amarilla],tope:"X"};
+  // lateral: región B → babor verde (cilindro), estribor rojo (cono)
+  let col=s.color==="green"?CB.verde:s.color==="red"?CB.roja:null;
+  if(/port/.test(c)&&!/preferred/.test(c)) col=col||CB.verde;
+  if(/starboard/.test(c)&&!/preferred/.test(c)) col=col||CB.roja;
+  if(/preferred_channel_port/.test(c)) return {b:[CB.verde,CB.roja,CB.verde],tope:"CIL",tc:CB.verde};
+  if(/preferred_channel_starboard/.test(c)) return {b:[CB.roja,CB.verde,CB.roja],tope:"CON",tc:CB.roja};
+  col=col||BZ_COL[s.color]||"#94a3b8";
+  return {b:[col],tope:col===CB.verde?"CIL":col===CB.roja?"CON":"",tc:col};
+}
+function tope(k,tc){
+  const n=CB.negra;
+  switch(k){
+    case "CIL": return `<rect x="7" y="4" width="6" height="6" fill="${tc}" stroke="#fff" stroke-width=".8"/>`;
+    case "CON": return `<path d="M10 3.5L13.5 10H6.5Z" fill="${tc}" stroke="#fff" stroke-width=".8"/>`;
+    case "N": return `<path d="M10 0L13 4.5H7Z M10 5L13 9.5H7Z" fill="${n}"/>`;
+    case "S": return `<path d="M7 0H13L10 4.5Z M7 5H13L10 9.5Z" fill="${n}"/>`;
+    case "E": return `<path d="M10 0L13 4.5H7Z M7 5H13L10 9.5Z" fill="${n}"/>`;
+    case "W": return `<path d="M7 0H13L10 4.5Z M10 5L13 9.5H7Z" fill="${n}"/>`;
+    case "PA": return `<circle cx="10" cy="2.6" r="2.3" fill="${n}"/><circle cx="10" cy="7.6" r="2.3" fill="${n}"/>`;
+    case "AS": return `<circle cx="10" cy="6" r="3" fill="${CB.roja}" stroke="#fff" stroke-width=".7"/>`;
+    case "X": return `<path d="M7 3L13 9M13 3L7 9" stroke="${CB.amarilla}" stroke-width="2.2" stroke-linecap="round"/><path d="M7 3L13 9M13 3L7 9" stroke="#111" stroke-width=".6"/>`;
+  }
+  return "";
+}
+function svgBoya(s,W,H,sombra){
+  const k=coloresBoya(s), baliza=/beacon/.test(s.tipo), luz=/light/.test(s.tipo);
+  let cuerpo="";
+  if(luz){
+    cuerpo=`<path d="M10 27V17" stroke="#334155" stroke-width="1.6"/><path d="M10 6C13.5 10 14 13 10 17C6 13 6.5 10 10 6Z" fill="#f59e0b" stroke="#fff" stroke-width=".9"/>`;
+  } else if(baliza){
+    // baliza: poste fijo con tablero de color
+    const n=k.b.length, h=11/n;
+    cuerpo=`<rect x="9.2" y="13" width="1.6" height="15" fill="#334155"/>`+k.b.map((c,i)=>`<rect x="6" y="${11+i*h}" width="8" height="${h+.05}" fill="${c}"/>`).join("")+`<rect x="6" y="11" width="8" height="11" fill="none" stroke="#0b2a3f" stroke-width=".75"/><path d="M7 28H13" stroke="#334155" stroke-width="1.6"/>`;
+  } else {
+    // boya: cuerpo troncocónico con franjas, mástil y marca de tope
+    const n=k.b.length, y0=13, y1=26.5;
+    const clip=`<clipPath id="cb"><path d="M6 ${y1}L7.4 ${y0}H12.6L14 ${y1}Z"/></clipPath>`;
+    let fr="";
+    if(k.vert){ fr=[0,1,2,3].map(i=>`<rect x="${6+i*2}" y="${y0}" width="2" height="${y1-y0}" fill="${k.b[i%2]}"/>`).join(""); }
+    else { const h=(y1-y0)/n; fr=k.b.map((c,i)=>`<rect x="5" y="${y0+i*h}" width="10" height="${h+.05}" fill="${c}"/>`).join(""); }
+    cuerpo=`<defs>${clip}</defs><path d="M10 ${y0}V10.5" stroke="#334155" stroke-width="1.2"/><g clip-path="url(#cb)">${fr}</g><path d="M6 ${y1}L7.4 ${y0}H12.6L14 ${y1}Z" fill="none" stroke="#0b2a3f" stroke-width=".75"/><path d="M3 27.3Q10 25.6 17 27.3" stroke="#0f6c8c" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
+  }
+  return `<svg width="${W}" height="${H}" viewBox="0 0 20 30" style="overflow:visible${sombra?";filter:drop-shadow(0 0 1px #fff) drop-shadow(0 1px 2px rgba(0,0,0,.55))":""}">${cuerpo}${luz?"":tope(k.tope,k.tc)}</svg>`;
+}
+function iconoBoya(s,z){
+  const esc=z>=15?1.45:z>=13?1.15:.9, W=Math.round(20*esc), H=Math.round(30*esc);
+  return L.divIcon({className:"",iconSize:[W,H],iconAnchor:[W/2,Math.round(H*.9)],popupAnchor:[0,-H*.75],html:svgBoya(s,W,H,true)});
+}
 async function loadBz(){
   let j=null;
   for(const u of BZ_URLS){ try{ j=await getJSON(u+"?t="+Math.floor(Date.now()/600e3),20000); break; }catch(e){} }
@@ -731,11 +799,32 @@ async function loadBz(){
   BZ_OSM=(BZ.osm?.items||[]).map(a=>({lat:a[0],lon:a[1],tipo:a[2],color:a[3],cat:a[4],nom:a[5],luz:a[6],id:a[7]}));
   for(const b of BZ_OSM){const p=proyectar(b.lat,b.lon);b.ruta=p.ruta;b.km=p.km;b.d=p.d;const m=(b.nom||"").match(/(\d{1,4}[.,]\d{1,2})/);b.kmn=m?parseFloat(m[1].replace(",",".")):null;}
   BZ_SHN=(BZ.shn?.items||[]).filter(x=>x.ruta&&(x.km!=null||x.km_obs!=null)); BZ_DR=(BZ.shn?.dragas||[]).filter(d=>d.ruta);
-  emparejar();
+  emparejar(); armarCanal();
   const fc=BZ.shn?.consultado?new Date(BZ.shn.consultado).toLocaleString("es-AR",{day:"2-digit",month:"2-digit",hour:"2-digit",minute:"2-digit"}):"";
   setSrc("bz_shn",BZ.shn?.ok===false?"wa":"ok",`${BZ_SHN.length} novedades vigentes${fc?" · consultado "+fc:""}${BZ.shn?.ok===false?" · última consulta falló":""}`);
   setSrc("bz_osm",BZ.osm?.ok===false?"wa":"ok",`${BZ_OSM.length} señales`);
   drawBz(); renderBzList();
+}
+let CANAL={lineas:[],bandas:[]};
+function armarCanal(){ // bordes del canal: une boyas laterales del mismo color ordenadas por km
+  const lineas=[], bandas=[];
+  const corridas=arr=>{ const out=[]; let cur=[];
+    for(const b of arr){ if(cur.length&&(b.km-cur.at(-1).km>2.5||dist(b.lat,b.lon,cur.at(-1).lat,cur.at(-1).lon)>3000)){ if(cur.length>1) out.push(cur); cur=[]; } cur.push(b); }
+    if(cur.length>1) out.push(cur); return out; };
+  for(const ruta of Object.keys(VNT.rutas)){
+    const lat=BZ_OSM.filter(b=>b.ruta===ruta&&b.d<3000&&/lateral/.test(b.tipo)&&!/preferred/.test(b.cat||""));
+    const lado=c=>lat.filter(b=>coloresBoya(b).tc===c).sort((a,b)=>a.km-b.km);
+    const V=corridas(lado(CB.verde)), Ro=corridas(lado(CB.roja));
+    for(const r of V) lineas.push({c:CB.verde,p:r.map(b=>[b.lat,b.lon])});
+    for(const r of Ro) lineas.push({c:CB.roja,p:r.map(b=>[b.lat,b.lon])});
+    for(const v of V) for(const r of Ro){
+      const k0=Math.max(v[0].km,r[0].km), k1=Math.min(v.at(-1).km,r.at(-1).km); if(k1-k0<0.3) continue;
+      const vv=v.filter(b=>b.km>=k0-0.6&&b.km<=k1+0.6), rr=r.filter(b=>b.km>=k0-0.6&&b.km<=k1+0.6);
+      if(vv.length<2||rr.length<2) continue;
+      bandas.push([...vv.map(b=>[b.lat,b.lon]),...rr.slice().reverse().map(b=>[b.lat,b.lon])]);
+    }
+  }
+  CANAL={lineas,bandas};
 }
 function emparejar(){
   for(const b of BZ_OSM) b.av=null;
@@ -760,13 +849,15 @@ function drawBz(){
   bzTimer=setTimeout(()=>{
     G.bz.clearLayers(); if(!BZ) return;
     const z=map.getZoom(), b=map.getBounds().pad(.2);
+    if(z>=10){
+      for(const pg of CANAL.bandas) L.polygon(pg,{renderer:bzRend,stroke:false,fillColor:"#38bdf8",fillOpacity:.2,interactive:false}).addTo(G.bz);
+      for(const l of CANAL.lineas) L.polyline(l.p,{renderer:bzRend,color:l.c,weight:2.2,opacity:.8,dashArray:"7 5",interactive:false}).addTo(G.bz);
+    }
     if(z>=10) for(const s of BZ_OSM){
       if(!b.contains([s.lat,s.lon])) continue;
       if(z<12&&!s.av) continue;
-      const fill=BZ_COL[s.color]||(/cardinal|special/.test(s.tipo)?"#eab308":/isolated/.test(s.tipo)?"#111827":/light/.test(s.tipo)?"#f59e0b":"#94a3b8");
-      const beacon=/beacon|light/.test(s.tipo);
-      L.circleMarker([s.lat,s.lon],{renderer:bzRend,radius:beacon?4:5.5,color:beacon?"#1f2937":"#fff",weight:beacon?2:1.5,fillColor:fill,fillOpacity:1}).bindPopup(()=>bzPop(s)).addTo(G.bz);
-      if(s.av) L.circleMarker([s.lat,s.lon],{renderer:bzRend,radius:11,color:estCol(s.av[0].estado),weight:3,fill:false,dashArray:"4 3"}).bindPopup(()=>bzPop(s)).addTo(G.bz);
+      L.marker([s.lat,s.lon],{icon:iconoBoya(s,z),keyboard:false}).bindPopup(()=>bzPop(s),{maxWidth:330,minWidth:260}).addTo(G.bz);
+      if(s.av) L.circleMarker([s.lat,s.lon],{renderer:bzRend,radius:11,color:estCol(s.av[0].estado),weight:3,fill:false,dashArray:"4 3"}).bindPopup(()=>bzPop(s),{maxWidth:330,minWidth:260}).addTo(G.bz);
     }
     if(z>=9) for(const a of BZ_SHN){
       if(a.buoy) continue;
@@ -784,8 +875,44 @@ function drawBz(){
 function avPop(a,aprox){
   return `<b style="color:${estCol(a.estado)}">${(a.estado||"novedad").toUpperCase()}</b><br>${a.senal}${a.km!=null?` · km ${fmt(a.km,1)}`:""}${a.detalle?`<br>${a.detalle}`:""}${a.km_obs!=null?`<br>Vista ≈ km ${fmt(a.km_obs,1)}`:""}${aprox?`<br><i>Ubicación aproximada por km: la señal no figura en OpenSeaMap.</i>`:""}<br><span style="color:#667">SHN · radioaviso ${a.aviso} · ${a.fecha.split("-").reverse().join("/")}</span>`;
 }
+function significadoBoya(s){
+  const t=s.tipo, c=(s.cat||"").toLowerCase(), k=coloresBoya(s);
+  if(/cardinal/.test(t)){
+    const d=/north/.test(c)?"norte":/south/.test(c)?"sur":/east/.test(c)?"este":/west/.test(c)?"oeste":"";
+    return d?`Marca cardinal ${d.toUpperCase()}: las aguas navegables están al ${d} de la señal. Pasala por su lado ${d}; el peligro está del lado opuesto. Marca de tope: dos conos negros.`
+            :"Marca cardinal: indica de qué lado de un peligro están las aguas navegables.";
+  }
+  if(/isolated/.test(t)) return "Peligro aislado: marca un peligro de poca extensión (casco hundido, roca u obstrucción) con aguas navegables alrededor. No pasar cerca. Tope: dos esferas negras.";
+  if(/safe_water/.test(t)) return "Aguas seguras: hay agua navegable alrededor de la señal. Suele marcar el eje del canal o una recalada. Tope: esfera roja.";
+  if(/special/.test(t)) return "Marca especial (amarilla): señala una zona o elemento particular, como toma de agua, cable, área de dragado, fondeadero o regata. No delimita el canal: consultá la carta. Tope: aspa amarilla.";
+  if(/preferred_channel_port/.test(c)) return "Bifurcación con canal principal a estribor (IALA región B): navegando aguas arriba, el canal preferido queda a tu derecha. Tratala como marca de babor.";
+  if(/preferred_channel_starboard/.test(c)) return "Bifurcación con canal principal a babor (IALA región B): navegando aguas arriba, el canal preferido queda a tu izquierda. Tratala como marca de estribor.";
+  if(k.tc===CB.verde) return "Lateral de babor, verde (IALA región B, usada en Argentina). Navegando aguas arriba dejala por tu babor (izquierda); navegando aguas abajo, por estribor (derecha). Marca el borde izquierdo del canal subiendo. Tope: cilindro verde.";
+  if(k.tc===CB.roja) return "Lateral de estribor, roja (IALA región B, usada en Argentina). Navegando aguas arriba dejala por tu estribor (derecha); navegando aguas abajo, por babor (izquierda). Marca el borde derecho del canal subiendo. Tope: cono rojo.";
+  if(/light/.test(t)) return "Luz de navegación en tierra o sobre una estructura fija.";
+  return "Señal de navegación.";
+}
+function luzTexto(z){
+  if(!z) return "";
+  const m={F:"luz fija",Fl:"destellos",LFl:"destellos largos",Q:"centelleante",VQ:"centelleante rápida",IQ:"centelleante interrumpida",Iso:"isofase",Oc:"ocultaciones",Mo:"morse",Al:"alternativa"};
+  const r=String(z).match(/^([A-Za-z.]+)\s*(?:\(([^)]+)\))?\s*(?:([\d.,]+)\s*s)?/); if(!r) return "";
+  const tp=m[r[1].replace(/\./g,"")]||r[1];
+  return `${tp}${r[2]?` en grupos de ${r[2]}`:""}${r[3]?`, cada ${r[3].replace(".",",")} s`:""}`;
+}
 function bzPop(s){
-  return `<b>${TIPO_ES[s.tipo]||s.tipo}${s.color?" "+(COL_ES[s.color]||s.color):""}</b>${s.nom?`<br>${s.nom}`:""}${s.luz?`<br>Luz: ${s.luz}`:""}${s.d<3000?`<br>≈ km ${fmt(s.km,1)}`:""}${(s.av||[]).map(a=>"<hr style='border:0;border-top:1px solid #ccc;margin:6px 0'>"+avPop(a,false)).join("")}<br><span style="color:#667">Posición: OpenSeaMap (no oficial)</span>`;
+  const k=coloresBoya(s), nomCol=c=>Object.keys(CB).find(n=>CB[n]===c)||"";
+  const titulo=(TIPO_ES[s.tipo]||s.tipo)+((/lateral/.test(s.tipo)&&s.color)?" "+(COL_ES[s.color]||s.color):"")+(/cardinal/.test(s.tipo)&&s.cat?" "+({north:"norte",south:"sur",east:"este",west:"oeste"}[s.cat]||s.cat):"");
+  const filas=[
+    s.nom?["Nombre",s.nom]:null,
+    s.d<3000?["Km VNT",`≈ ${fmt(s.km,1)} (${VNT.rutas[s.ruta]?.nombre||""})`]:null,
+    ["Colores",k.b.map(nomCol).join(" / ")+(k.vert?" (franjas verticales)":k.b.length>1?" (franjas horizontales, de arriba abajo)":"")],
+    s.luz?["Luz",`${s.luz}${luzTexto(s.luz)?" · "+luzTexto(s.luz):""}`]:null,
+    ["Posición",`${s.lat.toFixed(5)}, ${s.lon.toFixed(5)}`]
+  ].filter(Boolean).map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
+  return `<div class="bzpop"><div class="bzimg">${svgBoya(s,72,108,false)}</div><div style="min-width:0"><b>${titulo}</b><div class="bzsig">${significadoBoya(s)}</div></div></div>`+
+    `<table class="bzdat">${filas}</table>`+
+    (s.av||[]).map(a=>"<hr style='border:0;border-top:2px solid "+estCol(a.estado)+";margin:8px 0'>"+avPop(a,false)).join("")+
+    `<div style="color:#667;font-size:11px;margin-top:6px">Datos de la señal: OpenSeaMap (no oficial). Verificá con la carta del SHN.</div>`;
 }
 function renderBzList(){
   const el=$("bzList"); if(!el||!P) return;
@@ -865,18 +992,34 @@ function sentido(s){
   if(df>120) return {k:"up",col:"#1d7a46",t:"subiendo"};
   return {k:"x",col:"#64748b",t:"cruzando"};
 }
-function cascoPx(s,z,lat){ // eslora/manga reales en píxeles para el zoom actual
-  if(!s.len) return null;
-  const mpp=156543.03392*Math.cos(rad(lat))/2**z;
-  return {Lp:Math.round(Math.min(420,Math.max(16,s.len/mpp))), Bp:Math.round(Math.min(90,Math.max(6,(s.beam||s.len/6.5)/mpp)))};
+const DIM_TIPO={Carga:[190,32],Tanque:[180,32],Pasaje:[110,20],Remolcador:[32,10],Pesca:[25,7],Recreo:[14,4.5],Militar:[80,12],Autoridad:[30,7],"Alta velocidad":[40,10]};
+function dimsBuque(s){ // dimensiones reales (AIS) o promedio por tipo
+  if(s.len) return {L:s.len,B:s.beam||Math.max(3,s.len/6.5),est:false};
+  const d=DIM_TIPO[tipoAIS(s.type)]||[80,14]; return {L:d[0],B:d[1],est:true};
 }
-function cascoSvg(c,Lp,Bp){
-  return `<svg width="${Bp}" height="${Lp}" viewBox="0 0 ${Bp} ${Lp}" style="overflow:visible"><path d="M${Bp/2} 0C${Bp} ${Lp*.1} ${Bp} ${Lp*.22} ${Bp} ${Lp*.32}L${Bp} ${Lp}L0 ${Lp}L0 ${Lp*.32}C0 ${Lp*.22} 0 ${Lp*.1} ${Bp/2} 0Z" fill="${c}" fill-opacity=".88" stroke="#fff" stroke-width="1.3"/>${Lp>=34?`<rect x="${Bp*.15}" y="${Lp*.8}" width="${Bp*.7}" height="${Lp*.09}" rx="1" fill="#fff" fill-opacity=".85"/>`:""}</svg>`;
+function cascoPx(s,z,lat){ // píxeles: escala real; con zoom lejano, escala mínima común (se conservan las proporciones entre buques)
+  const d=dimsBuque(s), mpp=156543.03392*Math.cos(rad(lat))/2**z, f=Math.max(1/mpp,0.12);
+  return {Lp:Math.round(Math.min(420,Math.max(10,d.L*f))), Bp:Math.round(Math.min(90,Math.max(4,d.B*f))), est:d.est, tipo:tipoAIS(s.type)};
+}
+function cascoSvg(c,Lp,Bp,est,tipo){
+  const W=Bp, H=Lp, det=H>=26;
+  const casco=`M${W/2} 0C${W*.92} ${H*.07} ${W} ${H*.17} ${W} ${H*.28}L${W} ${H*.93}Q${W} ${H} ${W*.84} ${H}L${W*.16} ${H}Q0 ${H} 0 ${H*.93}L0 ${H*.28}C0 ${H*.17} ${W*.08} ${H*.07} ${W/2} 0Z`;
+  let extra="";
+  if(det){
+    const peq=tipo==="Remolcador"||tipo==="Pesca"||tipo==="Recreo"||tipo==="Autoridad";
+    if(peq){ extra=`<rect x="${W*.2}" y="${H*.32}" width="${W*.6}" height="${H*.3}" rx="${W*.1}" fill="#fff" fill-opacity=".9"/>`; }
+    else {
+      extra=`<rect x="${W*.14}" y="${H*.8}" width="${W*.72}" height="${H*.12}" rx="1" fill="#fff" fill-opacity=".92"/>`;
+      if(tipo==="Tanque") extra+=`<path d="M${W/2} ${H*.12}V${H*.78}" stroke="#fff" stroke-opacity=".75" stroke-width="${Math.max(1,W*.08)}"/>`;
+      else if(tipo==="Carga"||!tipo||tipo==="Otro"){ for(let i=0;i<5;i++){ const y=H*(.16+i*.125); extra+=`<rect x="${W*.2}" y="${y}" width="${W*.6}" height="${H*.09}" fill="#000" fill-opacity=".22"/>`; } }
+      else if(tipo==="Pasaje") extra+=`<rect x="${W*.18}" y="${H*.2}" width="${W*.64}" height="${H*.6}" rx="${W*.15}" fill="#fff" fill-opacity=".75"/>`;
+    }
+  }
+  return `<svg width="${W}" height="${H}" viewBox="-1 -1 ${W+2} ${H+2}" style="overflow:visible"><path d="${casco}" fill="${c}" fill-opacity=".92" stroke="#fff" stroke-width="1.3"${est?' stroke-dasharray="3 2"':""}/>${extra}</svg>`;
 }
 function iconoBuque(s,stop,rot,lab,px){
-  if(px){ const S=Math.max(px.Lp,22);
-    return L.divIcon({className:"",iconSize:[S,S],iconAnchor:[S/2,S/2],html:`<div style="transform:rotate(${rot}deg);width:${S}px;height:${S}px;display:grid;place-items:center">${cascoSvg(s.sn.col,px.Lp,px.Bp)}</div>${lab?`<span class="shiplab" style="position:absolute;left:${S/2+8}px;top:${S/2-8}px;transform:none">${lab}</span>`:""}`}); }
-  return L.divIcon({className:"",iconSize:[22,22],iconAnchor:[11,11],html:`<div style="transform:rotate(${stop?0:rot}deg);width:22px;height:22px;display:grid;place-items:center">${shipSvg(s.sn.col,stop)}</div>${lab?`<span class="shiplab">${lab}</span>`:""}`});
+  const S=Math.max(px.Lp,px.Bp,14);
+  return L.divIcon({className:"",iconSize:[S,S],iconAnchor:[S/2,S/2],html:`<div style="transform:rotate(${rot}deg);width:${S}px;height:${S}px;display:grid;place-items:center;filter:drop-shadow(0 1px 2px rgba(0,0,0,.45))">${cascoSvg(s.sn.col,px.Lp,px.Bp,px.est,px.tipo)}</div>${lab?`<span class="shiplab" style="position:absolute;left:${S/2+8}px;top:${S/2-8}px;transform:none">${lab}</span>`:""}`});
 }
 function mover(lat,lon,sog,cog,seg){const d=sog*0.514444*seg,br=rad(cog);return [lat+deg(d*Math.cos(br)/R),lon+deg(d*Math.sin(br)/(R*Math.cos(rad(lat))))];}
 function estima(s,now){ // navegación a la estima entre reportes (máx. 5 min)
@@ -910,7 +1053,7 @@ function animShips(){
     const p=estima(s,now);
     if(!b.contains(p)) continue;
     vivos.add(s.mmsi);
-    const stop=s.sn.k==="stop", rot=Math.round((s.hdg??(stop?null:s.cog)??0)/3)*3, lab=z>=13&&s.name?s.name:"", px=cascoPx(s,z,p[0]), key=s.sn.col+stop+rot+lab+(px?px.Lp+"x"+px.Bp:"");
+    const stop=s.sn.k==="stop", rot=Math.round((s.hdg??(stop?null:s.cog)??0)/3)*3, lab=z>=13&&s.name?s.name:"", px=cascoPx(s,z,p[0]), key=s.sn.col+stop+rot+lab+px.Lp+"x"+px.Bp+px.est;
     let o=MK.get(s.mmsi);
     if(!o){
       o={m:L.marker(p,{zIndexOffset:stop?0:500}).bindPopup(()=>shipPop(s)).addTo(G.ships),
@@ -935,7 +1078,7 @@ function animShips(){
 function shipPop(s){
   const age=Math.round((Date.now()-s.t)/60000), rc=recorrido(s), e=eta(s);
   return `<b>${s.name||"MMSI "+s.mmsi}</b><br>${[tipoAIS(s.type),s.sn?.t].filter(Boolean).join(" · ")}<br>
-   ${fmt(s.sog,1)} kn · rumbo ${s.cog!=null?Math.round(s.cog)+"°":"–"}${s.dest?`<br>Destino: ${s.dest}`:""}${s.len?`<br>Eslora ${Math.round(s.len)} m${s.beam?` · manga ${Math.round(s.beam)} m`:""}`:""}
+   ${fmt(s.sog,1)} kn · rumbo ${s.cog!=null?Math.round(s.cog)+"°":"–"}${s.dest?`<br>Destino: ${s.dest}`:""}${s.len?`<br>Eslora ${Math.round(s.len)} m${s.beam?` · manga ${Math.round(s.beam)} m`:""}`:`<br><i>Tamaño estimado: promedio para ${(tipoAIS(s.type)||"buque").toLowerCase()} (${dimsBuque(s).L} m)</i>`}
    ${s.km!=null&&s.dEje<4000?`<br>km ${fmt(s.km,1)}`:""}${e!=null?`<br><b>Pasa frente a vos en ≈ ${e<60?Math.round(e)+" min":fmt(e/60,1)+" h"}</b>`:""}
    ${rc?`<br>Últimos ${Math.round(rc.min)} min: ${fmt(rc.km,1)} km · media ${fmt(rc.kn,1)} kn`:""}
    <br><span style="color:#667">MMSI ${s.mmsi} · ${s.src||""} · último reporte hace ${age<1?"<1":age} min</span>`;
