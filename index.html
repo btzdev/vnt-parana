@@ -217,6 +217,7 @@ button{font:inherit;color:inherit}
 .rd .zcn{flex:1;font-size:13.5px;font-weight:650;line-height:1.25}
 .rd .zcn small{display:block;font-weight:500;font-size:11.5px;opacity:.8}
 .rd .zcli a{flex:none;text-decoration:none;font-size:18px;background:rgba(255,255,255,.16);border-radius:50%;width:36px;height:36px;display:grid;place-items:center}
+.dett{width:100%;border-collapse:collapse;margin:6px 0;font-size:12.5px}.dett td{padding:3px 4px;border-top:1px solid var(--line,rgba(0,0,0,.08))}.dett td:last-child{text-align:right;white-space:nowrap}.dett tr.on td{background:rgba(14,116,144,.12)}
 .rd .zona .zt{font-size:13px;opacity:.9;margin-top:4px;line-height:1.45}
 .rd .sos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .rd .sos a{display:block;text-decoration:none;color:#fff;background:#b91c1c;border-radius:12px;padding:12px;font-weight:700;font-size:13px}
@@ -694,6 +695,30 @@ function proyectar(lat,lon){
   return best;
 }
 function puntoKm(A,km){for(let i=0;i<A.length-1;i++){const[k1,la1,lo1]=A[i],[k2,la2,lo2]=A[i+1];if(km>=Math.min(k1,k2)&&km<=Math.max(k1,k2)){const t=k2===k1?0:(km-k1)/(k2-k1);return[la1+t*(la2-la1),lo1+t*(lo2-lo1)];}}return null;}
+/* ====== profundidades oficiales del canal (planilla diaria de determinantes, ANPYN) ====== */
+let DET=null;
+const DET_RUTA=t=>/PALMAS/.test(t.rio)||/MITRE/.test(t.nom)?"parana_de_las_palmas":/SAN MART/.test(t.rio)?null:/^RIO PARAN[AÁ]$/.test(t.rio)?"parana":null;
+async function loadDet(){
+  for(const u of ["determinantes.json","https://raw.githubusercontent.com/btzdev/vnt-parana/main/determinantes.json"]){
+    try{ const r=await fetch(u+"?t="+Date.now()); if(!r.ok) continue; DET=await r.json(); if(me&&P) updatePos(); return; }catch{}
+  }
+}
+function detTramo(p){
+  if(!DET||!p) return null; const k=p.km;
+  return DET.tramos.find(t=>DET_RUTA(t)===p.ruta&&k>=Math.min(t.desde,t.hasta)&&k<=Math.max(t.desde,t.hasta))||null;
+}
+function detProf(t){ return t.efe!=null?t.efe:(t.alt!=null?t.alt-t.cero:-t.cero); }
+function detHTML(p){
+  if(!DET) return "";
+  const t=detTramo(p);
+  if(!t) return `<dt>Prof. del canal</dt><dd><span style="color:var(--ink3);font-weight:500">Este tramo no figura en la planilla oficial del ${DET.fecha||"día"}.</span></dd>`;
+  const efe=detProf(t), cerca=DET.tramos.filter(x=>DET_RUTA(x)===p.ruta&&Math.abs((x.desde+x.hasta)/2-p.km)<=25).sort((a,b)=>Math.abs(a.kmc-p.km)-Math.abs(b.kmc-p.km)).slice(0,7).sort((a,b)=>b.desde-a.desde);
+  return `<dt>Prof. del canal</dt><dd><b style="font-size:17px">${fmt(efe,2)} m</b> mínima en el tramo <span style="color:var(--ink3);font-weight:500">(${t.alt!=null?`${fmt(-t.cero,2)} m al cero + ${fmt(t.alt,2)} m de altura`:"al cero, régimen de mareas"})</span></dd>
+    <dt>Tramo oficial</dt><dd>${t.nom} · km ${fmt(t.desde,1)}–${fmt(t.hasta,1)} · paso crítico km ${fmt(t.kmc,1)} · ancho ${t.ancho} m${t.obs?` · <b>${t.obs}</b>`:""}<br><span style="color:var(--ink3);font-weight:500">Relevado ${t.rel} · planilla ANPYN del ${DET.fecha}</span></dd>
+    <dt>Cercanos</dt><dd><details><summary>${cerca.length} tramos a ±25 km</summary><table class="dett">${cerca.map(x=>`<tr${x===t?' class="on"':""}><td>km ${fmt(x.desde,1)}–${fmt(x.hasta,1)}</td><td>${x.nom}</td><td><b>${fmt(detProf(x),1)} m</b></td></tr>`).join("")}</table></details>
+      <span style="color:var(--ink3);font-weight:500;font-size:11.5px">Profundidad mínima del canal balizado. Fuera del canal (bancos, costas, islas) puede haber mucho menos agua.</span></dd>`;
+}
+function detChip(p){ const t=detTramo(p); return t?` · canal ${fmt(detProf(t),1)} m`:""; }
 const tramoDe = p => VNT.tramos.find(t=>t.ruta===p.ruta&&p.km>=t.km[0]&&p.km<=t.km[1]);
 const vtsDe = p => VNT.vts.find(t=>t.ruta===p.ruta&&p.km>=t.km[0]&&p.km<=t.km[1]);
 
@@ -765,7 +790,7 @@ function updatePos(){
   const tr=tramoDe(P), vts=vtsDe(P), dkm=P.d/1000;
   const enVia = dkm<4;
   $("posKm").textContent = enVia ? `km ${fmt(P.km,1)}` : `${fmt(dkm,1)} km del eje`;
-  $("posRio").textContent = enVia ? P.nombre : `cerca de km ${fmt(P.km,0)} · ${P.nombre}`;
+  $("posRio").textContent = enVia ? P.nombre+detChip(P) : `cerca de km ${fmt(P.km,0)} · ${P.nombre}`;
   $("posL2").textContent = `${me.lat.toFixed(5)}, ${me.lon.toFixed(5)}${me.acc?` · ±${Math.round(me.acc)} m`:""} · ${me.src}`;
   if(vts&&vts.vhf){$("vhfBox").hidden=false;$("vhfC").textContent="Ch "+vts.vhf.match(/\d+/)[0];$("vhfT").textContent=vts.nombre.replace("VTS ","VTS ");}
   else $("vhfBox").hidden=true;
@@ -777,7 +802,7 @@ function updatePos(){
     <dt>Al eje</dt><dd>${dkm<1?Math.round(P.d)+" m":fmt(dkm,1)+" km"}</dd>
     <dt>Tramo</dt><dd>${tr?tr.nombre:"–"}</dd>
     <dt>VTS</dt><dd>${vts?`${vts.nombre}${vts.vhf?" · "+vts.vhf:""}${vts.indicativo?" · "+vts.indicativo:""}`:"–"}</dd>
-    <dt>Aguas abajo</dt><dd>${Math.round(P.abajo)}° (${card16(P.abajo)})</dd>`;
+    <dt>Aguas abajo</dt><dd>${Math.round(P.abajo)}° (${card16(P.abajo)})</dd>`+detHTML(P);
   // links a boletines oficiales del día (profundidades)
   const hoy=arNow().toISOString().slice(0,10);
   const suf = P.ruta!=="parana"?"sfo":P.km<584?"sfo":P.km<853?"med":"sup";
@@ -2175,6 +2200,6 @@ if(!isNaN(ql)&&!isNaN(qn)){manual=true;setSrc("gps","wa","coordenadas recibidas 
 else startGPS();
 setTimeout(()=>{if(!me) fallback("Esperando GPS");},12000);
 setTimeout(()=>connectAIS(true),300);
-loadIGN(); loadBz(); setInterval(loadBz,30*60e3);
+loadIGN(); loadBz(); setInterval(loadBz,30*60e3); loadDet(); setInterval(loadDet,60*60e3);
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){connectAIS(true);if(me){loadObs();renderWx();}}});
 })();</script></body></html>
