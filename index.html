@@ -210,6 +210,13 @@ button{font:inherit;color:inherit}
 .rd .zona{background:linear-gradient(135deg,#0b2a3f,#0f4c6e);color:#fff;border:0}
 .rd .zona .ch{font:800 54px/1 var(--font);font-variant-numeric:tabular-nums}
 .rd .zona .ch small{font-size:16px;font-weight:650;opacity:.8;margin-left:4px}
+ .rd .zcl{margin-top:12px;border-top:1px solid rgba(255,255,255,.25);padding-top:10px}
+.rd .zclt{font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;opacity:.8;margin-bottom:4px}
+.rd .zcli{display:flex;align-items:center;gap:10px;padding:5px 0}
+.rd .zch{flex:none;min-width:58px;text-align:center;font:800 15px var(--font);background:rgba(255,255,255,.16);border-radius:8px;padding:5px 6px}
+.rd .zcn{flex:1;font-size:13.5px;font-weight:650;line-height:1.25}
+.rd .zcn small{display:block;font-weight:500;font-size:11.5px;opacity:.8}
+.rd .zcli a{flex:none;text-decoration:none;font-size:18px;background:rgba(255,255,255,.16);border-radius:50%;width:36px;height:36px;display:grid;place-items:center}
 .rd .zona .zt{font-size:13px;opacity:.9;margin-top:4px;line-height:1.45}
 .rd .sos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 .rd .sos a{display:block;text-decoration:none;color:#fff;background:#b91c1c;border-radius:12px;padding:12px;font-weight:700;font-size:13px}
@@ -1766,6 +1773,8 @@ function renderRadio(){
   $("rdZona").innerHTML = v
     ? `<div class="ch">Canal ${v.ch}<small>${v.n} · ${v.ind}</small></div><div class="zt">Estás en km ${fmt(P.km,1)} · ${v.r}.<br>Escucha también el canal 16.${v.tel?` Teléfono: <a style="color:#fff" href="tel:${v.tel[0]}">${telTxt(v.tel[0])}</a>`:""}</div>`
     : `<div class="ch">Canal 16<small>socorro y llamada</small></div><div class="zt">${P?`Estás a ${fmt(P.d/1000,1)} km del eje del canal, fuera de una zona VTS conocida.`:"Esperando posición GPS…"} Ante una emergencia llamá al 106 o por canal 16.</div>`;
+  if(me){ const cer=LUGARES.filter(p=>p.t==="club"&&p.lat!=null).map(p=>({p,d:dist(me.lat,me.lon,p.lat,p.lon)/1000})).sort((a,b)=>a.d-b.d).slice(0,3);
+    $("rdZona").insertAdjacentHTML("beforeend",`<div class="zcl"><div class="zclt">Clubes más cercanos</div>${cer.map(({p,d})=>`<div class="zcli"><span class="zch">${p.vhf?"Ch "+p.vhf:"Ch 16"}</span><span class="zcn">${p.star?"★ ":""}${p.n}<small>${fmt(d,d<10?1:0)} km${p.vhf?"":" · canal propio no publicado: llamá por 16"}</small></span>${p.tel?`<a href="tel:${p.tel[0]}" aria-label="Llamar">📞</a>`:""}</div>`).join("")}</div>`); }
   $("rdVts").innerHTML = VTS_INFO.map(x=>`<tr${v===x?' style="background:rgba(14,165,233,.12)"':""}><td class="n">${x.ch}</td><td><b>${x.n}</b> · ${x.ind}<br><span style="color:var(--ink2)">${x.r}</span>${x.tel?`<br><a href="tel:${x.tel[0]}">${telTxt(x.tel[0])}</a>${x.tel[1]?` · <a href="tel:${x.tel[1]}">${telTxt(x.tel[1])}</a>`:""}`:""}${x.bol&&x.bol!=="utc"?`<br><span style="color:var(--ink3)">${x.bol}</span>`:""}</td></tr>`).join("")
     + `<tr><td class="n">15</td><td><b>Información de seguridad de la navegación</b><br><span style="color:var(--ink2)">Boletín de Prefectura en Rosario, San Pedro y Diamante</span></td></tr>`;
   const pb=proxBoletin();
