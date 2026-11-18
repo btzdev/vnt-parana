@@ -50,7 +50,11 @@ button{font:inherit;color:inherit}
 /* ---------- panel / hoja ---------- */
 .sheet{position:absolute;z-index:1002;left:0;right:0;bottom:0;background:var(--bg);border-radius:18px 18px 0 0;box-shadow:0 -6px 24px rgba(0,0,0,.16);
   height:calc(var(--sheet-peek) + env(safe-area-inset-bottom));transition:height .28s cubic-bezier(.2,.8,.2,1);display:flex;flex-direction:column;overflow:hidden}
-.sheet.full{height:min(86vh,calc(100% - env(safe-area-inset-top) - 70px))}
+.sheet.full{height:calc(100% - env(safe-area-inset-top) - 64px)}
+.sheet.min{height:calc(44px + env(safe-area-inset-bottom))}.sheet.min .scroll{visibility:hidden}
+.grabw{position:relative;flex:none}.hbtn{position:absolute;right:10px;top:4px;display:flex;gap:5px}
+.hbtn button{width:34px;height:28px;border-radius:9px;border:1px solid var(--line);background:var(--card);color:var(--ink2);display:grid;place-items:center;padding:0}
+.hbtn button svg{width:18px;height:18px}.hbtn button.on{background:var(--sea);border-color:var(--sea);color:#fff}
 .grab{flex:none;padding:8px 0 4px;display:flex;justify-content:center;cursor:grab;touch-action:none}
 .grab i{display:block;width:40px;height:5px;border-radius:3px;background:#c7d0d6}
 .scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:0 12px calc(16px + env(safe-area-inset-bottom));overscroll-behavior:contain}
@@ -283,7 +287,7 @@ button{font:inherit;color:inherit}
 /* ---------- tablet / escritorio ---------- */
 @media (min-width:900px){
   .sheet{left:auto;top:0;right:0;width:420px;height:auto!important;border-radius:0;box-shadow:-4px 0 18px rgba(0,0,0,.1)}
-  .grab{display:none}
+  .grab,.hbtn{display:none}
   .scroll{padding-top:calc(env(safe-area-inset-top) + 12px)}
   #map{right:420px}
   .top{right:420px}
@@ -540,7 +544,12 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
   </section>
 
   <aside class="sheet" id="sheet">
-    <div class="grab" id="grab" aria-label="Expandir panel"><i></i></div>
+    <div class="grabw"><div class="grab" id="grab" aria-label="Expandir panel"><i></i></div>
+      <div class="hbtn" id="hbtn" role="group" aria-label="Tamaño del panel">
+        <button data-h="min" aria-label="Minimizar el panel" title="Minimizar: más mapa"><svg viewBox="0 0 24 24"><path d="M5 9l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+        <button data-h="" aria-label="Panel normal" title="Normal"><svg viewBox="0 0 24 24"><rect x="4" y="12" width="16" height="8" rx="2" fill="currentColor"/><rect x="4" y="4" width="16" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg></button>
+        <button data-h="full" aria-label="Panel a pantalla completa" title="Pantalla completa"><svg viewBox="0 0 24 24"><path d="M5 15l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div></div>
     <div class="scroll" id="scroll">
 
       <section class="sec" id="recoSec">
@@ -1464,7 +1473,7 @@ function renderBzList(){
   const rows=[...dr.map(d=>`<li data-k="${(d.km[0]+d.km[1])/2}"><div class="ic">⚓</div><div style="min-width:0"><div class="nm">Draga ${d.draga}</div><div class="ds">Operando entre km ${fmt(d.km[0],1)} y ${fmt(d.km[1],1)}</div></div><div class="rt">${d.fecha.slice(8,10)}/${d.fecha.slice(5,7)}</div></li>`),
     ...near.slice(0,15).map(a=>{const k=kk(a);return `<li data-k="${k}" data-b="${a.buoy?a.buoy.id:""}"><div class="ic" style="color:#fff;background:${estCol(a.estado)};font-weight:800">!</div><div style="min-width:0"><div class="nm">${cap(a.estado)||"Novedad"} · km ${fmt(k,1)}</div><div class="ds">${a.senal}${a.detalle?" · "+a.detalle:""}</div></div><div class="rt"><b>${k>=P.km?"▲":"▼"} ${fmt(Math.abs(k-P.km),1)}</b><br>km</div></li>`})];
   el.innerHTML=rows.length?rows.join(""):`<li class="na" style="cursor:default">Sin novedades del SHN a ±${RK} km de tu posición.</li>`;
-  el.querySelectorAll("li[data-k]").forEach(n=>n.onclick=()=>{const b=BZ_OSM.find(x=>String(x.id)===n.dataset.b);const p=b?[b.lat,b.lon]:puntoKm(VNT.rutas[P.ruta].a,+n.dataset.k);if(!p)return;follow=false;$("bLoc").classList.remove("on");map.flyTo(p,15);if(innerWidth<900)$("sheet").classList.remove("full");});
+  el.querySelectorAll("li[data-k]").forEach(n=>n.onclick=()=>{const b=BZ_OSM.find(x=>String(x.id)===n.dataset.b);const p=b?[b.lat,b.lon]:puntoKm(VNT.rutas[P.ruta].a,+n.dataset.k);if(!p)return;follow=false;$("bLoc").classList.remove("on");map.flyTo(p,15);if(innerWidth<900)hoja("");});
 }
 
 /* ====== AIS en vivo ====== */
@@ -1634,7 +1643,7 @@ function renderShipsList(){
      <div style="min-width:0"><div class="nm">${s.name||"MMSI "+s.mmsi}</div><div class="ds">${e!=null?`<span class="eta">pasa en ${e<60?Math.round(e)+" min":fmt(e/60,1)+" h"}</span> · `:""}${[tipoAIS(s.type),s.sn.t,s.km!=null?"km "+fmt(s.km,0):""].filter(Boolean).join(" · ")}</div></div>
      <div class="rt"><b>${fmt(s.sog,1)} kn</b><br>${fmt(d/1000,1)} km</div></li>`).join("")
      : `<li class="na" style="cursor:default">Sin buques reportados en la zona todavía.</li>`;
-  $("ships").querySelectorAll("li[data-m]").forEach(li=>li.onclick=()=>{const s=SHIPS.get(+li.dataset.m)||SHIPS.get(li.dataset.m);if(!s)return;follow=false;$("bLoc").classList.remove("on");map.flyTo(estima(s,Date.now()),14);if(innerWidth<900)$("sheet").classList.remove("full");});
+  $("ships").querySelectorAll("li[data-m]").forEach(li=>li.onclick=()=>{const s=SHIPS.get(+li.dataset.m)||SHIPS.get(li.dataset.m);if(!s)return;follow=false;$("bLoc").classList.remove("on");map.flyTo(estima(s,Date.now()),14);if(innerWidth<900)hoja("");});
 }
 let ultGuardado=0;
 function guardarAIS(){
@@ -2375,11 +2384,18 @@ $("bOff30").onclick=()=>guardarZona(30,14);
 
 /* ====== hoja inferior (móvil) ====== */
 const sheet=$("sheet");
-$("grab").onclick=()=>sheet.classList.toggle("full");
-(()=>{let y0=null;const g=$("grab");
+function hoja(e){ e=e||""; sheet.classList.toggle("full",e==="full"); sheet.classList.toggle("min",e==="min"); store.set("hoja",e);
+  document.querySelectorAll("#hbtn button").forEach(b=>b.classList.toggle("on",b.dataset.h===e)); setTimeout(()=>{ try{ map.invalidateSize(); }catch{} },320); }
+// tres tamaños: minimizado (más mapa), normal y pantalla completa; se recuerda el último
+const hojaAct=()=>sheet.classList.contains("full")?"full":sheet.classList.contains("min")?"min":"";
+$("hbtn").addEventListener("click",e=>{ const b=e.target.closest("button[data-h]"); if(b) hoja(b.dataset.h); });
+$("grab").onclick=()=>hoja(hojaAct()===""?"full":"");
+(()=>{let y0=null;const g=document.querySelector(".grabw");
   g.addEventListener("touchstart",e=>{y0=e.touches[0].clientY},{passive:true});
-  g.addEventListener("touchend",e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0;if(dy<-30)sheet.classList.add("full");else if(dy>30)sheet.classList.remove("full");y0=null;});
+  g.addEventListener("touchend",e=>{if(y0==null)return;const dy=e.changedTouches[0].clientY-y0,a=hojaAct();
+    if(dy<-30) hoja(a==="min"?"":"full"); else if(dy>30) hoja(a==="full"?"":"min"); y0=null;});
 })();
+hoja(store.get("hoja")||"");
 
 /* ====== arranque ====== */
 map.on("moveend zoomend",()=>{drawKm();loadIGN();drawBz();dirty=true;connectAIS(false);animShips();});
