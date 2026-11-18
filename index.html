@@ -13,7 +13,7 @@
 <style>
 :root{
   --ink:#0d1b26;--ink2:#4a5b68;--ink3:#8796a1;--line:#e3e8ec;--bg:#f5f7f9;--card:#fff;
-  --navy:#0b2a3f;--sea:#0f6c8c;--sea2:#e6f3f7;--up:#1d7a46;--down:#c2410c;--stop:#7c8a96;
+  --navy:#0b2a3f;--sea:#0f6c8c;--sea2:#e6f3f7;--up:#1d7a46;--down:#c2410c;--stop:#2b3440;
   --w0:#5aa9c4;--w1:#2e9e6a;--w2:#d9a400;--w3:#e8710a;--w4:#d0312d;
   --r:14px;--sheet-peek:236px;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
@@ -1506,7 +1506,7 @@ const shipSvg=(c,stop)=>stop?`<svg viewBox="0 0 20 20" width="14" height="14"><c
   :`<svg viewBox="0 0 20 20" width="22" height="22"><path d="M10 1 L16 18 L10 14 L4 18 Z" fill="${c}" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>`;
 function sentido(s){
   const p=proyectar(s.lat,s.lon); s.dEje=p.d; s.km=p.km; s.ruta=p.ruta;
-  if((s.sog??0)<0.8) return {k:"stop",col:"#7c8a96",t:"detenido"};
+  if((s.sog??0)<0.8) return {k:"stop",col:"#2b3440",t:"detenido"};
   const crs=s.cog??s.hdg; if(crs==null) return {k:"x",col:"#64748b",t:"en movimiento"};
   const df=angDiff(crs,p.abajo);
   if(df<60) return {k:"down",col:"#c2410c",t:"bajando"};
