@@ -186,6 +186,14 @@ button{font:inherit;color:inherit}
 .rp .rpreg p{margin:0 0 9px;font-size:13px;line-height:1.5}
 .rp .rpreg p b{color:var(--sea)}
 .rp .chk{display:flex!important;gap:8px;align-items:center;margin-top:10px!important}
+.rp .rpmodo{display:flex;flex-wrap:wrap;gap:5px;align-items:center;margin-bottom:8px;font-size:12px;color:var(--ink2)}
+.rp .rpmodo span{width:100%}
+.rp .rpmodo button{font:650 12px var(--font);border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:6px 8px;cursor:pointer}
+.rp .rpmodo button.on{background:#0f6c8c;color:#fff;border-color:#0f6c8c}
+.rp .rpayuda{font-size:11.5px;color:var(--ink3);text-align:center;margin-top:4px}
+.rp .rpcol.a h4{color:#0284c7}.rp .rpcol.b h4{color:#ea580c}
+.rp .rpinv{width:100%;margin-top:10px;font:650 12.5px var(--font);border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:9px;cursor:pointer}
+@media (max-width:430px){.rp .rpdos{grid-template-columns:1fr}}
 .rd .zona{background:linear-gradient(135deg,#0b2a3f,#0f4c6e);color:#fff;border:0}
 .rd .zona .ch{font:800 54px/1 var(--font);font-variant-numeric:tabular-nums}
 .rd .zona .ch small{font-size:16px;font-weight:650;opacity:.8;margin-left:4px}
@@ -400,45 +408,56 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
     <div class="regin">
       <div class="rtit">Prioridad de paso · RIPA</div>
       <div class="card">
+        <div class="rpmodo" id="rpModo">
+          <span>Arrastrá en el gráfico para mover:</span>
+          <button data-m="pos" class="on">🟧 Al otro</button><button data-m="hB">↻ Rumbo del otro</button><button data-m="hA">↻ Mi rumbo</button><button data-m="w">💨 Viento</button>
+        </div>
         <svg id="rpSvg" viewBox="-160 -165 320 330" aria-label="Esquema de cruce"></svg>
+        <div class="rpayuda" id="rpAyuda"></div>
         <div id="rpRes" class="rpres"></div>
       </div>
-      <div class="rpbt"><button id="rpMia">📍 Usar mi rumbo, el viento actual y el buque AIS más cercano</button></div>
-      <div class="leyenda" id="rpMiaTxt">Tocá o arrastrá sobre el esquema para mover al otro barco.</div>
 
-      <div class="rtit">Situaciones típicas</div>
-      <div class="rpesc" id="rpEsc"></div>
-
-      <div class="rtit">Ajustar</div>
       <div class="card rpctl">
-        <label>Viento desde <b id="rpWv"></b><input type="range" id="rpW" min="0" max="355" step="5"></label>
+        <label>💨 Viento desde <b id="rpWv"></b><input type="range" id="rpW" min="0" max="355" step="5"></label>
         <div class="rpdos">
-          <div><h4>🟦 Tu barco</h4>
-            <select id="rpTA"><option value="vela">A vela</option><option value="motor">A motor (aunque lleve velas)</option></select>
+          <div class="rpcol a"><h4>🟦 Tu embarcación</h4>
+            <select id="rpTA"></select>
             <label>Rumbo <b id="rpHAv"></b><input type="range" id="rpHA" min="0" max="355" step="5"></label></div>
-          <div><h4>🟧 El otro</h4>
-            <select id="rpTB"><option value="vela">A vela</option><option value="motor">A motor</option><option value="canal">Buque en el canal (solo puede navegar por el canal / restringido por calado)</option><option value="pesca">Pescando (con redes o arrastre)</option><option value="restringida">Maniobra restringida (draga, remolque, balizador)</option><option value="singob">Sin gobierno</option></select>
+          <div class="rpcol b"><h4>🟧 La otra</h4>
+            <select id="rpTB"></select>
             <label>Rumbo <b id="rpHBv"></b><input type="range" id="rpHB" min="0" max="355" step="5"></label>
-            <label>Lo ves <b id="rpBBv"></b><input type="range" id="rpBB" min="0" max="355" step="5"></label></div>
+            <label>La ves <b id="rpBBv"></b><input type="range" id="rpBB" min="0" max="355" step="5"></label></div>
         </div>
-        <label class="chk"><input type="checkbox" id="rpCanal"> Estamos en un canal angosto (regla 9)</label>
+        <label class="chk"><input type="checkbox" id="rpCanal" checked> Estamos en un canal angosto, como la VNT (regla 9)</label>
+        <button class="rpinv" id="rpInv">⇄ Ver desde la otra embarcación</button>
       </div>
+      <div class="rpbt"><button id="rpMia">📍 Usar mi rumbo, el viento actual y el buque AIS más cercano</button></div>
+      <div class="leyenda" id="rpMiaTxt"></div>
+
+      <div class="rtit">Cómo reconocerla</div>
+      <div class="card rpreg" id="rpSen"></div>
+
+      <div class="rtit">Situaciones típicas en el Paraná</div>
+      <div class="rpesc" id="rpEsc"></div>
 
       <div class="rtit">Qué dice el RIPA</div>
       <div class="card rpreg">
-        <p><b>Regla 5 · Vigilancia.</b> Mantené siempre una vigilancia eficaz, con la vista, el oído y todos los medios disponibles.</p>
-        <p><b>Regla 7 · Riesgo de abordaje.</b> Si la marcación del otro buque no cambia apreciablemente mientras la distancia disminuye, hay riesgo de abordaje.</p>
-        <p><b>Regla 8 · Maniobras.</b> Deben hacerse con tiempo, ser francas y lo bastante amplias para que el otro las note. Reducir la velocidad o parar también es una maniobra.</p>
-        <p><b>Regla 9 · Canales angostos.</b> Navegá lo más cerca posible del borde de estribor del canal. Los buques de menos de 20 m y los veleros no deben estorbar el paso de un buque que solo puede navegar con seguridad dentro del canal. No cruces el canal si con eso estorbás a ese buque.</p>
+        <p><b>Regla 2 · Responsabilidad.</b> Nada exime de tomar las precauciones que exige la buena práctica marinera, ni de apartarse de las reglas si hace falta para evitar un peligro inmediato.</p>
+        <p><b>Regla 5 · Vigilancia.</b> Vigilancia eficaz en todo momento, con la vista, el oído y todos los medios disponibles (radar, AIS, VHF).</p>
+        <p><b>Regla 6 · Velocidad de seguridad.</b> Navegá a una velocidad que te permita maniobrar y parar a tiempo, según la visibilidad, el tráfico y tu maniobrabilidad.</p>
+        <p><b>Regla 7 · Riesgo de abordaje.</b> Si la marcación del otro no cambia apreciablemente mientras la distancia disminuye, hay riesgo de abordaje. Con buques grandes puede haberlo aunque la marcación cambie.</p>
+        <p><b>Regla 8 · Maniobras.</b> Con tiempo, francas y amplias, para que el otro las note. Reducir la velocidad o parar también vale.</p>
+        <p><b>Regla 9 · Canales angostos.</b> Navegá lo más cerca posible del borde de estribor del canal. Los buques de menos de 20 m, los veleros y los pesqueros no deben estorbar el paso de un buque que solo puede navegar con seguridad dentro del canal. No cruces el canal si con eso estorbás a ese buque. Para alcanzar a otro dentro del canal hay que pedirlo con pitadas y esperar que el alcanzado conteste.</p>
         <p><b>Regla 12 · Dos veleros.</b> Con el viento por bandas distintas, cede el que lo recibe por babor. Con el viento por la misma banda, cede el que está a barlovento. Si recibís el viento por babor y no podés saber por qué banda lo recibe el que está a barlovento, cedé vos. La banda de barlovento es la contraria a la que lleva la botavara de la mayor.</p>
-        <p><b>Regla 13 · Alcance.</b> El que alcanza a otro se aparta siempre, sea vela o motor. Alcanza quien se acerca desde más de 22,5° a popa del través del otro (de noche, cuando solo le ve la luz de alcance).</p>
-        <p><b>Regla 14 · Vuelta encontrada.</b> Dos buques a motor proa con proa: ambos caen a estribor y se pasan babor con babor.</p>
-        <p><b>Regla 15 · Cruce a motor.</b> Cede el que tiene al otro por su estribor, y evita cruzarle la proa.</p>
-        <p><b>Reglas 16 y 17.</b> El que cede maniobra pronto y en forma franca. El que mantiene conserva rumbo y velocidad. Si el otro no maniobra, puede maniobrar él; y si el abordaje es inminente, debe hacerlo. A motor, no caigas a babor hacia un buque que está por tu babor.</p>
-        <p><b>Regla 18 · Jerarquía.</b> El buque a motor cede a: sin gobierno, maniobra restringida, pescando y vela. El velero cede a: sin gobierno, maniobra restringida y pescando. Todos, salvo los sin gobierno y con maniobra restringida, evitan estorbar a un buque restringido por su calado.</p>
-        <p><b>Regla 34 · Pitadas.</b> 1 corta: caigo a estribor. 2 cortas: caigo a babor. 3 cortas: doy atrás. 5 o más cortas y rápidas: no entiendo su maniobra o dudo de que evite el abordaje.</p>
+        <p><b>Regla 13 · Alcance.</b> El que alcanza se aparta siempre, sea vela o motor, y hasta dejar claro al alcanzado. Alcanza quien se acerca desde más de 22,5° a popa del través del otro (de noche, cuando solo le ve la luz de alcance).</p>
+        <p><b>Regla 14 · Vuelta encontrada.</b> Dos buques de propulsión mecánica proa con proa: los dos caen a estribor y se pasan babor con babor.</p>
+        <p><b>Regla 15 · Cruce.</b> Entre dos buques de propulsión mecánica, cede el que tiene al otro por su estribor, y evita cruzarle la proa.</p>
+        <p><b>Reglas 16 y 17.</b> El que cede maniobra pronto y en forma franca. El que mantiene conserva rumbo y velocidad. Si el otro no maniobra, puede maniobrar él; si el abordaje es inminente, debe hacerlo. Un buque de propulsión mecánica no cae a babor hacia un buque que está por su babor.</p>
+        <p><b>Regla 18 · Jerarquía.</b> El buque de propulsión mecánica se aparta de: sin gobierno, maniobra restringida, pescando y vela. El velero se aparta de: sin gobierno, maniobra restringida y pescando. El pesquero se aparta, en lo posible, de: sin gobierno y maniobra restringida. Todos, salvo los sin gobierno y con maniobra restringida, evitan estorbar a un buque restringido por su calado.</p>
+        <p><b>Reglas 23 a 30 · Luces y marcas.</b> Cada tipo de buque se identifica de día por sus marcas y de noche por sus luces: las ves en «Cómo reconocerla».</p>
+        <p><b>Regla 34 · Pitadas.</b> 1 corta: caigo a estribor. 2 cortas: caigo a babor. 3 cortas: doy atrás. 5 o más cortas y rápidas: no entiendo su maniobra o dudo de que evite el abordaje. En un canal, para alcanzar: 2 largas + 1 corta (por tu estribor) o 2 largas + 2 cortas (por tu babor); el alcanzado acepta con larga, corta, larga, corta.</p>
       </div>
-      <div class="leyenda">Resumen en lenguaje simple del Reglamento Internacional para Prevenir los Abordajes (RIPA, COLREG 1972), vigente en Argentina. El esquema supone que hay riesgo de abordaje. Entre barcos que están corriendo una regata rige el Reglamento de Regatas a Vela, parte 2; frente a barcos que no están en regata, rige el RIPA. Ante la duda, maniobrá con tiempo y mantené escucha en canal 16.</div>
+      <div class="leyenda">Resumen en lenguaje simple del Reglamento Internacional para Prevenir los Abordajes (RIPA, COLREG 1972), vigente en Argentina. El esquema supone que hay riesgo de abordaje. El RIPA no le da prioridad a nadie: el que mantiene también debe actuar si el otro no maniobra. Entre barcos que corren una regata rige el Reglamento de Regatas a Vela, parte 2; frente a los demás, el RIPA. En las vías navegables también rigen las ordenanzas de Prefectura: atendé sus instrucciones y escuchá el canal 16 y el del VTS.</div>
     </div>
   </section>
 
@@ -1643,151 +1662,242 @@ map.on("zoomend",drawPuntos); drawPuntos();
 setInterval(()=>{ if(!$("rad").hidden) renderRadio(); },30000);
 
 /* ====== RIPA: prioridad de paso ====== */
-const RP={w:0,hA:45,hB:315,rb:60,tA:"vela",tB:"vela",canal:false};
+// st: estado para el RIPA. vela, motor, remo, pesca, restringida, singob, canal (buque grande que solo puede navegar en el canal), fondeado
+const TIPOS={
+  velero:{n:"Velero navegando a vela",st:"vela",g:"vela",L:10,dia:"Ninguna marca.",noche:"Luces de costado (verde a estribor, roja a babor) y de alcance (blanca a popa). No lleva luz de tope. Si es chico puede llevar un farol tricolor en el tope del palo."},
+  veleromotor:{n:"Velero a motor (con o sin velas)",st:"motor",g:"velam",L:10,dia:"Si lleva velas izadas y va a motor: un cono con el vértice hacia abajo.",noche:"Como un buque a motor: tope blanca, costados y alcance."},
+  lancha:{n:"Lancha o crucero a motor",st:"motor",g:"lancha",L:8,dia:"Ninguna marca.",noche:"Luz de tope blanca, costados y alcance. Si mide menos de 12 m puede llevar una blanca todo horizonte y costados."},
+  moto:{n:"Moto de agua",st:"motor",g:"moto",L:3,dia:"Ninguna marca.",noche:"No debería navegar de noche."},
+  remo:{n:"Kayak, canoa o bote a remo",st:"remo",g:"kayak",L:5,dia:"Ninguna marca.",noche:"Una linterna blanca lista para mostrar a tiempo."},
+  colectiva:{n:"Lancha colectiva o de pasajeros",st:"motor",g:"pasaj",L:22,dia:"Ninguna marca.",noche:"Luz de tope blanca, costados y alcance."},
+  pna:{n:"Guardacostas de Prefectura",st:"motor",g:"pna",L:25,dia:"Casco con franjas de Prefectura.",noche:"Luces de buque a motor; en servicio puede mostrar luz azul destellante.",nota:"Seguí sus instrucciones por VHF o altavoz."},
+  pesca:{n:"Pesquero pescando (redes, espinel)",st:"pesca",g:"pesca",L:9,dia:"Dos conos negros unidos por el vértice. Si el aparejo se extiende más de 150 m: un cono con el vértice hacia arriba del lado del aparejo.",noche:"Roja sobre blanca, todo horizonte (si arrastra: verde sobre blanca). Con arrancada, además costados y alcance."},
+  remolcador:{n:"Remolcador navegando libre",st:"motor",g:"remolc",L:28,dia:"Ninguna marca.",noche:"Luz de tope blanca, costados y alcance."},
+  convoy:{n:"Empujador con convoy de barcazas",st:"canal",g:"convoy",L:200,dia:"Si el convoy le restringe la maniobra: bola, rombo y bola en vertical.",noche:"Empujador: 2 luces de tope blancas en vertical (3 si es un remolque largo) y costados; en la proa del convoy, luces de costado. Si está restringido: roja, blanca y roja en vertical."},
+  granelero:{n:"Granelero o buque de carga",st:"canal",g:"granel",L:200,dia:"Si está restringido por su calado: un cilindro negro.",noche:"2 luces de tope blancas (la de popa más alta), costados y alcance. Restringido por su calado: además 3 rojas en vertical."},
+  portacont:{n:"Portacontenedores",st:"canal",g:"cont",L:230,dia:"Si está restringido por su calado: un cilindro negro.",noche:"2 luces de tope blancas, costados y alcance. Restringido por su calado: 3 rojas en vertical."},
+  tanque:{n:"Buque tanque (petrolero, químico, gasero)",st:"canal",g:"tanque",L:180,dia:"Si está restringido por su calado: un cilindro negro. Cargando combustible en puerto: bandera B (roja).",noche:"2 luces de tope blancas, costados y alcance. Restringido por su calado: 3 rojas en vertical."},
+  draga:{n:"Draga trabajando",st:"restringida",g:"draga",L:100,dia:"Bola, rombo y bola en vertical; 2 bolas del lado obstruido y 2 rombos del lado por donde se puede pasar.",noche:"Roja, blanca y roja en vertical; 2 rojas del lado obstruido y 2 verdes del lado libre.",nota:"Pasá por el lado de los rombos (o de las luces verdes), despacio."},
+  balizador:{n:"Balizador o buque de trabajo",st:"restringida",g:"baliz",L:40,dia:"Bola, rombo y bola en vertical.",noche:"Roja, blanca y roja en vertical."},
+  singob:{n:"Buque sin gobierno (avería)",st:"singob",g:"granel",L:150,dia:"Dos bolas negras en vertical.",noche:"Dos rojas todo horizonte en vertical (con arrancada, además costados y alcance)."},
+  fondeado:{n:"Buque fondeado",st:"fondeado",g:"granel",L:180,dia:"Una bola negra a proa.",noche:"Blanca todo horizonte a proa (y otra más baja a popa si mide 50 m o más); los grandes además iluminan la cubierta."}
+};
+const GRUPOS=[["Embarcaciones chicas",["velero","veleromotor","lancha","moto","remo","colectiva","pna","pesca"]],["Buques del canal",["convoy","granelero","portacont","tanque","remolcador"]],["Maniobra limitada",["draga","balizador","singob","fondeado"]]];
+const RP={w:0,hA:45,hB:315,rb:60,tA:"velero",tB:"velero",canal:true,modo:"pos"};
 const nAng=x=>((x%360)+540)%360-180;
 const rumboTxt=x=>`${Math.round((x+360)%360)}° ${card16((x+360)%360)}`;
 function marcTxt(rb){ const a=nAng(rb), b=Math.abs(a), lado=a>0?"estribor":"babor";
   if(b<=10) return "por la proa"; if(b>=170) return "por la popa";
   if(Math.abs(b-90)<=10) return "por el través de "+lado;
   return (b<90?"por la amura de ":"por la aleta de ")+lado+` (${Math.round(b)}°)`; }
-const RANGO={singob:5,restringida:5,pesca:3,vela:2,motor:1};
-const NOMB_RP={vela:"velero",motor:"buque a motor",canal:"buque en el canal",pesca:"pesquero",restringida:"buque con maniobra restringida",singob:"buque sin gobierno"};
 function amura(w,h){ const a=nAng(w-h); return {a, lado:a>0?"estribor":"babor", proa:Math.abs(a)<35}; }
+const RANGO={singob:6,restringida:6,pesca:4,vela:3,motor:1,remo:1,canal:1};
+const QUIEN={vela:"un velero",motor:"un buque de propulsión mecánica",remo:"un bote a remo",pesca:"un pesquero pescando",restringida:"un buque con maniobra restringida",singob:"un buque sin gobierno",canal:"un buque que solo puede navegar en el canal"};
+function estado(t,canal){ const x=TIPOS[t]; return (x.st==="canal"&&!canal)?"motor":x.st; }
 function ripaCalc(s){
+  const TA=TIPOS[s.tA], TB=TIPOS[s.tB], eA=estado(s.tA,s.canal), eB=estado(s.tB,s.canal);
   const brgAB=(s.hA+s.rb)%360, brgBA=(brgAB+180)%360;
   const rbA=nAng(brgAB-s.hA), rbB=nAng(brgBA-s.hB), dh=Math.abs(nAng(s.hA-s.hB));
   const abaft=x=>Math.abs(x)>112.5;
-  const BalcA=abaft(rbA)&&Math.abs(rbB)<90&&dh<112.5, AalcB=abaft(rbB)&&Math.abs(rbA)<90&&dh<112.5;
-  const notas=[]; if(s.canal) notas.push("En el canal navegá pegado a su borde de estribor (regla 9).");
-  const avisoProa=[]; if(s.tA==="vela"&&amura(s.w,s.hA).proa) avisoProa.push("Con ese rumbo tu velero va casi proa al viento: a vela no puede navegar así.");
-  if(s.tB==="vela"&&amura(s.w,s.hB).proa) avisoProa.push("El otro velero va casi proa al viento: a vela no podría navegar así.");
+  const notas=[];
+  if(s.canal) notas.push("En el canal navegá pegado a tu borde de estribor (regla 9).");
+  if(eA==="vela"&&amura(s.w,s.hA).proa) notas.push("Con ese rumbo tu velero va casi proa al viento: a vela no se puede navegar así.");
+  if(eB==="vela"&&amura(s.w,s.hB).proa) notas.push("La otra embarcación va casi proa al viento: a vela no podría navegar así.");
+  if(TB.nota) notas.push(TB.nota);
+  const R=(q,regla,t,x)=>({q,regla,t,x});
   let r;
-  if(BalcA||AalcB){
-    const yo=AalcB;
-    r={q:yo?"A":"B",regla:"Regla 13 · Alcance",t:yo?"Lo estás alcanzando: cedés vos":"Te está alcanzando: cede el otro",
-       x:yo?`Venís desde más de 22,5° a popa de su través, así que sos el que alcanza aunque vayas a vela. Mantenete apartado hasta haberlo pasado y dejado claro.`:`El otro viene desde más de 22,5° a popa de tu través: es el que alcanza y debe apartarse, sea vela o motor.`};
-    if(!yo&&s.tB==="canal") notas.push("Igual, por regla 9 no debés estorbarle: si te quiere pasar en el canal, facilitale el paso. En un canal angosto el que alcanza pide pasar con pitadas (2 largas + 1 corta: por tu estribor; 2 largas + 2 cortas: por tu babor) y el alcanzado responde larga-corta-larga-corta si está de acuerdo.");
-  } else if(s.tB==="canal"){
-    r={q:"A",regla:"Reglas 9 y 18(d)",t:"No debés estorbarle: apartate vos",x:`Un buque que solo puede navegar dentro del canal (o restringido por su calado) tiene preferencia práctica: los veleros y los buques de menos de 20 m no deben estorbar su paso. Salí de su camino con tiempo, hacia fuera del canal o pegado a tu borde de estribor, y no cruces delante de él.`};
-  } else if(RANGO[s.tB]!==RANGO[s.tA]){
-    const yo=RANGO[s.tB]>RANGO[s.tA];
-    r={q:yo?"A":"B",regla:"Regla 18 · Jerarquía",t:yo?`Cedés vos al ${NOMB_RP[s.tB]}`:`Cede el ${NOMB_RP[s.tB]}`,
-       x:yo?`Un ${NOMB_RP[s.tA]} debe apartarse de un ${NOMB_RP[s.tB]}.`:`Un ${NOMB_RP[s.tB]} debe apartarse de un ${NOMB_RP[s.tA]}.`};
-    if(s.canal&&s.tA==="vela"&&s.tB==="motor") notas.push("Si ese buque a motor solo puede navegar dentro del canal, no debés estorbarle (regla 9): elegí «Buque en el canal».");
-  } else if(s.tA==="motor"){
-    if(Math.abs(rbA)<=8&&Math.abs(rbB)<=8){
-      r={q:"AB",regla:"Regla 14 · Vuelta encontrada",t:"Proa con proa: caen los dos a estribor",x:"Ambos buques a motor caen a estribor y se pasan babor con babor. Hacé la señal de 1 pitada corta."};
-    } else {
-      const yo=rbA>0;
-      r={q:yo?"A":"B",regla:"Regla 15 · Cruce",t:yo?"Lo tenés por estribor: cedés vos":"Te tiene por su estribor: cede el otro",
-         x:yo?"Cuando dos buques a motor se cruzan, cede el que tiene al otro por su estribor. Pasale por la popa y evitá cruzarle la proa.":"Cuando dos buques a motor se cruzan, cede el que tiene al otro por su estribor; acá es el otro."};
-    }
-  } else if(s.tA==="vela"){
+  // 1. fondeado
+  if(eA==="fondeado"||eB==="fondeado"){
+    if(eA==="fondeado"&&eB==="fondeado") r=R("-","—","Los dos fondeados","No hay maniobra que hacer: vigilen que no garreen.");
+    else { const yo=eB==="fondeado";
+      r=R(yo?"A":"B","Reglas 2 y 8",yo?"Está fondeado: apartate vos":"Estás fondeado: el otro se aparta",
+        yo?"Un buque fondeado no puede maniobrar. Pasale con buen resguardo y, si hay corriente, preferí pasar aguas abajo de él: su cadena y la corriente te pueden arrastrar contra el casco.":"El que navega debe mantenerse apartado de un buque fondeado. Si ves que no maniobra, avisale con 5 pitadas cortas o por VHF."); }
+  }
+  // 2. alcance
+  else if((abaft(rbA)&&Math.abs(rbB)<90&&dh<112.5&&eB!=="singob")||(abaft(rbB)&&Math.abs(rbA)<90&&dh<112.5&&eA!=="singob")){
+    const yo=abaft(rbB);
+    r=R(yo?"A":"B","Regla 13 · Alcance",yo?"La estás alcanzando: cedés vos":"Te está alcanzando: cede la otra",
+      yo?"Venís desde más de 22,5° a popa de su través: sos el que alcanza, aunque vayas a vela o el otro sea más chico. Mantenete apartado hasta haberlo pasado y dejado claro.":"La otra viene desde más de 22,5° a popa de tu través: es la que alcanza y debe apartarse, sea vela o motor.");
+    if(s.canal) notas.push("Dentro del canal, el que alcanza pide pasar con pitadas (2 largas + 1 corta: por tu estribor; 2 largas + 2 cortas: por tu babor) y el alcanzado acepta con larga, corta, larga, corta y le facilita el paso (regla 9e).");
+    if(!yo&&eB==="canal"&&(TA.L<20||eA==="vela")) notas.push("Igual, por la regla 9 no debés estorbarle: si te quiere pasar, abrite hacia el borde del canal.");
+  }
+  // 3. sin gobierno / maniobra restringida
+  else if((eA==="singob"||eA==="restringida")&&(eB==="singob"||eB==="restringida")){
+    r=R("?","Reglas 2 y 8","Las dos con maniobra limitada","Ninguna tiene preferencia sobre la otra: comuníquense por VHF (canal 16 o el del VTS) y hagan todo lo posible para evitarse.");
+  } else if(eB==="singob"||eB==="restringida"){
+    r=R("A","Regla 18",`Cedés vos: es ${QUIEN[eB]}`,`${cap(QUIEN[eB])} no puede apartarse de tu camino como lo exige el reglamento. Todos los demás (motor, vela, pesqueros y buques del canal) deben apartarse de él.`);
+  } else if(eA==="singob"||eA==="restringida"){
+    r=R("B","Regla 18",`Cede la otra: sos ${QUIEN[eA]}`,`Los demás deben apartarse de ${QUIEN[eA]}. Mostrá tus marcas o luces y avisá por VHF.`);
+  }
+  // 4. buque del canal (regla 9 y 18 d)
+  else if(s.canal&&(eA==="canal"||eB==="canal")&&eA!==eB&&(eA==="canal"?(TB.L<20||eB==="vela"||eB==="pesca"):(TA.L<20||eA==="vela"||eA==="pesca"))){
+    const yo=eB==="canal";
+    r=R(yo?"A":"B","Reglas 9 y 18",yo?"No debés estorbarle: apartate vos":"No te debe estorbar: la otra se aparta",
+      yo?`Un buque que solo puede navegar dentro del canal tiene que poder seguir su derrota. ${TA.L<20?"Las embarcaciones de menos de 20 m":eA==="vela"?"Los veleros":"Los pesqueros"} no deben estorbar su paso, aunque en otra situación tuvieran preferencia. Salí de su camino con tiempo, hacia fuera del canal o pegado a tu borde de estribor, y no cruces delante de él.`
+         :`Por la regla 9, ${TB.L<20?"las embarcaciones de menos de 20 m":eB==="vela"?"los veleros":"los pesqueros"} no deben estorbar a un buque que solo puede navegar dentro del canal. Si no se aparta, 5 pitadas cortas y llamalo por VHF.`);
+  }
+  // 4b. bote a remo: el RIPA no le fija prioridad
+  else if(eA==="remo"||eB==="remo"){
+    r=R(eA==="remo"?"A":"?","Reglas 2, 8 y 9","Bote a remo: sin regla de prioridad","El RIPA no le da prioridad a un bote a remo ni lo obliga como a un buque a motor. Es chico y poco visible: el remero debe mantenerse fuera de la derrota de los demás y del canal, y el otro debe vigilarlo y pasarle con resguardo.");
+  }
+  // 5. jerarquía (regla 18)
+  else if(RANGO[eA]!==RANGO[eB]){
+    const yo=RANGO[eB]>RANGO[eA];
+    r=R(yo?"A":"B","Regla 18 · Jerarquía",yo?`Cedés vos: es ${QUIEN[eB]}`:`Cede la otra: sos ${QUIEN[eA]}`,
+      yo?`${cap(QUIEN[eA==="canal"?"motor":eA])} debe apartarse de ${QUIEN[eB]}.`:`${cap(QUIEN[eB==="canal"?"motor":eB])} debe apartarse de ${QUIEN[eA]}.`);
+  }
+  // 6. mismo rango
+  else if(eA==="vela"){
     const a=amura(s.w,s.hA), b=amura(s.w,s.hB);
-    if(a.lado!==b.lado){
-      const yo=a.lado==="babor";
-      r={q:yo?"A":"B",regla:"Regla 12(a)(i) · Amuras distintas",t:yo?"Vas amurado a babor: cedés vos":"Vas amurado a estribor: cede el otro",
-         x:`Vos recibís el viento por ${a.lado}; el otro, por ${b.lado}. Cede el que lo recibe por babor.`};
+    if(a.lado!==b.lado){ const yo=a.lado==="babor";
+      r=R(yo?"A":"B","Regla 12(a)(i) · Amuras distintas",yo?"Vas amurado a babor: cedés vos":"Vas amurado a estribor: cede la otra",`Vos recibís el viento por ${a.lado}; la otra, por ${b.lado}. Cede el que lo recibe por babor.`);
     } else {
-      const wx=Math.sin(rad(s.w)), wy=Math.cos(rad(s.w)), bx=Math.sin(rad(brgAB)), by=Math.cos(rad(brgAB)), d=wx*bx+wy*by;
-      if(Math.abs(d)<0.12){ r={q:"?",regla:"Regla 12(a)(ii) · Misma amura",t:"Misma amura y casi a la par",x:"Los dos reciben el viento por la misma banda y ninguno está claramente a barlovento. Cede el que esté a barlovento: ante la duda, apartate con tiempo."}; }
-      else { const otroBarl=d>0;
-        r={q:otroBarl?"B":"A",regla:"Regla 12(a)(ii) · Misma amura",t:otroBarl?"El otro está a barlovento: cede él":"Estás a barlovento: cedés vos",
-           x:`Los dos van amurados a ${a.lado}. Cede el que está a barlovento (más cerca del origen del viento).`}; }
+      const d=Math.sin(rad(s.w))*Math.sin(rad(brgAB))+Math.cos(rad(s.w))*Math.cos(rad(brgAB));
+      if(Math.abs(d)<0.12) r=R("?","Regla 12(a)(ii) · Misma amura","Misma amura y casi a la par","Los dos reciben el viento por la misma banda y ninguno está claramente a barlovento. Cede el que esté a barlovento: ante la duda, apartate con tiempo.");
+      else { const otro=d>0; r=R(otro?"B":"A","Regla 12(a)(ii) · Misma amura",otro?"La otra está a barlovento: cede ella":"Estás a barlovento: cedés vos",`Los dos van amurados a ${a.lado}. Cede el que está a barlovento, o sea más cerca de donde viene el viento.`); }
       if(a.lado==="babor"&&r.q!=="A") notas.push("Regla 12(a)(iii): si vas amurado a babor y no podés ver por qué banda recibe el viento el que está a barlovento, cedé vos.");
     }
-    if(Math.abs(a.a)>165) notas.push("Navegando en popa, la amura la define el lado contrario a donde lleva la botavara de la mayor.");
-  } else {
-    r={q:"?",regla:"Regla 18",t:"Mismo tipo de buque",x:"Mantengan la vigilancia y maniobren con tiempo. Cada uno debe evitar el abordaje."};
+    if(Math.abs(a.a)>165||Math.abs(b.a)>165) notas.push("Navegando en popa, la amura la define el lado contrario a donde va la botavara de la mayor.");
   }
-  r.notas=avisoProa.concat(notas); r.rbB=rbB; return r;
+  else if(eA==="pesca"){ r=R("?","Reglas 2 y 8","Dos pesqueros","No hay regla de prioridad entre ellos: deben evitarse mutuamente y maniobrar con tiempo."); }
+  else { // motor contra motor (incluye buques del canal entre sí y buques grandes)
+    if(Math.abs(rbA)<=8&&Math.abs(rbB)<=8) r=R("AB","Regla 14 · Vuelta encontrada","Proa con proa: caen los dos a estribor","Los dos buques de propulsión mecánica caen a estribor y se pasan babor con babor. Señal: 1 pitada corta.");
+    else { const yo=rbA>0; r=R(yo?"A":"B","Regla 15 · Cruce",yo?"La tenés por estribor: cedés vos":"Te tiene por su estribor: cede la otra",yo?"Entre dos buques de propulsión mecánica que se cruzan, cede el que tiene al otro por su estribor. Pasale por la popa y no le cruces la proa.":"Entre dos buques de propulsión mecánica que se cruzan, cede el que tiene al otro por su estribor: acá es la otra."); }
+    if(s.canal&&(TA.L>=20)&&(TB.L>=20)) notas.push("En el canal, los dos buques grandes deben mantenerse sobre su borde de estribor y coordinar el cruce con el VTS.");
+  }
+  r.notas=notas; r.eA=eA; r.eB=eB; return r;
 }
-function svgBarco(t,col,borde,ang){
-  let h;
-  if(t==="canal") h=`<path d="M0-34C7-28 8-20 8-10V30H-8V-10C-8-20-7-28 0-34Z" fill="${col}" stroke="${borde}" stroke-width="3"/><rect x="-6" y="18" width="12" height="8" fill="#fff" opacity=".85"/><path d="M-5 32L-12 52M5 32L12 52" stroke="#fff" stroke-width="2" opacity=".8"/>`;
-  else if(t==="vela"){
-    const side=ang>0?1:-1, ab=Math.max(5,Math.min(85,5+(Math.abs(ang)-35)*(80/145)));
-    h=`<path d="M0-19C7-11 8 4 6 16L-6 16C-8 4-7-11 0-19Z" fill="${col}" stroke="${borde}" stroke-width="3"/>
-       <g transform="translate(0,-5) rotate(${side*ab})"><path d="M0 0Q${-side*9} 11 0 23" fill="rgba(255,255,255,.95)" stroke="#334155" stroke-width="1.4"/><path d="M0 0V23" stroke="#334155" stroke-width="1.6"/></g>
-       <path d="M0-18L0-6" stroke="#334155" stroke-width="1"/><circle cy="-5" r="2.2" fill="#334155"/>`;
-  } else h=`<path d="M0-19C7-11 8 4 6 16L-6 16C-8 4-7-11 0-19Z" fill="${col}" stroke="${borde}" stroke-width="3"/><rect x="-4" y="-4" width="8" height="9" rx="2" fill="#fff" opacity=".9"/><path d="M-5 18L-13 40M5 18L13 40" stroke="#fff" stroke-width="2" opacity=".85"/>`;
-  return h;
+/* dibujos vistos desde arriba, proa hacia arriba (y negativo). Tamaños en unidades del esquema */
+function svgEmb(t,col,borde,ang){
+  const g=TIPOS[t].g, sw=`stroke="${borde}" stroke-width="3"`;
+  const casco=(l,a)=>`<path d="M0 ${-l}C${a} ${-l*.6} ${a*1.1} ${l*.2} ${a*.85} ${l*.85}L${-a*.85} ${l*.85}C${-a*1.1} ${l*.2} ${-a} ${-l*.6} 0 ${-l}Z" fill="${col}" ${sw}/>`;
+  const estela=(y,a)=>`<path d="M${-a} ${y}L${-a*2.2} ${y+22}M${a} ${y}L${a*2.2} ${y+22}" stroke="#fff" stroke-width="2" opacity=".85"/>`;
+  const buque=(l,a)=>`<path d="M0 ${-l}C${a*.9} ${-l*.82} ${a} ${-l*.6} ${a} ${-l*.4}V${l*.9}Q${a} ${l} ${a*.6} ${l}H${-a*.6}Q${-a} ${l} ${-a} ${l*.9}V${-l*.4}C${-a} ${-l*.6} ${-a*.9} ${-l*.82} 0 ${-l}Z" fill="${col}" ${sw}/>`;
+  switch(g){
+    case "vela": { const side=ang>0?1:-1, ab=Math.max(5,Math.min(85,5+(Math.abs(ang)-35)*(80/145)));
+      return casco(19,7)+`<g transform="translate(0,-5) rotate(${side*ab})"><path d="M0 0Q${-side*9} 11 0 23" fill="rgba(255,255,255,.95)" stroke="#334155" stroke-width="1.4"/><path d="M0 0V23" stroke="#334155" stroke-width="1.6"/></g><path d="M0-17L${-side*4}-6" stroke="#334155" stroke-width="1"/><circle cy="-5" r="2.2" fill="#334155"/>`; }
+    case "velam": return casco(19,7)+`<path d="M0-5V16" stroke="#334155" stroke-width="2.4"/><circle cy="-5" r="2.2" fill="#334155"/>`+estela(17,5);
+    case "lancha": return casco(16,7)+`<rect x="-4" y="-3" width="8" height="8" rx="2" fill="#fff" opacity=".9"/>`+estela(14,5);
+    case "moto": return `<path d="M0-9C4-6 4 4 3 8H-3C-4 4-4-6 0-9Z" fill="${col}" ${sw}/><circle r="2" fill="#fff"/>`+estela(8,2.5);
+    case "kayak": return `<path d="M0-16C3-8 3 8 0 16C-3 8-3-8 0-16Z" fill="${col}" ${sw}/><path d="M-11-3L11 3" stroke="#334155" stroke-width="2"/><circle r="2.4" fill="#334155"/>`;
+    case "pasaj": return casco(22,8)+`<rect x="-6" y="-12" width="12" height="24" rx="3" fill="#fff" opacity=".9"/>`+estela(19,6);
+    case "pna": return casco(21,8)+`<path d="M-7.5-6L7.5-11M-7.5-1L7.5-6" stroke="#fff" stroke-width="2.4"/><rect x="-4" y="2" width="8" height="8" rx="2" fill="#fff" opacity=".9"/>`+estela(18,6);
+    case "pesca": return casco(15,7)+`<path d="M0 12Q-14 30-4 44M0 12Q14 30 4 44" stroke="#334155" stroke-width="1.2" stroke-dasharray="2 2" fill="none"/><path d="M-4-4L4 4M4-4L-4 4" stroke="#334155" stroke-width="2"/>`;
+    case "remolc": return `<path d="M0-16C8-14 9-6 9 0V10Q9 14 5 14H-5Q-9 14-9 10V0C-9-6-8-14 0-16Z" fill="${col}" ${sw}/><circle r="4" fill="#fff" opacity=".9"/><path d="M-9-2V8M9-2V8" stroke="#334155" stroke-width="3"/>`+estela(14,6);
+    case "convoy": { let b=""; for(let i=0;i<3;i++) for(let j=0;j<2;j++) b+=`<rect x="${-14+j*14}" y="${-46+i*18}" width="13" height="17" rx="1.5" fill="${col}" stroke="${borde}" stroke-width="2"/>`;
+      return b+`<rect x="-9" y="9" width="18" height="18" rx="4" fill="#475569" stroke="${borde}" stroke-width="2.5"/><rect x="-5" y="15" width="10" height="7" fill="#fff" opacity=".9"/>`+estela(27,6); }
+    case "granel": return buque(44,10)+`<rect x="-6" y="-30" width="12" height="9" fill="#fff" opacity=".35"/><rect x="-6" y="-17" width="12" height="9" fill="#fff" opacity=".35"/><rect x="-6" y="-4" width="12" height="9" fill="#fff" opacity=".35"/><rect x="-8" y="26" width="16" height="10" fill="#fff" opacity=".9"/>`+estela(44,7);
+    case "cont": { let c=""; const cs=["#ef4444","#22c55e","#3b82f6","#eab308","#a855f7"]; for(let i=0;i<5;i++) c+=`<rect x="-8" y="${-34+i*11}" width="16" height="10" fill="${cs[i]}" opacity=".85"/>`; return buque(48,11)+c+`<rect x="-8" y="24" width="16" height="8" fill="#fff" opacity=".9"/><rect x="-8" y="36" width="16" height="6" fill="#fff" opacity=".5"/>`+estela(48,7); }
+    case "tanque": return buque(42,10)+`<path d="M0-34V26" stroke="#fff" stroke-width="2.4" opacity=".7"/><circle cy="-12" r="2.6" fill="#fff" opacity=".7"/><rect x="-8" y="26" width="16" height="10" fill="#fff" opacity=".9"/>`+estela(42,7);
+    case "draga": return buque(34,10)+`<rect x="-7" y="16" width="14" height="10" fill="#fff" opacity=".9"/><path d="M-10 0L-24 -18" stroke="#334155" stroke-width="3.5"/><circle cx="-25" cy="-19" r="3" fill="#334155"/>`;
+    case "baliz": return buque(22,8)+`<path d="M0-6L-14-16" stroke="#334155" stroke-width="2.4"/><circle cx="-15" cy="-17" r="3.6" fill="#ef4444" stroke="#334155"/><rect x="-5" y="8" width="10" height="8" fill="#fff" opacity=".9"/>`;
+  }
+  return casco(16,7);
 }
 function ripaDibujar(s,r){
   const P=(a,rr,cx=0,cy=0)=>[cx+rr*Math.sin(rad(a)),cy-rr*Math.cos(rad(a))];
-  const A=[0,35], B=P(s.rb,s.tB==="canal"?122:112,A[0],A[1]), hBr=s.hB-s.hA, wr=nAng(s.w-s.hA);
+  const grande=t=>TIPOS[t].L>=40;
+  const A=[0,grande(s.tA)?20:35], dB=(grande(s.tA)?50:0)+(grande(s.tB)?122:110), B=P(s.rb,dB,A[0],A[1]), hBr=s.hB-s.hA, wr=nAng(s.w-s.hA);
   const arc=(a0,a1,c)=>{ const [x0,y0]=P(a0,62,A[0],A[1]),[x1,y1]=P(a1,62,A[0],A[1]); return `<path d="M${A[0]} ${A[1]}L${x0} ${y0}A62 62 0 0 1 ${x1} ${y1}Z" fill="${c}" opacity=".22"/>`; };
-  const cA=r.q==="A"||r.q==="AB"?"#dc2626":r.q==="B"?"#16a34a":"#d97706", cB=r.q==="B"||r.q==="AB"?"#dc2626":r.q==="A"?"#16a34a":"#d97706";
-  const tag=(x,y,c,txt)=>`<g transform="translate(${x},${y})"><rect x="-34" y="-9" width="68" height="18" rx="9" fill="${c}"/><text y="4.5" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="system-ui">${txt}</text></g>`;
-  const lblA=r.q==="A"||r.q==="AB"?"CEDÉS":r.q==="B"?"MANTENÉS":"¿?", lblB=r.q==="B"||r.q==="AB"?"CEDE":r.q==="A"?"MANTIENE":"¿?";
-  const [wx0,wy0]=P(wr,150),[wx1,wy1]=P(wr,112);
-  const vec=(x,y,a,len,c)=>{ const [x1,y1]=P(a,len,x,y); return `<path d="M${x} ${y}L${x1} ${y1}" stroke="${c}" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#rpFl)"/>`; };
-  const angA=nAng(s.w-s.hA), angB=nAng(s.w-s.hB);
+  const rojo="#dc2626",verde="#16a34a",ambar="#d97706";
+  const cA=r.q==="A"||r.q==="AB"?rojo:r.q==="B"?verde:ambar, cB=r.q==="B"||r.q==="AB"?rojo:r.q==="A"?verde:ambar;
+  const tag=(x,y,c,txt)=>`<g transform="translate(${Math.max(-120,Math.min(120,x))},${Math.max(-152,Math.min(150,y))})"><rect x="-38" y="-9" width="76" height="18" rx="9" fill="${c}"/><text y="4.5" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="system-ui">${txt}</text></g>`;
+  const lblA=r.q==="A"||r.q==="AB"?"CEDÉS":r.q==="B"?"MANTENÉS":r.q==="-"?"FONDEADO":"ATENCIÓN", lblB=r.q==="B"||r.q==="AB"?"CEDE":r.q==="A"?"MANTIENE":r.q==="-"?"FONDEADO":"ATENCIÓN";
+  const [wx0,wy0]=P(wr,152),[wx1,wy1]=P(wr,118);
+  const vec=(x,y,a,len)=>{ const [x1,y1]=P(a,len,x,y); return `<path d="M${x} ${y}L${x1} ${y1}" stroke="#334155" stroke-width="2.2" stroke-dasharray="5 4" marker-end="url(#rpFl)"/>`; };
+  const fa=TIPOS[s.tA].st==="fondeado", fb=TIPOS[s.tB].st==="fondeado";
+  const largoB=grande(s.tB)?52:22, largoA=grande(s.tA)?52:22;
+  const tB=[B[0],B[1]+((B[1]<A[1]-40)?-1:1)*(largoB+16)];
   $("rpSvg").innerHTML=`<defs><marker id="rpFl" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#334155"/></marker>
-     <marker id="rpW" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0b2a3f"/></marker></defs>
-    ${arc(0,112.5,"#16a34a")}${arc(247.5,360,"#dc2626")}${arc(112.5,247.5,"#94a3b8")}
-    <text x="${P(56,48,A[0],A[1])[0]}" y="${P(56,48,A[0],A[1])[1]}" font-size="9" fill="#166534" text-anchor="middle" font-family="system-ui">estribor</text>
-    <text x="${P(-56,48,A[0],A[1])[0]}" y="${P(-56,48,A[0],A[1])[1]}" font-size="9" fill="#991b1b" text-anchor="middle" font-family="system-ui">babor</text>
-    <text x="${A[0]}" y="${A[1]+56}" font-size="9" fill="#475569" text-anchor="middle" font-family="system-ui">popa · alcance</text>
-    <path d="M${wx0} ${wy0}L${wx1} ${wy1}" stroke="#0b2a3f" stroke-width="5" marker-end="url(#rpW)"/>
-    <text x="${Math.max(-128,Math.min(128,P(wr,140)[0]+(Math.abs(wr)<20?26:0)))}" y="${Math.max(-150,P(wr,140)[1]-10)}" font-size="11" font-weight="800" fill="#0b2a3f" text-anchor="middle" font-family="system-ui">VIENTO</text>
-    ${vec(A[0],A[1],0,58,"#334155")}${vec(B[0],B[1],hBr,58,"#334155")}
-    <g transform="translate(${A[0]},${A[1]})">${svgBarco(s.tA,"#0ea5e9",cA,angA)}</g>
-    <g transform="translate(${B[0]},${B[1]}) rotate(${hBr})">${svgBarco(s.tB,"#f97316",cB,angB)}</g>
-    ${tag(A[0],A[1]+34,cA,lblA)}${tag(B[0],B[1]+(B[1]<A[1]-60?-1:1)*(s.tB==="canal"?48:36)*(B[1]>110?-1:1),cB,lblB)}
-    <text x="0" y="158" font-size="10" fill="#475569" text-anchor="middle" font-family="system-ui">Tu proa hacia arriba · rumbo ${Math.round(s.hA)}° · viento del ${card16(s.w)}</text>`;
+     <marker id="rpWm" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0b2a3f"/></marker></defs>
+    <circle r="150" fill="none" stroke="#94a3b8" stroke-width=".8" stroke-dasharray="2 4"/>
+    ${arc(0,112.5,verde)}${arc(247.5,360,rojo)}${arc(112.5,247.5,"#94a3b8")}
+    <text x="${P(56,46,A[0],A[1])[0]}" y="${P(56,46,A[0],A[1])[1]}" font-size="9" fill="#166534" text-anchor="middle" font-family="system-ui">estribor</text>
+    <text x="${P(-56,46,A[0],A[1])[0]}" y="${P(-56,46,A[0],A[1])[1]}" font-size="9" fill="#991b1b" text-anchor="middle" font-family="system-ui">babor</text>
+    <text x="${A[0]+44}" y="${A[1]+54}" font-size="9" fill="#475569" text-anchor="middle" font-family="system-ui">popa · alcance</text>
+    <path d="M${wx0} ${wy0}L${wx1} ${wy1}" stroke="#0b2a3f" stroke-width="5" marker-end="url(#rpWm)"/>
+    <text x="${Math.max(-132,Math.min(132,P(wr+14,134)[0]))}" y="${Math.max(-150,Math.min(156,P(wr+14,134)[1]+4))}" font-size="11" font-weight="800" fill="#0b2a3f" text-anchor="middle" font-family="system-ui">VIENTO</text>
+    ${fa?"":vec(A[0],A[1]-largoA,0,30)}${fb?"":vec(B[0]+largoB*Math.sin(rad(hBr)),B[1]-largoB*Math.cos(rad(hBr)),hBr,30)}
+    <g transform="translate(${A[0]},${A[1]})">${svgEmb(s.tA,"#0ea5e9",cA,nAng(s.w-s.hA))}</g>
+    <g transform="translate(${B[0]},${B[1]}) rotate(${hBr})">${svgEmb(s.tB,"#f97316",cB,nAng(s.w-s.hB))}</g>
+    ${tag(A[0],A[1]+largoA+18,cA,lblA)}${tag(tB[0],tB[1],cB,lblB)}`;
 }
+const AYUDA={pos:"Tocá o arrastrá donde querés que esté la otra embarcación.",hB:"Arrastrá hacia donde querés que apunte la proa de la otra embarcación.",hA:"Arrastrá hacia donde querés llevar tu proa: el gráfico gira para dejarla siempre hacia arriba.",w:"Arrastrá hacia el lado de donde viene el viento."};
 function ripaRender(){
   const s=RP;
   $("rpW").value=s.w; $("rpHA").value=s.hA; $("rpHB").value=s.hB; $("rpBB").value=s.rb; $("rpTA").value=s.tA; $("rpTB").value=s.tB; $("rpCanal").checked=s.canal;
   $("rpWv").textContent=rumboTxt(s.w); $("rpHAv").textContent=rumboTxt(s.hA); $("rpHBv").textContent=rumboTxt(s.hB); $("rpBBv").textContent=marcTxt(s.rb);
+  $("rpModo").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.m===s.modo)); $("rpAyuda").textContent=`Tu proa hacia arriba (rumbo ${Math.round(s.hA)}°, viento del ${card16(s.w)}). `+AYUDA[s.modo];
   const r=ripaCalc(s); ripaDibujar(s,r);
   const cls=r.q==="A"?"cede":r.q==="B"?"mant":"amb";
-  const acc=r.q==="A"?(s.tB==="canal"?"Qué hacer: apartate ya y en forma franca, saliendo de su camino. Si no entendés su maniobra, 5 pitadas cortas.":s.tA==="motor"?"Qué hacer: caé a estribor con tiempo y en forma franca, o bajá la velocidad, y pasale por la popa (1 pitada corta si caés a estribor).":"Qué hacer: maniobrá con tiempo y en forma franca: arribá para pasarle por la popa, o virá o trasluchá antes de acercarte.")
-    :r.q==="B"?"Qué hacer: mantené rumbo y velocidad. Vigilá que el otro maniobre; si no lo hace, avisale (5 pitadas cortas) y maniobrá vos para evitar el abordaje."
-    :r.q==="AB"?"Qué hacer: caé a estribor en forma franca, 1 pitada corta.":"Qué hacer: maniobrá con tiempo para evitar cualquier duda.";
-  const bt=[];
+  const chicoA=TIPOS[s.tA].L<20;
+  const acc=r.q==="A"?(r.eB==="canal"?"Qué hacer: apartate ya y en forma franca, saliendo de su derrota. Si no entendés su maniobra, 5 pitadas cortas y llamalo por VHF.":r.eA==="vela"?"Qué hacer: maniobrá con tiempo y en forma franca: arribá para pasarle por la popa, o virá o trasluchá antes de acercarte.":"Qué hacer: caé a estribor con tiempo y en forma franca, o bajá la velocidad o pará, y pasale por la popa (1 pitada corta si caés a estribor; 3 cortas si das atrás).")
+    :r.q==="B"?"Qué hacer: mantené rumbo y velocidad. Vigilá que la otra maniobre; si no lo hace, avisale con 5 pitadas cortas y, si hace falta, maniobrá vos para evitar el abordaje"+(r.eA==="motor"||r.eA==="canal"?" sin caer a babor hacia un buque que tenés por babor":"")+"."
+    :r.q==="AB"?"Qué hacer: caé a estribor en forma franca y avisá con 1 pitada corta."
+    :r.q==="-"?"":"Qué hacer: comunicate por VHF y maniobrá con tiempo para que no quede ninguna duda.";
   $("rpRes").className="rpres "+cls;
-  $("rpRes").innerHTML=`<b class="t">${r.t}</b>${r.x}<br><b>${acc}</b>${r.notas.length?"<br>"+r.notas.map(n=>"• "+n).join("<br>"):""}<br><span class="rg">${r.regla}</span>`;
+  $("rpRes").innerHTML=`<b class="t">${r.t}</b>${r.x}${acc?`<br><b>${acc}</b>`:""}${r.notas.length?"<br>"+r.notas.map(n=>"• "+n).join("<br>"):""}<br><span class="rg">${r.regla}</span>`;
+  const sen=t=>{ const x=TIPOS[t]; return `<p><b>${x.n}</b><br>☀️ De día: ${x.dia}<br>🌙 De noche: ${x.noche}</p>`; };
+  $("rpSen").innerHTML=`<p style="color:var(--ink3);font-size:12px">La otra:</p>${sen(s.tB)}<p style="color:var(--ink3);font-size:12px">Vos:</p>${sen(s.tA)}`;
 }
+const opts=GRUPOS.map(([g,ks])=>`<optgroup label="${g}">${ks.map(k=>`<option value="${k}">${TIPOS[k].n}</option>`).join("")}</optgroup>`).join("");
+$("rpTA").innerHTML=opts; $("rpTB").innerHTML=opts;
 const RP_ESC=[
-  ["⛵⛵ Amuras distintas",{w:0,hA:45,hB:315,rb:60,tA:"vela",tB:"vela",canal:false}],
-  ["⛵⛵ Misma amura",{w:0,hA:60,hB:120,rb:300,tA:"vela",tB:"vela",canal:false}],
-  ["🚤⛵ Motor y vela",{w:270,hA:90,hB:0,rb:45,tA:"motor",tB:"vela",canal:false}],
-  ["🚤🚤 Proa con proa",{w:300,hA:0,hB:180,rb:0,tA:"motor",tB:"motor",canal:false}],
-  ["🚤🚤 Cruce",{w:300,hA:0,hB:270,rb:55,tA:"motor",tB:"motor",canal:false}],
-  ["Te alcanzan",{w:200,hA:0,hB:10,rb:195,tA:"vela",tB:"motor",canal:false}],
-  ["🚢 Buque en el canal",{w:90,hA:0,hB:180,rb:8,tA:"vela",tB:"canal",canal:true}],
-  ["🎣 Pesquero",{w:90,hA:0,hB:200,rb:30,tA:"vela",tB:"pesca",canal:false}]
+  ["⛵⛵ Amuras distintas",{w:0,hA:45,hB:315,rb:60,tA:"velero",tB:"velero",canal:false}],
+  ["⛵⛵ Misma amura",{w:0,hA:60,hB:120,rb:300,tA:"velero",tB:"velero",canal:false}],
+  ["🚤⛵ Lancha y velero",{w:270,hA:90,hB:0,rb:45,tA:"lancha",tB:"velero",canal:false}],
+  ["⛵🚢 Granelero en la VNT",{w:90,hA:0,hB:180,rb:8,tA:"velero",tB:"granelero",canal:true}],
+  ["⛵ Convoy de barcazas cruzando",{w:200,hA:0,hB:270,rb:50,tA:"velero",tB:"convoy",canal:true}],
+  ["🚤 Draga trabajando",{w:90,hA:0,hB:200,rb:20,tA:"lancha",tB:"draga",canal:true}],
+  ["🚤🚤 Proa con proa",{w:300,hA:0,hB:180,rb:0,tA:"lancha",tB:"colectiva",canal:false}],
+  ["🚤🚤 Cruce",{w:300,hA:0,hB:270,rb:55,tA:"lancha",tB:"lancha",canal:false}],
+  ["🚢 Te alcanza un tanquero",{w:200,hA:0,hB:5,rb:185,tA:"velero",tB:"tanque",canal:true}],
+  ["🎣 Pesquero",{w:90,hA:0,hB:200,rb:30,tA:"velero",tB:"pesca",canal:false}],
+  ["⚓ Buque fondeado",{w:90,hA:0,hB:330,rb:15,tA:"velero",tB:"fondeado",canal:false}],
+  ["🚢🚢 Dos buques en el canal",{w:90,hA:0,hB:180,rb:4,tA:"granelero",tB:"convoy",canal:true}]
 ];
 $("rpEsc").innerHTML=RP_ESC.map((e,i)=>`<button data-i="${i}">${e[0]}</button>`).join("");
-$("rpEsc").querySelectorAll("button").forEach(b=>b.onclick=()=>{ Object.assign(RP,RP_ESC[+b.dataset.i][1]); $("rpMiaTxt").textContent="Tocá o arrastrá sobre el esquema para mover al otro barco."; ripaRender(); });
+$("rpEsc").querySelectorAll("button").forEach(b=>b.onclick=()=>{ Object.assign(RP,RP_ESC[+b.dataset.i][1]); $("rpMiaTxt").textContent=""; ripaRender(); $("ripa").scrollTo({top:0,behavior:"smooth"}); });
 [["rpW","w"],["rpHA","hA"],["rpHB","hB"],["rpBB","rb"]].forEach(([id,k])=>$(id).oninput=()=>{ RP[k]=+$(id).value; ripaRender(); });
 $("rpTA").onchange=()=>{ RP.tA=$("rpTA").value; ripaRender(); };
 $("rpTB").onchange=()=>{ RP.tB=$("rpTB").value; ripaRender(); };
 $("rpCanal").onchange=()=>{ RP.canal=$("rpCanal").checked; ripaRender(); };
-(()=>{ const sv=$("rpSvg"); let drag=false;
-  const mover=e=>{ const pt=sv.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY; const p=pt.matrixTransform(sv.getScreenCTM().inverse());
-    const dx=p.x, dy=p.y-35; if(Math.hypot(dx,dy)<25) return; RP.rb=Math.round(((Math.atan2(dx,-dy)*180/Math.PI)+360)%360/5)*5%360; ripaRender(); };
-  sv.addEventListener("pointerdown",e=>{ drag=true; try{sv.setPointerCapture(e.pointerId);}catch{} mover(e); });
+$("rpModo").querySelectorAll("button").forEach(b=>b.onclick=()=>{ RP.modo=b.dataset.m; ripaRender(); });
+$("rpInv").onclick=()=>{ const rbAbs=(RP.hA+RP.rb)%360; [RP.tA,RP.tB]=[RP.tB,RP.tA]; [RP.hA,RP.hB]=[RP.hB,RP.hA]; RP.rb=((rbAbs+180-RP.hA)%360+360)%360; ripaRender(); };
+(()=>{ const sv=$("rpSvg"); let drag=false, h0=0, abs0=0;
+  const punto=e=>{ const pt=sv.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY; return pt.matrixTransform(sv.getScreenCTM().inverse()); };
+  const ang=(x,y)=>((Math.atan2(x,-y)*180/Math.PI)+360)%360;
+  const r5=x=>Math.round(((x%360)+360)%360/5)*5%360;
+  const mover=e=>{ const p=punto(e), Ay=TIPOS[RP.tA].L>=40?20:35;
+    if(RP.modo==="pos"){ const dx=p.x, dy=p.y-Ay; if(Math.hypot(dx,dy)<25) return; RP.rb=r5(ang(dx,dy)); }
+    else if(RP.modo==="w"){ if(Math.hypot(p.x,p.y)<20) return; RP.w=r5(RP.hA+ang(p.x,p.y)); }
+    else if(RP.modo==="hB"){ const P_=(a,rr)=>[rr*Math.sin(rad(a)),Ay-rr*Math.cos(rad(a))]; const dB=(TIPOS[RP.tA].L>=40?50:0)+(TIPOS[RP.tB].L>=40?122:110); const [bx,by]=P_(RP.rb,dB); if(Math.hypot(p.x-bx,p.y-by)<10) return; RP.hB=r5(RP.hA+ang(p.x-bx,p.y-by)); }
+    else if(RP.modo==="hA"){ const dx=p.x, dy=p.y-Ay; if(Math.hypot(dx,dy)<20) return; const a=ang(dx,dy); RP.hA=r5(h0+a); RP.rb=r5(abs0-RP.hA); }
+    ripaRender(); };
+  sv.addEventListener("pointerdown",e=>{ drag=true; h0=RP.hA; abs0=RP.hA+RP.rb; try{sv.setPointerCapture(e.pointerId);}catch{} mover(e); e.preventDefault(); });
   sv.addEventListener("pointermove",e=>{ if(drag) mover(e); });
-  sv.addEventListener("pointerup",()=>drag=false); sv.addEventListener("pointercancel",()=>drag=false);
+  const fin=()=>{ drag=false; }; sv.addEventListener("pointerup",fin); sv.addEventListener("pointercancel",fin);
 })();
+function tipoDesdeAIS(b){
+  const t=+b.type||0, L=b.len||0;
+  if(t>=80&&t<90) return "tanque"; if(t>=70&&t<80) return L>0&&L<60?"remolcador":"granelero";
+  if(t===33) return "draga"; if(t===31||t===32) return "convoy"; if(t===52) return "remolcador"; if(t===30) return "pesca";
+  if(t===36) return "velero"; if(t===37) return L>=20?"colectiva":"lancha"; if(t>=60&&t<70) return "colectiva"; if(t===55) return "pna";
+  return L>=50?"granelero":L>=20?"remolcador":"lancha";
+}
 $("rpMia").onclick=()=>{
   const msg=[];
-  if(NAV.cog!=null){ RP.hA=Math.round(NAV.cog/5)*5%360; msg.push(`tu rumbo ${Math.round(NAV.cog)}° (GPS)`); } else msg.push("sin rumbo GPS todavía (movete un poco)");
+  if(NAV.cog!=null){ RP.hA=Math.round(NAV.cog/5)*5%360; msg.push(`tu rumbo ${Math.round(NAV.cog)}° (GPS)`); } else msg.push("sin rumbo GPS todavía (hace falta que te muevas)");
   if(WIND_NOW!=null){ RP.w=Math.round(WIND_NOW/5)*5%360; msg.push(`viento del ${card16(WIND_NOW)}`); } else msg.push("sin dirección de viento");
   let best=null, bd=1e9;
-  if(me) for(const [mm,b] of SHIPS){ if(b.lat==null) continue; const d=dist(me.lat,me.lon,b.lat,b.lon); if(d<bd){ bd=d; best=b; } }
+  if(me) for(const [,b] of SHIPS){ if(b.lat==null) continue; const d=dist(me.lat,me.lon,b.lat,b.lon); if(d<bd){ bd=d; best=b; } }
   if(best&&bd<8000){
     RP.rb=Math.round(((bearing(me.lat,me.lon,best.lat,best.lon)-RP.hA+720)%360)/5)*5%360;
     const h=best.hdg!=null&&best.hdg<360?best.hdg:best.cog; if(h!=null) RP.hB=Math.round(h/5)*5%360;
-    const t=+best.type||0, L=best.len||0;
-    RP.tB=(t>=70&&t<=89)||L>=50?"canal":t===30?"pesca":t===36?"vela":t===33?"restringida":"motor";
-    RP.canal=true;
-    msg.push(`buque ${best.name||best.mmsi||""} a ${fmt(bd/1000,1)} km`);
+    RP.tB=tipoDesdeAIS(best); RP.canal=true;
+    msg.push(`${best.name||"buque "+(best.mmsi||"")} (${TIPOS[RP.tB].n.toLowerCase()}) a ${fmt(bd/1000,1)} km`);
   } else msg.push("no hay buques AIS a menos de 8 km");
-  $("rpMiaTxt").textContent="Cargado: "+msg.join(" · ")+". Revisá los datos: el AIS y el GPS pueden tener demora.";
+  $("rpMiaTxt").textContent="Cargado: "+msg.join(" · ")+". Revisá los datos: el AIS y el GPS pueden tener demora, y el tipo de buque se deduce del código AIS.";
   ripaRender();
 };
 
