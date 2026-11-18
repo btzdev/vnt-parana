@@ -169,6 +169,36 @@ button{font:inherit;color:inherit}
 .tlog td:last-child{white-space:normal}
 @media (min-width:900px){.tabbar{left:calc((100% - 420px)/2)}}
 .tabbar button{padding:8px 11px;font-size:13px}
+@media (max-width:430px){.tabbar{gap:1px;padding:2px}.tabbar button{padding:8px 7px;font-size:12px}}
+.rd .zona{background:linear-gradient(135deg,#0b2a3f,#0f4c6e);color:#fff;border:0}
+.rd .zona .ch{font:800 54px/1 var(--font);font-variant-numeric:tabular-nums}
+.rd .zona .ch small{font-size:16px;font-weight:650;opacity:.8;margin-left:4px}
+.rd .zona .zt{font-size:13px;opacity:.9;margin-top:4px;line-height:1.45}
+.rd .sos{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.rd .sos a{display:block;text-decoration:none;color:#fff;background:#b91c1c;border-radius:12px;padding:12px;font-weight:700;font-size:13px}
+.rd .sos a b{display:block;font:800 34px/1.05 var(--font)}
+.rd .sos a.c16{background:#0f6c8c}
+.rd table{width:100%;border-collapse:collapse;font-size:13px}
+.rd td{padding:7px 4px;border-bottom:1px solid var(--line);vertical-align:top}
+.rd td.n{font:800 20px var(--font);white-space:nowrap;width:1%;padding-right:10px;color:var(--sea)}
+.rd .it{padding:10px 2px;border-bottom:1px solid var(--line)}
+.rd .it:last-child{border-bottom:0}
+.rd .it h4{margin:0;font-size:14.5px;display:flex;gap:6px;align-items:baseline;justify-content:space-between}
+.rd .it h4 span{font-size:12px;color:var(--ink3);font-weight:600;white-space:nowrap}
+.rd .it .dd{font-size:12.5px;color:var(--ink2);margin-top:3px;line-height:1.5}
+.rd .it .bt{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+.rd .it .bt a,.rd .it .bt button{font:650 12.5px var(--font);border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:9px;padding:6px 10px;text-decoration:none;cursor:pointer}
+.rd .it.star{background:linear-gradient(90deg,rgba(234,179,8,.13),transparent);border-radius:10px;padding-left:8px}
+.rd .tag{display:inline-block;font:700 11px var(--font);background:#e0f2fe;color:#075985;border-radius:6px;padding:2px 6px;margin-right:4px}
+.clb{font:700 10.5px var(--font);white-space:nowrap;background:#fff;border:1.5px solid #0b2a3f;color:#0b2a3f;border-radius:7px;padding:2px 5px;box-shadow:0 1px 3px rgba(0,0,0,.35);transform:translate(-50%,-50%);display:inline-block}
+.clb.pna{background:#0b2a3f;color:#fff}
+.clb.star{background:#facc15;border-color:#854d0e;color:#422006}
+.wrk{filter:drop-shadow(0 0 1px #fff) drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.luzv{display:flex;align-items:center;gap:12px;margin-top:10px;padding:10px;border-radius:12px;background:#0b1620;color:#e2e8f0}
+.luzv .lamp{flex:none;width:34px;height:34px;border-radius:50%;background:#1e293b;border:2px solid #334155;transition:background .06s,box-shadow .06s}
+.luzv .lt{font-size:12.5px;line-height:1.45}
+.luzv .lt b{font-size:13.5px;color:#fff}
+.luzw{margin-top:6px;font-size:12px;color:#b45309}
 #vel .kg .card .v{font-size:clamp(46px,15vw,80px)}
 #vel .kg .card .lab{font-size:12px}
 .off{position:absolute;z-index:1004;left:50%;transform:translateX(-50%);top:calc(env(safe-area-inset-top) + 52px);background:#b45309;color:#fff;font:600 12px var(--font);padding:4px 10px;border-radius:8px;display:none}
@@ -214,7 +244,7 @@ button{font:inherit;color:inherit}
 <body>
 <div id="app">
   <div id="map" role="application" aria-label="Mapa del río"></div>
-  <nav class="tabbar" id="tabbar"><button class="on" data-v="nav">🧭 Navegación</button><button data-v="reg">⏱ Regata</button><button data-v="vel">⚡ Velocidad</button></nav>
+  <nav class="tabbar" id="tabbar"><button class="on" data-v="nav">🧭 Mapa</button><button data-v="reg">⏱ Regata</button><button data-v="vel">⚡ Velocidad</button><button data-v="rad">📻 Radio</button></nav>
   <div class="off" id="offBadge">Sin conexión · GPS activo</div>
   <div class="ficha" id="ficha" role="dialog" aria-modal="false"><button class="fx" id="fichaX" aria-label="Cerrar">✕</button><div id="fichaC"></div></div>
 
@@ -318,6 +348,31 @@ button{font:inherit;color:inherit}
     </div>
   </section>
 
+  <section class="reg rd" id="rad" hidden>
+    <div class="regin">
+      <div class="rtit">Tu zona</div>
+      <div class="card zona" id="rdZona"><div class="zt">Esperando posición GPS…</div></div>
+
+      <div class="rtit">Emergencias</div>
+      <div class="sos">
+        <a href="tel:106"><b>106</b>Emergencias náuticas (Prefectura)</a>
+        <a class="c16"><b>Canal 16</b>156,800 MHz · socorro y llamada</a>
+      </div>
+      <div class="leyenda">Escucha permanente obligatoria en canal 16. Llamada digital selectiva (DSC): canal 70.</div>
+
+      <div class="rtit">Canales VHF de la Prefectura en el Paraná</div>
+      <div class="card"><table id="rdVts"></table></div>
+      <div class="leyenda" id="rdBol"></div>
+
+      <div class="rtit">Prefectura</div>
+      <div class="card" id="rdPna"></div>
+
+      <div class="rtit">Clubes náuticos</div>
+      <div class="card" id="rdClub"></div>
+      <div class="leyenda">Teléfonos y direcciones tomados de los sitios de cada club, de la Federación Argentina de Yachting y de la Prefectura Naval Argentina. El canal de trabajo de cada regata lo fija la comisión de regata en las instrucciones. Si un dato cambió, avisame y lo corrijo.</div>
+    </div>
+  </section>
+
   <aside class="sheet" id="sheet">
     <div class="grab" id="grab" aria-label="Expandir panel"><i></i></div>
     <div class="scroll" id="scroll">
@@ -394,7 +449,7 @@ button{font:inherit;color:inherit}
 <script>
 (()=>{"use strict";
 /* ====== datos de referencia embebidos ====== */
-const VNT = {"rutas":{"parana_de_las_palmas":{"nombre":"Río Paraná de las Palmas","a":[[49.8,-34.305,-58.47],[60.8,-34.29,-58.56],[75.0,-34.255,-58.72],[93.6,-34.175,-58.915],[97.0,-34.16,-58.95],[103.6,-34.115,-59.0],[107.0,-34.095,-59.03],[114.8,-34.05,-59.1],[126.0,-33.985,-59.195],[136.0,-33.935,-59.28],[141.9,-33.905,-59.33],[155.0,-33.85,-59.4],[165.4,-33.81,-59.44],[174.4,-33.785,-59.47],[180.4,-33.77,-59.485]]},"parana":{"nombre":"Río Paraná","a":[[232.0,-33.77,-59.485],[245.0,-33.735,-59.555],[276.0,-33.665,-59.645],[290.0,-33.62,-59.735],[311.0,-33.595,-59.81],[322.0,-33.525,-59.93],[330.0,-33.475,-60.01],[340.0,-33.4,-60.11],[345.0,-33.355,-60.185],[357.0,-33.29,-60.255],[367.0,-33.235,-60.315],[384.0,-33.18,-60.43],[392.0,-33.145,-60.505],[399.0,-33.1,-60.565],[407.0,-33.045,-60.605],[416.0,-32.975,-60.62],[420.0,-32.945,-60.63],[427.0,-32.885,-60.665],[432.2,-32.845,-60.69],[440.0,-32.79,-60.705],[448.0,-32.74,-60.72],[455.0,-32.7,-60.725],[463.0,-32.655,-60.74],[472.0,-32.6,-60.735],[480.0,-32.55,-60.715],[500.0,-32.42,-60.69],[533.0,-32.065,-60.645],[560.0,-31.905,-60.6],[584.0,-31.745,-60.545],[601.0,-31.72,-60.525],[650.0,-31.47,-60.33],[700.0,-31.225,-59.985],[762.0,-30.74,-59.645],[853.0,-30.01,-59.535],[965.0,-29.14,-59.255],[1050.0,-28.51,-59.04],[1145.0,-27.945,-58.81],[1208.0,-27.465,-58.845],[1238.0,-27.29,-58.61]]},"parana_guazu":{"nombre":"Río Paraná Guazú","a":[[124.0,-34.005,-58.395],[165.0,-33.955,-58.72],[181.0,-33.935,-58.85],[217.0,-33.85,-59.17],[232.0,-33.77,-59.485]]}},"tramos":[{"ruta":"parana_de_las_palmas","nombre":"Río Paraná de las Palmas","km":[49.8,180.4]},{"ruta":"parana","nombre":"Bifurcación Las Palmas/Guazú – Villa Constitución","km":[232,367]},{"ruta":"parana","nombre":"Villa Constitución – Rosario","km":[367,408.7]},{"ruta":"parana","nombre":"Rosario – Puerto San Martín","km":[408.7,460]},{"ruta":"parana","nombre":"Puerto San Martín – Santa Fe (Bella Vista / Correntoso)","km":[460,584]},{"ruta":"parana","nombre":"Paraná Medio (Santa Fe – Esquina)","km":[584,853]},{"ruta":"parana","nombre":"Paraná Superior (Esquina – Confluencia)","km":[853,1238]},{"ruta":"parana_guazu","nombre":"Río Paraná Guazú","km":[124,232]}],"vts":[{"nombre":"VTS Zárate (Sector 1)","ruta":"parana_de_las_palmas","km":[57.6,179.2],"vhf":"Canal 72 (156,625 MHz)","indicativo":"L5T"},{"nombre":"VTS Zárate (Sector 2)","ruta":"parana_guazu","km":[122.5,232],"vhf":"Canal 14 (156,700 MHz)","indicativo":"L5T"},{"nombre":"VTS San Pedro","ruta":"parana","km":[232,310],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6E"},{"nombre":"VTS San Nicolás","ruta":"parana","km":[310,376],"vhf":null,"indicativo":null},{"nombre":"VTS Rosario","ruta":"parana","km":[376,480],"vhf":"Canal 14 (156,700 MHz)","indicativo":"L6I"},{"nombre":"VTS Diamante","ruta":"parana","km":[480,568],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6M"},{"nombre":"VTS Corrientes","ruta":"parana","km":[1135,1242],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6Y"}]};
+const VNT = {"rutas":{"parana_de_las_palmas":{"nombre":"Río Paraná de las Palmas","a":[[49.8,-34.305,-58.47],[60.8,-34.29,-58.56],[75.0,-34.255,-58.72],[93.6,-34.175,-58.915],[97.0,-34.16,-58.95],[103.6,-34.115,-59.0],[107.0,-34.095,-59.03],[114.8,-34.05,-59.1],[126.0,-33.985,-59.195],[136.0,-33.935,-59.28],[141.9,-33.905,-59.33],[155.0,-33.85,-59.4],[165.4,-33.81,-59.44],[174.4,-33.785,-59.47],[180.4,-33.77,-59.485]]},"parana":{"nombre":"Río Paraná","a":[[232.0,-33.77,-59.485],[245.0,-33.735,-59.555],[276.0,-33.665,-59.645],[290.0,-33.62,-59.735],[311.0,-33.595,-59.81],[322.0,-33.525,-59.93],[330.0,-33.475,-60.01],[340.0,-33.4,-60.11],[345.0,-33.355,-60.185],[357.0,-33.29,-60.255],[367.0,-33.235,-60.315],[384.0,-33.18,-60.43],[392.0,-33.145,-60.505],[399.0,-33.1,-60.565],[407.0,-33.045,-60.605],[416.0,-32.975,-60.62],[420.0,-32.945,-60.63],[427.0,-32.885,-60.665],[432.2,-32.845,-60.69],[440.0,-32.79,-60.705],[448.0,-32.74,-60.72],[455.0,-32.7,-60.725],[463.0,-32.655,-60.74],[472.0,-32.6,-60.735],[480.0,-32.55,-60.715],[500.0,-32.42,-60.69],[533.0,-32.065,-60.645],[560.0,-31.905,-60.6],[584.0,-31.745,-60.545],[601.0,-31.72,-60.525],[650.0,-31.47,-60.33],[700.0,-31.225,-59.985],[762.0,-30.74,-59.645],[853.0,-30.01,-59.535],[965.0,-29.14,-59.255],[1050.0,-28.51,-59.04],[1145.0,-27.945,-58.81],[1208.0,-27.465,-58.845],[1238.0,-27.29,-58.61]]},"parana_guazu":{"nombre":"Río Paraná Guazú","a":[[124.0,-34.005,-58.395],[165.0,-33.955,-58.72],[181.0,-33.935,-58.85],[217.0,-33.85,-59.17],[232.0,-33.77,-59.485]]}},"tramos":[{"ruta":"parana_de_las_palmas","nombre":"Río Paraná de las Palmas","km":[49.8,180.4]},{"ruta":"parana","nombre":"Bifurcación Las Palmas/Guazú – Villa Constitución","km":[232,367]},{"ruta":"parana","nombre":"Villa Constitución – Rosario","km":[367,408.7]},{"ruta":"parana","nombre":"Rosario – Puerto San Martín","km":[408.7,460]},{"ruta":"parana","nombre":"Puerto San Martín – Santa Fe (Bella Vista / Correntoso)","km":[460,584]},{"ruta":"parana","nombre":"Paraná Medio (Santa Fe – Esquina)","km":[584,853]},{"ruta":"parana","nombre":"Paraná Superior (Esquina – Confluencia)","km":[853,1238]},{"ruta":"parana_guazu","nombre":"Río Paraná Guazú","km":[124,232]}],"vts":[{"nombre":"VTS Zárate (Sector 1)","ruta":"parana_de_las_palmas","km":[57.6,179.2],"vhf":"Canal 72 (156,625 MHz)","indicativo":"L5T"},{"nombre":"VTS Zárate (Sector 2)","ruta":"parana_guazu","km":[122.5,232],"vhf":"Canal 14 (156,700 MHz)","indicativo":"L5T"},{"nombre":"VTS San Pedro","ruta":"parana","km":[232,310],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6E"},{"nombre":"VTS San Nicolás","ruta":"parana","km":[310,376],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6G"},{"nombre":"VTS Rosario","ruta":"parana","km":[376,480],"vhf":"Canal 14 (156,700 MHz)","indicativo":"L6I"},{"nombre":"VTS Diamante","ruta":"parana","km":[480,568],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6M"},{"nombre":"VTS Corrientes","ruta":"parana","km":[1135,1242],"vhf":"Canal 12 (156,600 MHz)","indicativo":"L6Y"}]};
 const ESCALAS = [[8,"Andresito",-25.5833,-53.9833],[9,"Puerto Iguazú",-25.5833,-54.5667],[10,"Libertad",-25.9167,-54.6211],[11,"El Dorado",-26.3833,-54.7],[12,"Libertador",-26.8,-55.0333],[13,"Santa Ana",-27.3351,-55.5884],[14,"Posadas",-27.3667,-55.8833],[15,"Ituzaingó",-27.5833,-56.7],[16,"Itá Ibaté",-27.4234,-57.3333],[17,"Itatí",-27.2668,-58.2441],[18,"Paso de la Patria",-27.3333,-58.5833],[19,"Corrientes",-27.4636,-58.8389],[20,"Barranqueras",-27.4833,-58.9333],[21,"Empedrado",-27.9541,-58.8185],[22,"Bella Vista",-28.5184,-59.0593],[23,"Goya",-29.1438,-59.273],[24,"Reconquista",-29.2376,-59.5812],[25,"Esquina",-30.0192,-59.5366],[26,"La Paz",-30.7342,-59.6381],[27,"Santa Elena",-30.95,-59.7833],[28,"Hernandarias",-31.2265,-59.9919],[29,"Paraná",-31.7182,-60.5226],[30,"Santa Fe",-31.6515,-60.7002],[31,"Diamante",-32.0716,-60.6432],[32,"Victoria",-32.6558,-60.2196],[33,"San Lorenzo (San Martín)",-32.7336,-60.7257],[34,"Rosario",-32.9433,-60.6308],[35,"Villa Constitución",-33.2354,-60.3091],[36,"San Nicolás",-33.342,-60.1895],[37,"Ramallo",-33.4781,-59.9957],[38,"San Pedro",-33.6745,-59.6497],[39,"Baradero",-33.8007,-59.4956],[40,"Zárate",-34.0988,-59.0109],[41,"Campana",-34.1556,-58.9582],[42,"Escobar",-34.3,-58.7333],[43,"Villa Paranacito",-33.7,-58.65],[44,"Canal Nuevo",-33.8627,-58.6604],[45,"Ibicuy",-33.762,-59.1801],[46,"Puerto Ruiz",-33.2167,-59.3667],[47,"Martín García",-34.1903,-58.253],[48,"Guazucito",-34.0167,-58.4],[49,"Tigre",-34.4159,-58.578],[50,"Dique Luján",-34.3516,-58.6861],[51,"Chaná Miní",-34.2,-58.4833],[52,"San Fernando",-34.4333,-58.55],[53,"San Isidro",-34.4572,-58.5072],[54,"Olivos",-34.5067,-58.4759],[55,"Puerto Pilcomayo",-25.3667,-57.65],[57,"Puerto Formosa",-26.1833,-58.1833],[58,"Bermejo",-26.9263,-58.5062],[59,"Isla del Cerrito",-27.3167,-58.6167],[85,"Buenos Aires",-34.5611,-58.3993],[86,"La Plata",-34.8242,-57.8735]];   // [serieId, nombre, lat, lon]  escalas Prefectura Naval vía INA
 const METEO_INA = [["Guayquiraró - Pblo Libertador",-30.2211,-59.385,6933,6834,6707,6793],
 ["PN Ciervo de los Pantanos",-34.2256,-58.8989,37098,37103,37102,37100],
@@ -454,6 +509,7 @@ const FUENTES = {
   wx:{n:"Pronóstico horario de viento, temperatura y nubosidad: Open-Meteo (modelos globales, no oficial; el SMN no publica una API abierta)",u:"https://open-meteo.com"},
   ais:{n:"AIS: OpenSeaFeed + Open Waters AIS (redes comunitarias, no oficiales)"},
   bz_shn:{n:"Novedades de balizamiento y dragado: SHN, Radioavisos Náuticos (oficial)",u:"https://www.hidro.gov.ar/nautica/RadioavisosNauticos.asp?op=11"},
+  cascos:{n:"Naufragios y obstrucciones (OpenSeaMap, no oficial)",u:"https://map.openseamap.org/"},
   canal:{n:"Canal: traza real de los buques (densidad AIS acumulada cada hora, buques clase A navegando a más de 3 kn) y derrotas recomendadas de OpenStreetMap",u:"https://github.com/btzdev/vnt-parana"},
   bz_osm:{n:"Posición de boyas y balizas: OpenSeaMap / OpenStreetMap (comunitario, no oficial)",u:"https://map.openseamap.org"},
   ign:{n:"Cartografía base Argenmap: IGN Argentina",u:"https://www.ign.gob.ar"},
@@ -546,6 +602,7 @@ function updatePos(){
   $("posL2").textContent = `${me.lat.toFixed(5)}, ${me.lon.toFixed(5)}${me.acc?` · ±${Math.round(me.acc)} m`:""} · ${me.src}`;
   if(vts&&vts.vhf){$("vhfBox").hidden=false;$("vhfC").textContent="Ch "+vts.vhf.match(/\d+/)[0];$("vhfT").textContent=vts.nombre.replace("VTS ","VTS ");}
   else $("vhfBox").hidden=true;
+  if(!$("rad").hidden){ try{ renderRadio(); }catch{} }
   $("nav").innerHTML = `
     <dt>Posición</dt><dd>${me.lat.toFixed(5)}, ${me.lon.toFixed(5)}</dd>
     <dt>Vía</dt><dd>${P.nombre}</dd>
@@ -621,7 +678,7 @@ function renderWx(){
 function setNow(kn,g,dir,obsTxt){
   const el=$("nowKn"); el.className="big "+kcls(kn); el.innerHTML=`${Math.round(kn)}<span>kn</span>`;
   if(dir!=null) $("nowAr").style.transform=`rotate(${(dir+180)%360}deg)`;
-  $("nowDir").innerHTML=dir!=null?`Del <b>${card16(dir)}</b> (${Math.round(dir)}°)${g!=null?` · ráfagas ${Math.round(g)} kn`:""}`:`Dirección variable${g!=null?` · ráfagas ${Math.round(g)} kn`:""}`;
+  $("nowDir").innerHTML=dir!=null?`Del <b>${card16(dir)}</b> (${Math.round(dir)}°)${g!=null?` · rachas de viento ${Math.round(g)} kn`:""}`:`Dirección variable${g!=null?` · rachas de viento ${Math.round(g)} kn`:""}`;
   $("nowObs").textContent=obsTxt;
 }
 setInterval(renderWx,5*60e3);
@@ -795,10 +852,10 @@ function tope(k,tc){
   switch(k){
     case "CIL": return `<rect x="7" y="4" width="6" height="6" fill="${tc}" stroke="#fff" stroke-width=".8"/>`;
     case "CON": return `<path d="M10 3.5L13.5 10H6.5Z" fill="${tc}" stroke="#fff" stroke-width=".8"/>`;
-    case "N": return `<path d="M10 0L13 4.5H7Z M10 5L13 9.5H7Z" fill="${n}"/>`;
-    case "S": return `<path d="M7 0H13L10 4.5Z M7 5H13L10 9.5Z" fill="${n}"/>`;
-    case "E": return `<path d="M10 0L13 4.5H7Z M7 5H13L10 9.5Z" fill="${n}"/>`;
-    case "W": return `<path d="M7 0H13L10 4.5Z M10 5L13 9.5H7Z" fill="${n}"/>`;
+    case "N": return `<path d="M10 -1.5L13.6 3.6H6.4Z M10 4.3L13.6 9.4H6.4Z" fill="${n}" stroke="#fff" stroke-width=".5"/>`;
+    case "S": return `<path d="M6.4 -1.5H13.6L10 3.6Z M6.4 4.3H13.6L10 9.4Z" fill="${n}" stroke="#fff" stroke-width=".5"/>`;
+    case "E": return `<path d="M10 -1.5L13.6 3.6H6.4Z M6.4 4.3H13.6L10 9.4Z" fill="${n}" stroke="#fff" stroke-width=".5"/>`;
+    case "W": return `<path d="M6.4 -1.5H13.6L10 3.6Z M10 4.3L13.6 9.4H6.4Z" fill="${n}" stroke="#fff" stroke-width=".5"/>`;
     case "PA": return `<circle cx="10" cy="2.6" r="2.3" fill="${n}"/><circle cx="10" cy="7.6" r="2.3" fill="${n}"/>`;
     case "AS": return `<circle cx="10" cy="6" r="3" fill="${CB.roja}" stroke="#fff" stroke-width=".7"/>`;
     case "X": return `<path d="M7 3L13 9M13 3L7 9" stroke="${CB.amarilla}" stroke-width="2.2" stroke-linecap="round"/><path d="M7 3L13 9M13 3L7 9" stroke="#111" stroke-width=".6"/>`;
@@ -814,6 +871,11 @@ function svgBoya(s,W,H,sombra){
     // baliza: poste fijo con tablero de color
     const n=k.b.length, h=11/n;
     cuerpo=`<rect x="9.2" y="13" width="1.6" height="15" fill="#334155"/>`+k.b.map((c,i)=>`<rect x="6" y="${11+i*h}" width="8" height="${h+.05}" fill="${c}"/>`).join("")+`<rect x="6" y="11" width="8" height="11" fill="none" stroke="#0b2a3f" stroke-width=".75"/><path d="M7 28H13" stroke="#334155" stroke-width="1.6"/>`;
+  } else if(/cardinal|isolated/.test(s.tipo)){
+    // cardinal / peligro aislado: boya de pilar, franjas anchas bien visibles
+    const n=k.b.length, y0=10.5, y1=26.8, h=(y1-y0)/n;
+    const fr=k.b.map((c,i)=>`<rect x="4.6" y="${y0+i*h}" width="10.8" height="${h+.06}" fill="${c}"/>`).join("");
+    cuerpo=`<defs><clipPath id="cp"><path d="M4.6 ${y1}L5.6 ${y0}H14.4L15.4 ${y1}Z"/></clipPath></defs><path d="M10 ${y0}V9" stroke="#334155" stroke-width="1.2"/><g clip-path="url(#cp)">${fr}</g><path d="M4.6 ${y1}L5.6 ${y0}H14.4L15.4 ${y1}Z" fill="none" stroke="#fff" stroke-width=".55"/><path d="M4.6 ${y1}L5.6 ${y0}H14.4L15.4 ${y1}Z" fill="none" stroke="#0b2a3f" stroke-width=".3"/><path d="M2.5 27.4Q10 25.7 17.5 27.4" stroke="#0f6c8c" stroke-width="1.4" fill="none" stroke-linecap="round"/>`;
   } else {
     // boya: cuerpo troncocónico con franjas, mástil y marca de tope
     const n=k.b.length, y0=13, y1=26.5;
@@ -826,7 +888,7 @@ function svgBoya(s,W,H,sombra){
   return `<svg width="${W}" height="${H}" viewBox="0 0 20 30" style="overflow:visible${sombra?";filter:drop-shadow(0 0 1px #fff) drop-shadow(0 1px 2px rgba(0,0,0,.55))":""}">${cuerpo}${luz?"":tope(k.tope,k.tc)}</svg>`;
 }
 function iconoBoya(s,z){
-  const esc=z>=15?1.45:z>=13?1.15:.9, W=Math.round(20*esc), H=Math.round(30*esc);
+  const esc=(z>=15?1.45:z>=13?1.15:.9)*(/cardinal|isolated/.test(s.tipo)?1.3:1), W=Math.round(20*esc), H=Math.round(30*esc);
   return L.divIcon({className:"",iconSize:[W,H],iconAnchor:[W/2,Math.round(H*.9)],popupAnchor:[0,-H*.75],html:svgBoya(s,W,H,true)});
 }
 async function loadBz(){
@@ -834,7 +896,9 @@ async function loadBz(){
   for(const u of BZ_URLS){ try{ j=await getJSON(u+"?t="+Math.floor(Date.now()/600e3),20000); break; }catch(e){} }
   if(!j){ if(!BZ){setSrc("bz_shn","er","no se pudo cargar");setSrc("bz_osm","er","no se pudo cargar");renderBzList();} return; }
   BZ=j;
-  BZ_OSM=(BZ.osm?.items||[]).map(a=>({lat:a[0],lon:a[1],tipo:a[2],color:a[3],cat:a[4],nom:a[5],luz:a[6],id:a[7]}));
+  BZ_OSM=(BZ.osm?.items||[]).map(a=>({lat:a[0],lon:a[1],tipo:a[2],color:a[3],cat:a[4],nom:a[5],luz:a[6],id:a[7],cols:a[8]||"",lcol:a[9]||""}));
+  CASCOS=(BZ.osm?.cascos||[]).map(a=>({lat:a[0],lon:a[1],tipo:a[2],cat:a[3],nom:a[4],prof:a[5],nivel:a[6],id:a[7],fuente:a[8]||"OpenStreetMap"}));
+  setSrc("cascos",CASCOS.length?"ok":"wa",CASCOS.length?`${CASCOS.length} naufragios y obstrucciones`:"OpenSeaMap no tiene naufragios cargados en esta zona");
   for(const b of BZ_OSM){const p=proyectar(b.lat,b.lon);b.ruta=p.ruta;b.km=p.km;b.d=p.d;const m=(b.nom||"").match(/(\d{1,4}[.,]\d{1,2})/);b.kmn=m?parseFloat(m[1].replace(",",".")):null;}
   BZ_SHN=(BZ.shn?.items||[]).filter(x=>x.ruta&&(x.km!=null||x.km_obs!=null)); BZ_DR=(BZ.shn?.dragas||[]).filter(d=>d.ruta);
   emparejar();
@@ -843,7 +907,24 @@ async function loadBz(){
   setSrc("bz_osm",BZ.osm?.ok===false?"wa":"ok",`${BZ_OSM.length} señales`);
   drawBz(); renderBzList(); loadCanal();
 }
-let CANAL_AIS=null, CANAL_OSM=[];
+let CANAL_AIS=null, CANAL_OSM=[], CASCOS=[];
+// ícono de naufragio tipo carta náutica: casco hundido dentro de la línea de peligro punteada
+function svgCasco(c,W){
+  const visible=/hull_showing|mast_showing/.test(c.cat)||/covers|awash|always_dry/.test(c.nivel||"");
+  const obstr=c.tipo==="obstruction";
+  const casco=visible
+    ? `<path d="M6 17.5L9 22H27L31 16.5Z" fill="#1f2937"/><path d="M14 17V9M20 17V7" stroke="#1f2937" stroke-width="1.6"/><path d="M4 18.5Q18 15.5 32 18.5" stroke="#0ea5e9" stroke-width="1.6" fill="none"/>`
+    : obstr ? `<text x="18" y="21" text-anchor="middle" font-size="9.5" font-weight="800" fill="#1f2937" font-family="system-ui">Obstn</text>`
+    : `<path d="M7 15H29" stroke="#1f2937" stroke-width="2"/><path d="M12 10.5V19.5M18 8.5V21.5M24 10.5V19.5" stroke="#1f2937" stroke-width="2"/>`;
+  return `<svg class="wrk" width="${W}" height="${Math.round(W*.83)}" viewBox="0 0 36 30"><ellipse cx="18" cy="15" rx="16.5" ry="12" fill="rgba(255,255,255,.75)" stroke="#a21caf" stroke-width="1.6" stroke-dasharray="2.2 2"/>${casco}</svg>`;
+}
+function cascoPop(c){
+  const CAT={dangerous_wreck:"Naufragio peligroso",non_dangerous_wreck:"Naufragio no peligroso",distributed_remains_of_wreck:"Restos dispersos",wreck_showing_mast:"Asoma el mástil",wreck_showing_any_portion_of_hull:"Asoma parte del casco",hull_showing:"Asoma el casco",mast_showing:"Asoma el mástil"};
+  const NIV={submerged:"siempre sumergido",covers:"se cubre y descubre",awash:"a flor de agua",always_dry:"siempre visible",partly_submerged:"parcialmente sumergido",floating:"flotando",floods:"se inunda"};
+  const p=proyectar(c.lat,c.lon);
+  const filas=[c.nom?["Nombre",c.nom]:null,c.cat?["Tipo",CAT[c.cat]||c.cat]:null,c.nivel?["Situación",NIV[c.nivel]||c.nivel]:null,c.prof!=null&&c.prof!==""?["Profundidad",`${String(c.prof).replace(".",",")} m sobre el casco`]:null,p.d<4000?["Km VNT",`≈ ${fmt(p.km,1)} (${p.nombre})`]:null,["Posición",`${c.lat.toFixed(5)}, ${c.lon.toFixed(5)}`]].filter(Boolean).map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
+  return `<div class="bzpop"><div class="bzimg" style="place-items:center">${svgCasco(c,74)}</div><div style="min-width:0"><b>${c.tipo==="obstruction"?"Obstrucción":"Naufragio"}</b><div class="bzsig">${c.tipo==="obstruction"?"Obstáculo sumergido o semisumergido. No pases por encima: dejalo a buena distancia.":"Casco hundido. No navegues sobre él ni fondees cerca: puede haber restos, cables o redes enganchadas. Con el río bajo puede quedar más cerca de la superficie."}</div></div></div><table class="bzdat">${filas}</table><div style="color:#667;font-size:11px;margin-top:6px">Fuente: ${c.fuente} (no oficial). Verificá con la carta del SHN y con Prefectura.</div>`;
+}
 async function loadCanal(){
   for(const u of ["canal.json","https://raw.githubusercontent.com/btzdev/vnt-parana/main/canal.json"]){
     try{ const j=await getJSON(u+"?t="+Math.floor(Date.now()/1800e3),20000); CANAL_AIS=j; break; }catch{}
@@ -890,6 +971,11 @@ function drawBz(){
       L.marker([s.lat,s.lon],{icon:iconoBoya(s,z),keyboard:false}).on("click",()=>ficha(bzPop(s),"z"+s.id)).addTo(G.bz);
       if(s.av) L.circleMarker([s.lat,s.lon],{renderer:bzRend,radius:11,color:estCol(s.av[0].estado),weight:3,fill:false,dashArray:"4 3"}).on("click",()=>ficha(bzPop(s),"z"+s.id)).addTo(G.bz);
     }
+    if(z>=10) for(const c of CASCOS){
+      if(!b.contains([c.lat,c.lon])) continue;
+      const W=z>=15?40:z>=13?32:26;
+      L.marker([c.lat,c.lon],{icon:L.divIcon({className:"",iconSize:[W,Math.round(W*.83)],iconAnchor:[W/2,Math.round(W*.42)],html:svgCasco(c,W)}),keyboard:false,zIndexOffset:-50}).on("click",()=>ficha(cascoPop(c),"w"+c.id)).addTo(G.bz);
+    }
     if(z>=9) for(const a of BZ_SHN){
       if(a.buoy) continue;
       const k=a.km??a.km_obs, r=VNT.rutas[a.ruta]; if(k==null||!r) continue;
@@ -926,9 +1012,75 @@ function significadoBoya(s){
 function luzTexto(z){
   if(!z) return "";
   const m={F:"luz fija",Fl:"destellos",LFl:"destellos largos",Q:"centelleante",VQ:"centelleante rápida",IQ:"centelleante interrumpida",Iso:"isofase",Oc:"ocultaciones",Mo:"morse",Al:"alternativa"};
-  const r=String(z).match(/^([A-Za-z.]+)\s*(?:\(([^)]+)\))?\s*(?:([\d.,]+)\s*s)?/); if(!r) return "";
-  const tp=m[r[1].replace(/\./g,"")]||r[1];
-  return `${tp}${r[2]?` en grupos de ${r[2]}`:""}${r[3]?`, cada ${r[3].replace(".",",")} s`:""}`;
+  const per=(String(z).match(/([\d.,]+)\s*s\b/)||[])[1];
+  const trozos=String(z).replace(/\s*[\d.,]+\s*s\b/,"").split(/\+(?![^(]*\))/);
+  const partes=trozos.map(p=>{ const r=p.trim().match(/^([A-Za-z.]+)\s*(?:\(([^)]+)\))?/); if(!r) return ""; const k=r[1].replace(/\./g,""); if(k==="LFl"&&!r[2]&&trozos.length>1) return "un destello largo"; const tp=m[k]||r[1]; return `${tp}${r[2]?` en grupos de ${r[2].replace("+"," + ")}`:""}`; }).filter(Boolean);
+  if(!partes.length) return "";
+  return partes.join(" más ")+(per?`, cada ${per.replace(".",",")} s`:"");
+}
+/* ritmo de luz que corresponde según IALA región B, y animación */
+function luzIALA(s){
+  const t=s.tipo, c=(s.cat||"").toLowerCase(), k=coloresBoya(s);
+  if(/cardinal/.test(t)){
+    if(/north/.test(c)) return {ch:"Q",col:"W",txt:"Blanca, centelleante continua: Q (≈60 destellos por minuto) o VQ (≈120 por minuto)."};
+    if(/east/.test(c))  return {ch:"Q(3) 10s",col:"W",txt:"Blanca, 3 centelleos cada 10 s: Q(3) 10s, o VQ(3) 5s. Como las 3 de la tarde en un reloj."};
+    if(/south/.test(c)) return {ch:"Q(6)+LFl 15s",col:"W",txt:"Blanca, 6 centelleos más un destello largo cada 15 s: Q(6)+LFl 15s, o VQ(6)+LFl 10s. Como las 6 del reloj."};
+    if(/west/.test(c))  return {ch:"Q(9) 15s",col:"W",txt:"Blanca, 9 centelleos cada 15 s: Q(9) 15s, o VQ(9) 10s. Como las 9 del reloj."};
+  }
+  if(/isolated/.test(t)) return {ch:"Fl(2) 5s",col:"W",txt:"Blanca, grupos de 2 destellos: Fl(2), por ejemplo cada 5 o 10 s."};
+  if(/safe_water/.test(t)) return {ch:"LFl 10s",col:"W",txt:"Blanca: isofase, ocultaciones, un destello largo cada 10 s (LFl 10s) o Morse A."};
+  if(/special/.test(t)) return {ch:"Fl 4s",col:"Y",txt:"Amarilla, con un ritmo distinto al de las cardinales, peligro aislado y aguas seguras (por ejemplo Fl Y 4s)."};
+  if(/preferred_channel_port/.test(c)) return {ch:"Fl(2+1) 10s",col:"G",txt:"Verde, destellos agrupados 2+1: Fl(2+1) G."};
+  if(/preferred_channel_starboard/.test(c)) return {ch:"Fl(2+1) 10s",col:"R",txt:"Roja, destellos agrupados 2+1: Fl(2+1) R."};
+  if(k.tc===CB.verde) return {ch:"Fl 4s",col:"G",txt:"Verde, con cualquier ritmo salvo el 2+1 (lo habitual: destellos Fl G cada 3 a 5 s)."};
+  if(k.tc===CB.roja) return {ch:"Fl 4s",col:"R",txt:"Roja, con cualquier ritmo salvo el 2+1 (lo habitual: destellos Fl R cada 3 a 5 s)."};
+  return null;
+}
+// convierte una característica (Q(6)+LFl 15s, Fl(2) 5s, VQ, Iso 4s, Oc 4s, Mo(A) 8s…) en tramos [encendido, apagado] en ms
+function secLuz(ch){
+  if(!ch) return null; ch=String(ch).replace(/\s+/g," ").trim();
+  const per=parseFloat((ch.match(/([\d.,]+)\s*s\b/)||[])[1]?.replace(",","."))||null;
+  const base=ch.replace(/\s*[\d.,]+\s*s\b/,"").trim();
+  const seq=[]; let tot=0; const add=(on,off)=>{seq.push([on,off]);tot+=on+off;};
+  const partesL=base.split(/\+(?![^(]*\))/);
+  for(const part of partesL){
+    const m=part.trim().match(/^([A-Za-z.]+)\s*(?:\(([^)]+)\))?/); if(!m) continue;
+    const tp=m[1].replace(/\./g,""), g=m[2]||"";
+    if(tp==="F") return [[1e9,0]];
+    if(tp==="Iso"){ const p=(per||4)*1000; return [[p/2,p/2]]; }
+    if(tp==="Oc"){ const p=(per||4)*1000; return [[p-1000,1000]]; }
+    if(tp==="Mo"){ for(const x of (g==="A"?[0,1]:[0])) add(x?1500:500,500); continue; }
+    const q=/^(Q|IQ)$/.test(tp), vq=/^VQ$/.test(tp), lf=/^LFl$/.test(tp);
+    const on=q?300:vq?150:lf?2000:600, off=q?700:vq?350:lf?1500:900;
+    if((q||vq)&&!g&&partesL.length===1) return [[on,off]];
+    const grupos=g?g.split("+").map(x=>parseInt(x)||1):[1];
+    grupos.forEach((n,gi)=>{ for(let i=0;i<n;i++) add(on,off); if(gi<grupos.length-1) seq[seq.length-1][1]+=1200; });
+  }
+  if(!seq.length) return null;
+  const P_=(per||Math.max(4,tot/1000+2))*1000; if(P_>tot) seq[seq.length-1][1]+=P_-tot;
+  return seq;
+}
+const COL_LUZ={W:"#fff7d6",R:"#ff3b30",G:"#34ff6a",Y:"#ffd60a"};
+let LUZ_T=null;
+function animarLuz(el,seq,col){
+  clearTimeout(LUZ_T); if(!el||!seq) return;
+  let i=0; const c=COL_LUZ[col]||COL_LUZ.W;
+  const paso=()=>{ if(!document.body.contains(el)) return; const [on,off]=seq[i%seq.length];
+    el.style.background=c; el.style.boxShadow=`0 0 18px 6px ${c}`;
+    LUZ_T=setTimeout(()=>{ el.style.background="#1e293b"; el.style.boxShadow="none"; LUZ_T=setTimeout(()=>{i++;paso();},off); },on); };
+  paso();
+}
+function luzBloque(s){
+  const iala=luzIALA(s); if(!iala&&!s.luz) return "";
+  const osmCh=s.luz||"", colOsm=(s.lcol||"").toUpperCase()[0];
+  const usar=osmCh||iala.ch, col=(colOsm&&"WRGY".includes(colOsm))?colOsm:(iala?iala.col:"W");
+  const norm=x=>String(x||"").replace(/\s+/g,"").replace(/\.0s/,"s").toUpperCase();
+  let aviso="";
+  if(iala&&osmCh){ const a=norm(osmCh), b=norm(iala.ch);
+    const tipoA=a.replace(/[\d.,]+S$/,""), tipoB=b.replace(/[\d.,]+S$/,"");
+    if(/cardinal/.test(s.tipo)&&tipoA.replace(/^V?Q/,"Q")!==tipoB.replace(/^V?Q/,"Q")) aviso=`⚠️ En OpenSeaMap figura «${osmCh}», que no coincide con lo que corresponde para esta cardinal. Verificá con la carta del SHN.`;
+  }
+  return `<div class="luzv"><div class="lamp" id="lamp"></div><div class="lt"><b>Destello: ${usar}${col?" "+({W:"blanca",R:"roja",G:"verde",Y:"amarilla"}[col]||""):""}</b>${osmCh?" (dato de la señal)":" (lo que corresponde por norma)"}<br>${luzTexto(usar)?cap(luzTexto(usar))+".":""}${iala?`<br><span style="color:#94a3b8">Según IALA: ${iala.txt}</span>`:""}</div></div>${aviso?`<div class="luzw">${aviso}</div>`:""}`;
 }
 function bzPop(s){
   const k=coloresBoya(s), nomCol=c=>Object.keys(CB).find(n=>CB[n]===c)||"";
@@ -937,11 +1089,10 @@ function bzPop(s){
     s.nom?["Nombre",s.nom]:null,
     s.d<3000?["Km VNT",`≈ ${fmt(s.km,1)} (${VNT.rutas[s.ruta]?.nombre||""})`]:null,
     ["Colores",k.b.map(nomCol).join(" / ")+(k.vert?" (franjas verticales)":k.b.length>1?" (franjas horizontales, de arriba abajo)":"")],
-    s.luz?["Luz",`${s.luz}${luzTexto(s.luz)?" · "+luzTexto(s.luz):""}`]:null,
     ["Posición",`${s.lat.toFixed(5)}, ${s.lon.toFixed(5)}`]
   ].filter(Boolean).map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
   return `<div class="bzpop"><div class="bzimg">${svgBoya(s,72,108,false)}</div><div style="min-width:0"><b>${titulo}</b><div class="bzsig">${significadoBoya(s)}</div></div></div>`+
-    `<table class="bzdat">${filas}</table>`+
+    luzBloque(s)+`<table class="bzdat">${filas}</table>`+
     (s.av||[]).map(a=>"<hr style='border:0;border-top:2px solid "+estCol(a.estado)+";margin:8px 0'>"+avPop(a,false)).join("")+
     `<div style="color:#667;font-size:11px;margin-top:6px">Datos de la señal: OpenSeaMap (no oficial). Verificá con la carta del SHN.</div>`;
 }
@@ -1305,10 +1456,10 @@ function tick(){
   $("rAP").textContent=RG.modo==="ap"?"Arriar GI":"Postergación (GI)";
 }
 function vista(v){
-  $("reg").hidden=v!=="reg"; $("vel").hidden=v!=="vel";
+  $("reg").hidden=v!=="reg"; $("vel").hidden=v!=="vel"; $("rad").hidden=v!=="rad"; if(v==="rad") renderRadio();
   document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   if(v==="reg") tick(); if(v==="vel"){ renderRegNav(); renderLog(); } if(v==="nav") setTimeout(()=>map.invalidateSize(),50);
-  try{ history.replaceState(null,"",location.pathname+location.search+(v==="reg"?"#regata":v==="vel"?"#velocidad":"")); }catch{}
+  try{ history.replaceState(null,"",location.pathname+location.search+(v==="reg"?"#regata":v==="vel"?"#velocidad":v==="rad"?"#radio":"")); }catch{}
 }
 document.querySelectorAll("#tabbar button").forEach(b=>b.onclick=()=>vista(b.dataset.v));
 $("rStart5").onclick=()=>iniciar(5); $("rStart3").onclick=()=>iniciar(3); $("rSync").onclick=sincronizar;
@@ -1332,12 +1483,84 @@ if(CUR.dir!=null){ $("rCurKn").value=CUR.kn.toFixed(2); $("rCurDir").value=Math.
 setInterval(tick,100); setInterval(()=>{ medirTick(); renderRegNav(); },1000);
 let ultAuto=0; setInterval(()=>{ if($("rAuto").checked&&RG.modo==="race"&&Date.now()-ultAuto>=30000){ ultAuto=Date.now(); registrar("auto"); } },1000);
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&RG.modo!=="idle") despierto(); });
-if(location.hash==="#regata") vista("reg"); else if(location.hash==="#velocidad") vista("vel");
+setTimeout(()=>{ if(location.hash==="#regata") vista("reg"); else if(location.hash==="#velocidad") vista("vel"); else if(location.hash==="#radio") vista("rad"); },0);
+
+/* ====== radio, Prefectura y clubes ====== */
+// Fuente: Prefectura Naval Argentina, páginas de cada centro VTS (argentina.gob.ar/prefecturanaval/avisos/...)
+const VTS_INFO=[
+  {n:"VTS Zárate · sector 1",r:"Paraná de las Palmas km 57,6 a 179,2",ch:"72",ind:"L5T",tel:["+543487422265","+543487434408"],dir:"Apolo XI s/n, Zárate",bol:"Información de seguridad: canal 15 a las 07:00, 13:00, 19:00 y 23:00",ruta:"parana_de_las_palmas",km:[57.6,179.2]},
+  {n:"VTS Zárate · sector 2",r:"Paraná Guazú, Bravo, Talavera, Sauce y Paraná km 232 a 240",ch:"14",ind:"L5T",tel:["+543487422265","+543487434408"],dir:"Apolo XI s/n, Zárate",ruta:"parana_guazu",km:[122.5,232]},
+  {n:"VTS San Pedro",r:"Paraná km 240 a 310",ch:"12",ind:"L6E",tel:["+543329425219","+543329422324"],bol:"utc",ruta:"parana",km:[232,310]},
+  {n:"VTS San Nicolás",r:"Paraná km 310 a 376 · Villa Constitución (L6H) y Ramallo (L6F) en canal 9",ch:"12",ind:"L6G",tel:["+543364422204","+543364423693"],ruta:"parana",km:[310,376]},
+  {n:"VTS Rosario",r:"Paraná km 376 a 480 · informar en km 480, 455, 430,4, 418,5/412,3, 400 y 376",ch:"14",ind:"L6I",tel:["+543414720343","+543414720350"],mail:"rosa-contrase@prefecturanaval.gob.ar",dir:"Av. Belgrano 321, Rosario",bol:"utc",ruta:"parana",km:[376,480]},
+  {n:"VTS Diamante",r:"Paraná km 480 a 568",ch:"12",ind:"L6M",tel:["+543434981117","+543434983584"],dir:"Etchevehere 239, Diamante",bol:"utc",ruta:"parana",km:[480,568]},
+  {n:"VTS Corrientes",r:"Paraná km 1135 a 1240 y Paraguay",ch:"12",ind:"L6Y",tel:["+543794423318"],dir:"Av. Costanera 1158, Corrientes",ruta:"parana",km:[1135,1242]}
+];
+const BOL_UTC=[3,7,11,15,19,23]; // canal 15, minuto 10 (Rosario, San Pedro, Diamante)
+const LUGARES=[
+  {t:"pna",n:"Prefectura Rosario · VTS Rosario",lat:-32.94375,lon:-60.63229,dir:"Av. Belgrano 321, Rosario",tel:["+543414720343","+543414720350"],mail:"rosa-contrase@prefecturanaval.gob.ar",vhf:"14 (VTS) · 16",src:"Prefectura Naval Argentina"},
+  {t:"pna",n:"Prefectura Villa Constitución",lat:-33.21984,lon:-60.33514,vhf:"9 (L6H) · 16",tel:["+543364422204","+543364423693"],nota:"Teléfonos del VTS San Nicolás",src:"Prefectura Naval Argentina"},
+  {t:"pna",n:"Prefectura Diamante · VTS Diamante",lat:-32.06576,lon:-60.64306,dir:"Etchevehere 239, Diamante",tel:["+543434981117","+543434983584"],vhf:"12 (VTS) · 16",src:"Prefectura Naval Argentina"},
+  {t:"pna",n:"Prefectura Santa Fe",lat:-31.65026,lon:-60.70424,vhf:"16",nota:"Sin centro VTS publicado: llamá por canal 16 o al 106",src:"Prefectura Naval Argentina"},
+  {t:"club",star:1,n:"Club de Velas de Rosario",lat:-32.90382,lon:-60.68039,dir:"Av. Colombres 956, Rosario",tel:["+543412991120","+5493412516677","+5493412516647"],telN:["Administración (lun a sáb 9 a 17)","Atención 24 h","Atención 24 h"],mail:"administracion@cvr.com.ar",mail2:"yachting@cvr.com.ar",web:"https://www.cvr.com.ar",src:"cvr.com.ar"},
+  {t:"club",n:"Yacht Club Rosario",lat:-32.90047,lon:-60.68128,dir:"Av. Carlos Colombres 1296, Rosario",tel:["+543412098418","+543415729914","+543414536200"],telN:["Portería 24 h","Yachting","Secretaría"],mail:"yachting@ycr.com.ar",web:"https://www.ycr.com.ar",vhf:"18 (según guía PortBooker; confirmalo con el club)",src:"ycr.com.ar"},
+  {t:"club",n:"Club de Regatas Rosario",lat:-32.9079,lon:-60.67653,dir:"Cordiviola 1268, Rosario",tel:["+543415941776","+543413775651","+543413581530"],telN:["Portería","Caleta","Administración"],mail:"info@clubderegatasrosario.com.ar",web:"https://www.clubderegatasrosario.com.ar",src:"clubderegatasrosario.com.ar"},
+  {t:"club",n:"Rosario Rowing Club",lat:-32.89401,lon:-60.68456,dir:"Av. Colombres 1798, Rosario",tel:["+543414552219"],mail:"rosariorowing@hotmail.com",src:"FAY"},
+  {t:"club",n:"Club Remeros Alberdi",lat:-32.8926,lon:-60.68498,dir:"Av. Puccio 150, Rosario",src:"OpenStreetMap"},
+  {t:"club",n:"Club Náutico Sportivo Avellaneda",lat:-32.91691,lon:-60.6713,dir:"Tuella 952, Rosario (Arroyito)",src:"OpenStreetMap"},
+  {t:"club",n:"Club Náutico Rosario",lat:-32.951,lon:-60.62534,dir:"Comunidad Foral de Navarra 100, Rosario",tel:["+543414498026"],src:"guía local de guarderías"},
+  {t:"club",n:"Club Náutico Obras Públicas y Puertos",lat:null,lon:null,dir:"Comunidad Foral de Navarra 80, Rosario",mail:"mariarosadpi@hotmail.com",src:"FAY"},
+  {t:"club",n:"Club Náutico Villa Constitución",lat:-33.22994,lon:-60.3173,dir:"Seguí y San Luis, Villa Constitución",tel:["+543400474004"],mail:"cnvc@cablenet.com.ar",src:"FAY"},
+  {t:"club",n:"Club de Regatas San Nicolás",lat:-33.32686,lon:-60.21449,dir:"Av. Juan Manuel de Rosas 100, San Nicolás",tel:["+543364434075","+543364434133"],mail:"info@crsn.com.ar",src:"FAY"},
+  {t:"club",n:"Club Náutico San Pedro",lat:-33.67402,lon:-59.65825,dir:"Av. Juan de Garay y Rivadavia, San Pedro",tel:["+543329424852"],mail:"secretaria@nauticosanpedro.com.ar",src:"FAY"},
+  {t:"club",n:"Yacht Club Santa Fe",lat:-31.6422,lon:-60.68008,dir:"Puente Oroño 3000, Santa Fe",tel:["+543424554644"],mail:"ycsf@ycsf.org.ar",src:"FAY"},
+  {t:"club",n:"Club Náutico Paraná",lat:-31.71285,lon:-60.50512,dir:"Av. Uranga, frente al peaje del Túnel, Paraná",tel:["+543434331495"],mail:"cnp@clubnauticoparana.com.ar",src:"FAY"}
+];
+const AREAS=["3487","3329","3400","341","342","343","336","379","11"];
+const telTxt=t=>{ let d=t.replace(/^\+54/,"").replace(/^0/,""); const cel=d[0]==="9"; if(cel) d=d.slice(1); const a=AREAS.find(x=>d.startsWith(x))||d.slice(0,3), l=d.slice(a.length); const loc=l.slice(0,l.length-4)+"-"+l.slice(-4); return cel?`${a} ${loc}`:`(0${a}) ${loc}`; };
+function vtsActual(){ if(!P||P.d>8000) return null; return VTS_INFO.find(v=>v.ruta===P.ruta&&P.km>=v.km[0]&&P.km<v.km[1])||null; }
+function proxBoletin(){ const now=new Date(); let best=null; for(let d=0;d<2;d++) for(const h of BOL_UTC){ const t=Date.UTC(now.getUTCFullYear(),now.getUTCMonth(),now.getUTCDate()+d,h,10); if(t>now&&(!best||t<best)) best=t; } return best; }
+const hl=t=>{ const d=new Date(t); return String(d.getHours()).padStart(2,"0")+":"+String(d.getMinutes()).padStart(2,"0"); };
+function itemPunto(p){
+  const dk=(me&&p.lat!=null)?dist(me.lat,me.lon,p.lat,p.lon)/1000:null;
+  const tels=(p.tel||[]).map((t,i)=>`<a href="tel:${t}">📞 ${p.telN?p.telN[i]+": ":""}${telTxt(t)}</a>`).join("");
+  return `<div class="it${p.star?" star":""}"><h4>${p.star?"★ ":""}${p.n}<span>${dk!=null?fmt(dk,dk<10?1:0)+" km":""}</span></h4>
+    <div class="dd">${p.dir?p.dir+"<br>":""}${p.vhf?`<span class="tag">VHF ${p.vhf}</span><br>`:""}${p.nota?p.nota+"<br>":""}${p.mail?`✉️ <a href="mailto:${p.mail}">${p.mail}</a>`:""}${p.mail2?` · <a href="mailto:${p.mail2}">${p.mail2}</a>`:""}</div>
+    <div class="bt">${tels}${p.web?`<a href="${p.web}" target="_blank" rel="noopener">🌐 Web</a>`:""}${p.lat!=null?`<button data-ver="${p.n}">🗺 Ver en el mapa</button>`:""}</div>
+    <div class="dd" style="font-size:11px;color:var(--ink3)">Fuente: ${p.src}</div></div>`;
+}
+function renderRadio(){
+  const v=vtsActual();
+  $("rdZona").innerHTML = v
+    ? `<div class="ch">Canal ${v.ch}<small>${v.n} · ${v.ind}</small></div><div class="zt">Estás en km ${fmt(P.km,1)} · ${v.r}.<br>Escucha también el canal 16.${v.tel?` Teléfono: <a style="color:#fff" href="tel:${v.tel[0]}">${telTxt(v.tel[0])}</a>`:""}</div>`
+    : `<div class="ch">Canal 16<small>socorro y llamada</small></div><div class="zt">${P?`Estás a ${fmt(P.d/1000,1)} km del eje del canal, fuera de una zona VTS conocida.`:"Esperando posición GPS…"} Ante una emergencia llamá al 106 o por canal 16.</div>`;
+  $("rdVts").innerHTML = VTS_INFO.map(x=>`<tr${v===x?' style="background:rgba(14,165,233,.12)"':""}><td class="n">${x.ch}</td><td><b>${x.n}</b> · ${x.ind}<br><span style="color:var(--ink2)">${x.r}</span>${x.tel?`<br><a href="tel:${x.tel[0]}">${telTxt(x.tel[0])}</a>${x.tel[1]?` · <a href="tel:${x.tel[1]}">${telTxt(x.tel[1])}</a>`:""}`:""}${x.bol&&x.bol!=="utc"?`<br><span style="color:var(--ink3)">${x.bol}</span>`:""}</td></tr>`).join("")
+    + `<tr><td class="n">15</td><td><b>Información de seguridad de la navegación</b><br><span style="color:var(--ink2)">Boletín de Prefectura en Rosario, San Pedro y Diamante</span></td></tr>`;
+  const pb=proxBoletin();
+  $("rdBol").innerHTML=`Boletín de seguridad por canal 15 a las ${BOL_UTC.map(h=>hl(Date.UTC(2000,0,1,h,10))).join(", ")} (hora local). Próximo: <b>${hl(pb)}</b>, en ${Math.round((pb-Date.now())/60000)} min. Fuente: Prefectura Naval Argentina.`;
+  const orden=a=>me&&a.lat!=null?dist(me.lat,me.lon,a.lat,a.lon):1e9;
+  $("rdPna").innerHTML=LUGARES.filter(p=>p.t==="pna").sort((a,b)=>orden(a)-orden(b)).map(itemPunto).join("");
+  $("rdClub").innerHTML=LUGARES.filter(p=>p.t==="club").sort((a,b)=>(b.star||0)-(a.star||0)||orden(a)-orden(b)).map(itemPunto).join("");
+  document.querySelectorAll("#rad [data-ver]").forEach(b=>b.onclick=()=>{ const p=LUGARES.find(x=>x.n===b.dataset.ver); vista("nav"); follow=false; map.setView([p.lat,p.lon],16); setTimeout(()=>ficha(itemPunto(p).replace(/<button data-ver[^<]*<\/button>/,"")),300); });
+}
+G.cl=L.layerGroup().addTo(map);
+function drawPuntos(){
+  G.cl.clearLayers(); const z=map.getZoom(); if(z<11) return;
+  for(const p of LUGARES){ if(p.lat==null) continue;
+    const cls=p.t==="pna"?"clb pna":p.star?"clb star":"clb";
+    const txt=p.t==="pna"?"⚓ PNA":(z>=14?p.n.replace(/^Club (de |Náutico )?/,"").slice(0,22):(p.star?"★ CVR":"⛵"));
+    L.marker([p.lat,p.lon],{icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="${cls}">${txt}</span>`}),keyboard:false,zIndexOffset:500})
+      .on("click",()=>ficha(itemPunto(p).replace(/<button data-ver[^<]*<\/button>/,""))).addTo(G.cl);
+  }
+}
+map.on("zoomend",drawPuntos); drawPuntos();
+setInterval(()=>{ if(!$("rad").hidden) renderRadio(); },30000);
 
 /* ====== ficha de detalle ====== */
 let FICHA_ID=null;
-function ficha(html,id){ $("fichaC").innerHTML=html; $("ficha").classList.add("show"); $("ficha").scrollTop=0; FICHA_ID=id||null; }
-function cerrarFicha(){ $("ficha").classList.remove("show"); FICHA_ID=null; }
+function ficha(html,id){ $("fichaC").innerHTML=html; $("ficha").classList.add("show"); $("ficha").scrollTop=0; FICHA_ID=id||null;
+  clearTimeout(LUZ_T); const lp=$("lamp"); if(lp&&id&&id[0]==="z"){ const s=BZ_OSM.find(x=>"z"+x.id===id); if(s){ const ia=luzIALA(s), cu=(s.lcol||"").toUpperCase()[0]; animarLuz(lp,secLuz(s.luz||(ia&&ia.ch)),(cu&&"WRGY".includes(cu))?cu:(ia?ia.col:"W")); } } }
+function cerrarFicha(){ $("ficha").classList.remove("show"); FICHA_ID=null; clearTimeout(LUZ_T); }
 $("fichaX").onclick=cerrarFicha;
 document.addEventListener("keydown",e=>{ if(e.key==="Escape") cerrarFicha(); });
 ["click","touchstart","pointerdown","wheel"].forEach(ev=>$("ficha").addEventListener(ev,e=>e.stopPropagation(),{passive:true}));
