@@ -80,6 +80,7 @@ button{font:inherit;color:inherit}
 .reco .rsem{border-left:6px solid var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);border-radius:10px;padding:8px 10px}.reco .rsem b{display:block;font-size:18px;color:var(--c)}.reco .rsem span{font-size:13px;color:var(--ink2)}
 .reco .rtx{font-size:14px;margin:8px 0 4px}.reco .rprox{display:flex;gap:6px;flex-wrap:wrap;font-size:12.5px}.reco .rpx{background:var(--sea2);border-radius:8px;padding:3px 7px}
 .reco ul{margin:8px 0 0;padding-left:18px;font-size:13.5px;line-height:1.4}.reco .rpel{list-style:none;padding-left:0}.reco .rpel li{margin-bottom:5px}.reco .rnot{color:var(--ink2)}.reco .rexp{margin-top:8px;font-size:13px}.reco .rexp p{margin:6px 0}
+.bzdej{margin:8px 0 4px;background:var(--sea2);border-radius:10px;padding:8px 10px;font-size:13.5px;line-height:1.35}.bzdt{font-size:11px;text-transform:uppercase;letter-spacing:.05em;color:var(--ink3);margin-bottom:4px}.bzdr{display:flex;gap:8px;align-items:flex-start;margin:3px 0}.bzda{flex:none;width:22px;height:22px;border-radius:50%;background:var(--sea);color:#fff;display:grid;place-items:center;font-size:12px}.bzdx{font-size:12px;color:var(--ink2);margin-top:4px}
 .h .gs{font-size:17px;font-weight:750;line-height:1.1}.h .gs small{font-size:9.5px;font-weight:650;color:var(--ink3);margin-right:1px}
 .now .big.gst{margin-top:4px}
 .wxley{font-size:11.5px;color:var(--ink3);margin:6px 2px 0}.wxley span{font-size:13px}
@@ -1308,6 +1309,28 @@ function drawBz(){
 function avPop(a,aprox){
   return `<b style="color:${estCol(a.estado)}">${(a.estado||"novedad").toUpperCase()}</b><br>${a.senal}${a.km!=null?` · km ${fmt(a.km,1)}`:""}${a.detalle?`<br>${a.detalle}`:""}${a.km_obs!=null?`<br>Vista ≈ km ${fmt(a.km_obs,1)}`:""}${aprox?`<br><i>Ubicación aproximada por km: la señal no figura en OpenSeaMap.</i>`:""}<br><span style="color:#667">SHN · radioaviso ${a.aviso} · ${a.fecha.split("-").reverse().join("/")}</span>`;
 }
+// por dónde dejar la señal navegando aguas arriba y aguas abajo (IALA región B: aguas arriba = dirección convencional del balizamiento)
+function comoDejar(s){
+  const t=s.tipo||"", c=(s.cat||"").toLowerCase(), k=coloresBoya(s);
+  let ab=null; try{ const q=proyectar(s.lat,s.lon); if(q&&q.d<5000) ab=q.abajo; }catch{}
+  const hacia=x=>x!=null?` (hacia el ${card16(x)})`:"";
+  const B="<b>babor</b> (a tu izquierda)", E="<b>estribor</b> (a tu derecha)";
+  let up,down,extra="";
+  if(/preferred_channel_port/.test(c)){ up=E; down=B; extra="Así seguís el canal principal. Para tomar el canal secundario, dejala del lado contrario."; }
+  else if(/preferred_channel_starboard/.test(c)){ up=B; down=E; extra="Así seguís el canal principal. Para tomar el canal secundario, dejala del lado contrario."; }
+  else if(/cardinal/.test(t)){ const d=/north/.test(c)?"norte":/south/.test(c)?"sur":/east/.test(c)?"este":/west/.test(c)?"oeste":""; if(!d) return "";
+    return `<div class="bzdej"><div class="bzdt">Cómo pasarla</div><div>En cualquier sentido: pasala por su lado <b>${d.toUpperCase()}</b>. El peligro está del lado ${({norte:"sur",sur:"norte",este:"oeste",oeste:"este"})[d]}.</div></div>`; }
+  else if(/isolated/.test(t)) return `<div class="bzdej"><div class="bzdt">Cómo pasarla</div><div>En cualquier sentido: <b>dale buen resguardo</b> por cualquiera de los dos lados. El peligro está justo debajo de la señal.</div></div>`;
+  else if(/safe_water/.test(t)) return `<div class="bzdej"><div class="bzdt">Cómo pasarla</div><div>Hay agua alrededor: se puede pasar por cualquier lado. Por costumbre se deja por ${B}.</div></div>`;
+  else if(/special/.test(t)) return `<div class="bzdej"><div class="bzdt">Cómo pasarla</div><div>No marca el canal: no tiene un lado obligatorio. Fijate en la carta o el aviso qué señala y evitá esa zona.</div></div>`;
+  else if(k.tc===CB.verde){ up=B; down=E; }
+  else if(k.tc===CB.roja){ up=E; down=B; }
+  else return "";
+  return `<div class="bzdej"><div class="bzdt">Por dónde dejarla</div>
+    <div class="bzdr"><span class="bzda">⬆</span><span>Navegando <b>aguas arriba</b>${hacia(ab!=null?(ab+180)%360:null)}: dejala por ${up}.</span></div>
+    <div class="bzdr"><span class="bzda">⬇</span><span>Navegando <b>aguas abajo</b>${hacia(ab)}: dejala por ${down}.</span></div>
+    ${extra?`<div class="bzdx">${extra}</div>`:""}</div>`;
+}
 function significadoBoya(s){
   const t=s.tipo, c=(s.cat||"").toLowerCase(), k=coloresBoya(s);
   if(/cardinal/.test(t)){
@@ -1407,7 +1430,7 @@ function bzPop(s){
     ["Colores",k.b.map(nomCol).join(" / ")+(k.vert?" (franjas verticales)":k.b.length>1?" (franjas horizontales, de arriba abajo)":"")],
     ["Posición",`${s.lat.toFixed(5)}, ${s.lon.toFixed(5)}`]
   ].filter(Boolean).map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
-  return `<div class="bzpop"><div class="bzimg">${svgBoya(s,72,108,false)}</div><div style="min-width:0"><b>${titulo}</b><div class="bzsig">${significadoBoya(s)}</div></div></div>`+
+  return `<div class="bzpop"><div class="bzimg">${svgBoya(s,72,108,false)}</div><div style="min-width:0"><b>${titulo}</b><div class="bzsig">${significadoBoya(s)}</div></div></div>`+comoDejar(s)+
     luzBloque(s)+`<table class="bzdat">${filas}</table>`+
     (s.av||[]).map(a=>"<hr style='border:0;border-top:2px solid "+estCol(a.estado)+";margin:8px 0'>"+avPop(a,false)).join("")+
     `<div style="color:#667;font-size:11px;margin-top:6px">Datos de la señal: OpenSeaMap (no oficial). Verificá con la carta del SHN.</div>`;
