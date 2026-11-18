@@ -842,8 +842,9 @@ function coloresBoya(s){
   let col=s.color==="green"?CB.verde:s.color==="red"?CB.roja:null;
   if(/port/.test(c)&&!/preferred/.test(c)) col=col||CB.verde;
   if(/starboard/.test(c)&&!/preferred/.test(c)) col=col||CB.roja;
-  if(/preferred_channel_port/.test(c)) return {b:[CB.verde,CB.roja,CB.verde],tope:"CIL",tc:CB.verde};
-  if(/preferred_channel_starboard/.test(c)) return {b:[CB.roja,CB.verde,CB.roja],tope:"CON",tc:CB.roja};
+  // región B: canal preferido a babor = marca de estribor modificada (roja-verde-roja, cono rojo); a estribor = marca de babor modificada (verde-roja-verde, cilindro verde)
+  if(/preferred_channel_port/.test(c)) return {b:[CB.roja,CB.verde,CB.roja],tope:"CON",tc:CB.roja};
+  if(/preferred_channel_starboard/.test(c)) return {b:[CB.verde,CB.roja,CB.verde],tope:"CIL",tc:CB.verde};
   col=col||BZ_COL[s.color]||"#94a3b8";
   return {b:[col],tope:col===CB.verde?"CIL":col===CB.roja?"CON":"",tc:col};
 }
@@ -1002,8 +1003,8 @@ function significadoBoya(s){
   if(/isolated/.test(t)) return "Peligro aislado: marca un peligro de poca extensión (casco hundido, roca u obstrucción) con aguas navegables alrededor. No pasar cerca. Tope: dos esferas negras.";
   if(/safe_water/.test(t)) return "Aguas seguras: hay agua navegable alrededor de la señal. Suele marcar el eje del canal o una recalada. Tope: esfera roja.";
   if(/special/.test(t)) return "Marca especial (amarilla): señala una zona o elemento particular, como toma de agua, cable, área de dragado, fondeadero o regata. No delimita el canal: consultá la carta. Tope: aspa amarilla.";
-  if(/preferred_channel_port/.test(c)) return "Bifurcación con canal principal a estribor (IALA región B): navegando aguas arriba, el canal preferido queda a tu derecha. Tratala como marca de babor.";
-  if(/preferred_channel_starboard/.test(c)) return "Bifurcación con canal principal a babor (IALA región B): navegando aguas arriba, el canal preferido queda a tu izquierda. Tratala como marca de estribor.";
+  if(/preferred_channel_port/.test(c)) return "Canal preferido a babor (IALA región B): marca una bifurcación; el canal principal sigue hacia tu babor (izquierda) navegando aguas arriba. Es una marca de estribor modificada: roja con una franja verde. Para seguir el canal principal aguas arriba dejala por tu estribor (derecha). Tope: cono rojo.";
+  if(/preferred_channel_starboard/.test(c)) return "Canal preferido a estribor (IALA región B): marca una bifurcación; el canal principal sigue hacia tu estribor (derecha) navegando aguas arriba. Es una marca de babor modificada: verde con una franja roja. Para seguir el canal principal aguas arriba dejala por tu babor (izquierda). Tope: cilindro verde.";
   if(k.tc===CB.verde) return "Lateral de babor, verde (IALA región B, usada en Argentina). Navegando aguas arriba dejala por tu babor (izquierda); navegando aguas abajo, por estribor (derecha). Marca el borde izquierdo del canal subiendo. Tope: cilindro verde.";
   if(k.tc===CB.roja) return "Lateral de estribor, roja (IALA región B, usada en Argentina). Navegando aguas arriba dejala por tu estribor (derecha); navegando aguas abajo, por babor (izquierda). Marca el borde derecho del canal subiendo. Tope: cono rojo.";
   if(/light/.test(t)) return "Luz de navegación en tierra o sobre una estructura fija.";
@@ -1030,8 +1031,8 @@ function luzIALA(s){
   if(/isolated/.test(t)) return {ch:"Fl(2) 5s",col:"W",txt:"Blanca, grupos de 2 destellos: Fl(2), por ejemplo cada 5 o 10 s."};
   if(/safe_water/.test(t)) return {ch:"LFl 10s",col:"W",txt:"Blanca: isofase, ocultaciones, un destello largo cada 10 s (LFl 10s) o Morse A."};
   if(/special/.test(t)) return {ch:"Fl 4s",col:"Y",txt:"Amarilla, con un ritmo distinto al de las cardinales, peligro aislado y aguas seguras (por ejemplo Fl Y 4s)."};
-  if(/preferred_channel_port/.test(c)) return {ch:"Fl(2+1) 10s",col:"G",txt:"Verde, destellos agrupados 2+1: Fl(2+1) G."};
-  if(/preferred_channel_starboard/.test(c)) return {ch:"Fl(2+1) 10s",col:"R",txt:"Roja, destellos agrupados 2+1: Fl(2+1) R."};
+  if(/preferred_channel_port/.test(c)) return {ch:"Fl(2+1) 10s",col:"R",txt:"Roja, destellos agrupados 2+1: Fl(2+1) R."};
+  if(/preferred_channel_starboard/.test(c)) return {ch:"Fl(2+1) 10s",col:"G",txt:"Verde, destellos agrupados 2+1: Fl(2+1) G."};
   if(k.tc===CB.verde) return {ch:"Fl 4s",col:"G",txt:"Verde, con cualquier ritmo salvo el 2+1 (lo habitual: destellos Fl G cada 3 a 5 s)."};
   if(k.tc===CB.roja) return {ch:"Fl 4s",col:"R",txt:"Roja, con cualquier ritmo salvo el 2+1 (lo habitual: destellos Fl R cada 3 a 5 s)."};
   return null;
@@ -1084,7 +1085,7 @@ function luzBloque(s){
 }
 function bzPop(s){
   const k=coloresBoya(s), nomCol=c=>Object.keys(CB).find(n=>CB[n]===c)||"";
-  const titulo=(TIPO_ES[s.tipo]||s.tipo)+((/lateral/.test(s.tipo)&&s.color)?" "+(COL_ES[s.color]||s.color):"")+(/cardinal/.test(s.tipo)&&s.cat?" "+({north:"norte",south:"sur",east:"este",west:"oeste"}[s.cat]||s.cat):"");
+  const titulo=/preferred_channel/.test(s.cat||"")?((/beacon/.test(s.tipo)?"Baliza":"Boya")+" de canal preferido a "+(/port/.test(s.cat.replace("preferred_channel_",""))?"babor":"estribor")):(TIPO_ES[s.tipo]||s.tipo)+((/lateral/.test(s.tipo)&&s.color)?" "+(COL_ES[s.color]||s.color):"")+(/cardinal/.test(s.tipo)&&s.cat?" "+({north:"norte",south:"sur",east:"este",west:"oeste"}[s.cat]||s.cat):"");
   const filas=[
     s.nom?["Nombre",s.nom]:null,
     s.d<3000?["Km VNT",`≈ ${fmt(s.km,1)} (${VNT.rutas[s.ruta]?.nombre||""})`]:null,
