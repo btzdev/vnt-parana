@@ -192,6 +192,9 @@ button{font:inherit;color:inherit}
 .rp .rpmodo button.on{background:#0f6c8c;color:#fff;border-color:#0f6c8c}
 .rp .rpayuda{font-size:11.5px;color:var(--ink3);text-align:center;margin-top:4px}
 .rp .rpcol.a h4{color:#0284c7}.rp .rpcol.b h4{color:#ea580c}
+.rp .rpreglas{display:grid;grid-template-columns:1fr 1fr;gap:4px;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:4px;margin-bottom:4px}
+.rp .rpreglas button{font:700 12.5px var(--font);border:0;background:transparent;color:var(--ink2);border-radius:9px;padding:9px 4px;cursor:pointer}
+.rp .rpreglas button.on{background:#0f6c8c;color:#fff}
 .rp .rpinv{width:100%;margin-top:10px;font:650 12.5px var(--font);border:1px solid var(--line);background:var(--bg);color:var(--ink);border-radius:10px;padding:9px;cursor:pointer}
 @media (max-width:430px){.rp .rpdos{grid-template-columns:1fr}}
 .rd .zona{background:linear-gradient(135deg,#0b2a3f,#0f4c6e);color:#fff;border:0}
@@ -406,7 +409,8 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
 
   <section class="reg rp" id="ripa" hidden>
     <div class="regin">
-      <div class="rtit">Prioridad de paso · RIPA</div>
+      <div class="rpreglas" id="rpReg"><button data-r="ripa" class="on">⚓ Navegación · RIPA</button><button data-r="rrv">⛵ En regata · RRV 2025-2028</button></div>
+      <div class="rtit" id="rpTit">Prioridad de paso · RIPA</div>
       <div class="card">
         <div class="rpmodo" id="rpModo">
           <span>Arrastrá en el gráfico para mover:</span>
@@ -429,6 +433,11 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
             <label>La ves <b id="rpBBv"></b><input type="range" id="rpBB" min="0" max="355" step="5"></label></div>
         </div>
         <label class="chk"><input type="checkbox" id="rpCanal" checked> Estamos en un canal angosto, como la VNT (regla 9)</label>
+        <div id="rpRRVctl" hidden>
+          <label>Maniobra en curso
+            <select id="rpMan"><option value="no">Ninguno está virando</option><option value="yo">Yo estoy virando por avante</option><option value="otro">La otra está virando por avante</option></select></label>
+          <label class="chk"><input type="checkbox" id="rpBal"> Estamos en la zona de una baliza (3 esloras)</label>
+        </div>
         <button class="rpinv" id="rpInv">⇄ Ver desde la otra embarcación</button>
       </div>
       <div class="rpbt"><button id="rpMia">📍 Usar mi rumbo, el viento actual y el buque AIS más cercano</button></div>
@@ -440,7 +449,7 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
       <div class="rtit">Situaciones típicas en el Paraná</div>
       <div class="rpesc" id="rpEsc"></div>
 
-      <div class="rtit">Qué dice el RIPA</div>
+      <div id="rpTxtRipa"><div class="rtit">Qué dice el RIPA</div>
       <div class="card rpreg">
         <p><b>Regla 2 · Responsabilidad.</b> Nada exime de tomar las precauciones que exige la buena práctica marinera, ni de apartarse de las reglas si hace falta para evitar un peligro inmediato.</p>
         <p><b>Regla 5 · Vigilancia.</b> Vigilancia eficaz en todo momento, con la vista, el oído y todos los medios disponibles (radar, AIS, VHF).</p>
@@ -457,7 +466,28 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
         <p><b>Reglas 23 a 30 · Luces y marcas.</b> Cada tipo de buque se identifica de día por sus marcas y de noche por sus luces: las ves en «Cómo reconocerla».</p>
         <p><b>Regla 34 · Pitadas.</b> 1 corta: caigo a estribor. 2 cortas: caigo a babor. 3 cortas: doy atrás. 5 o más cortas y rápidas: no entiendo su maniobra o dudo de que evite el abordaje. En un canal, para alcanzar: 2 largas + 1 corta (por tu estribor) o 2 largas + 2 cortas (por tu babor); el alcanzado acepta con larga, corta, larga, corta.</p>
       </div>
-      <div class="leyenda">Resumen en lenguaje simple del Reglamento Internacional para Prevenir los Abordajes (RIPA, COLREG 1972), vigente en Argentina. El esquema supone que hay riesgo de abordaje. El RIPA no le da prioridad a nadie: el que mantiene también debe actuar si el otro no maniobra. Entre barcos que corren una regata rige el Reglamento de Regatas a Vela, parte 2; frente a los demás, el RIPA. En las vías navegables también rigen las ordenanzas de Prefectura: atendé sus instrucciones y escuchá el canal 16 y el del VTS.</div>
+      </div>
+      <div id="rpTxtRRV" hidden>
+      <div class="rtit">Qué dice el Reglamento de Regatas a Vela (parte 2)</div>
+      <div class="card rpreg">
+        <p><b>Cuándo rige.</b> La parte 2 rige entre barcos que están en regata. Frente a una embarcación que no corre, rige el RIPA. Las instrucciones de regata pueden cambiar reglas: leelas siempre.</p>
+        <p><b>Regla 10 · Amuras opuestas.</b> El barco amurado a babor se mantiene separado del amurado a estribor.</p>
+        <p><b>Regla 11 · Misma amura, comprometidos.</b> El de barlovento se mantiene separado del de sotavento.</p>
+        <p><b>Regla 12 · Misma amura, no comprometidos.</b> El barco libre a popa se mantiene separado del barco libre a proa.</p>
+        <p><b>Regla 13 · Mientras vira por avante.</b> Desde que pasa la proa al viento hasta que queda en rumbo de ceñida, el barco se mantiene separado de los demás. Si dos viran a la vez, se mantiene separado el que está a babor del otro o a popa.</p>
+        <p><b>Regla 14 · Evitar el contacto.</b> Todos, con o sin derecho de paso, deben evitar el contacto si es razonablemente posible.</p>
+        <p><b>Regla 15 · Adquirir derecho de paso.</b> El que adquiere el derecho de paso debe dar al otro espacio para mantenerse separado, salvo que lo adquiera por una acción del otro.</p>
+        <p><b>Regla 16 · Cambiar de rumbo.</b> Si el que tiene derecho de paso cambia de rumbo, debe dar al otro espacio para mantenerse separado.</p>
+        <p><b>Regla 17 · Rumbo debido.</b> Si un barco libre a popa se compromete por sotavento a menos de dos esloras, no navega por encima de su rumbo debido mientras siga comprometido con la misma amura.</p>
+        <p><b>Regla 18 · Espacio en baliza.</b> Rige en la zona de 3 esloras. Si cuando el primero entra en la zona están comprometidos, el de afuera da espacio en baliza al de adentro; si no lo están, el que entró libre a proa tiene derecho al espacio. No se aplica entre barcos en amuras opuestas en ceñida hacia la baliza. El que vira por avante dentro de la zona no puede obligar a otro que ya va a la baliza a orzar por encima de ceñida.</p>
+        <p><b>Reglas 19 y 20 · Obstrucciones.</b> Al pasar una obstrucción, el de afuera da espacio al de adentro. Si necesitás virar por una obstrucción y tenés un barco a barlovento, pedile espacio a viva voz («¡Espacio para virar!»); el otro debe responder virando o diciendo «Virá vos» y dándote espacio.</p>
+        <p><b>Regla 31 · Tocar una baliza.</b> No se puede tocar una baliza: se paga con un giro.</p>
+        <p><b>Regla 44 · Penalización.</b> Si infringiste una regla de la parte 2, hacé cuanto antes la penalización de dos giros (cada giro con una virada y una trasluchada), alejado de los demás barcos.</p>
+        <p><b>Regla 61 · Protestar.</b> Gritá «¡Protesto!» a la primera oportunidad y, si tu barco mide 6 m o más, mostrá una bandera roja. Presentá la protesta escrita en el plazo de las instrucciones.</p>
+      </div>
+      <div class="leyenda">Resumen en lenguaje simple del Reglamento de Regatas a Vela de World Sailing 2025-2028, el que usan la FAY y los clubes argentinos. En el esquema, «comprometidos» se estima por la posición de los barcos: en la cancha decide lo que realmente ve cada uno. En el Paraná, las instrucciones de regata suelen prohibir estorbar a los buques comerciales y al canal de navegación.</div>
+      </div>
+      <div class="leyenda" id="rpLeyRipa">Resumen en lenguaje simple del Reglamento Internacional para Prevenir los Abordajes (RIPA, COLREG 1972), vigente en Argentina. El esquema supone que hay riesgo de abordaje. El RIPA no le da prioridad a nadie: el que mantiene también debe actuar si el otro no maniobra. Entre barcos que corren una regata rige el Reglamento de Regatas a Vela, parte 2; frente a los demás, el RIPA. En las vías navegables también rigen las ordenanzas de Prefectura: atendé sus instrucciones y escuchá el canal 16 y el del VTS.</div>
     </div>
   </section>
 
@@ -1683,7 +1713,7 @@ const TIPOS={
   fondeado:{n:"Buque fondeado",st:"fondeado",g:"granel",L:180,dia:"Una bola negra a proa.",noche:"Blanca todo horizonte a proa (y otra más baja a popa si mide 50 m o más); los grandes además iluminan la cubierta."}
 };
 const GRUPOS=[["Embarcaciones chicas",["velero","veleromotor","lancha","moto","remo","colectiva","pna","pesca"]],["Buques del canal",["convoy","granelero","portacont","tanque","remolcador"]],["Maniobra limitada",["draga","balizador","singob","fondeado"]]];
-const RP={w:0,hA:45,hB:315,rb:60,tA:"velero",tB:"velero",canal:true,modo:"pos"};
+const RP={w:0,hA:45,hB:315,rb:60,tA:"velero",tB:"velero",canal:true,modo:"pos",reg:"ripa",man:"no",bal:false};
 const nAng=x=>((x%360)+540)%360-180;
 const rumboTxt=x=>`${Math.round((x+360)%360)}° ${card16((x+360)%360)}`;
 function marcTxt(rb){ const a=nAng(rb), b=Math.abs(a), lado=a>0?"estribor":"babor";
@@ -1767,6 +1797,49 @@ function ripaCalc(s){
   }
   r.notas=notas; r.eA=eA; r.eB=eB; return r;
 }
+/* Reglamento de Regatas a Vela 2025-2028, parte 2 (entre barcos en regata) */
+function rrvCalc(s){
+  if(s.tA!=="velero"||s.tB!=="velero"){
+    const r=ripaCalc(s);
+    r.notas.unshift("La parte 2 del reglamento de regatas rige solo entre barcos que están en regata. Con una embarcación que no corre rige el RIPA: este resultado es según el RIPA.");
+    r.notas.push("En el Paraná, las instrucciones de regata suelen prohibir estorbar a los buques comerciales y al canal de navegación: hacerlo puede costar la descalificación.");
+    return r;
+  }
+  const brgAB=(s.hA+s.rb)%360, brgBA=(brgAB+180)%360, rbA=nAng(brgAB-s.hA), rbB=nAng(brgBA-s.hB);
+  const a=amura(s.w,s.hA), b=amura(s.w,s.hB), notas=[];
+  if(a.proa&&s.man!=="yo") notas.push("Con ese rumbo vas casi proa al viento: a vela no se puede navegar así.");
+  if(b.proa&&s.man!=="otro") notas.push("La otra va casi proa al viento: a vela no podría navegar así.");
+  const R=(q,regla,t,x)=>({q,regla,t,x,rrv:true,eA:"vela",eB:"vela"});
+  let r;
+  if(s.man==="yo"||s.man==="otro"){
+    const yo=s.man==="yo";
+    r=R(yo?"A":"B","Regla 13 · Mientras vira por avante",yo?"Estás virando: te mantenés separado":"La otra está virando: se mantiene separada",
+      "Desde que un barco pasa la proa al viento hasta que queda en rumbo de ceñida, debe mantenerse separado de los demás; mientras tanto no se le aplican las reglas 10, 11 y 12.");
+    notas.push("Si los dos viran al mismo tiempo, se mantiene separado el que está a babor del otro o el que está a popa.");
+  } else if(a.lado!==b.lado){
+    const yo=a.lado==="babor";
+    r=R(yo?"A":"B","Regla 10 · Amuras opuestas",yo?"Vas amurado a babor: te mantenés separado":"Vas amurado a estribor: tenés derecho de paso",
+      `Vos recibís el viento por ${a.lado}; la otra, por ${b.lado}. El barco amurado a babor se mantiene separado del amurado a estribor.`);
+    if(!yo) notas.push("Si cambiás de rumbo, tenés que darle espacio para mantenerse separada (regla 16): no orces ni arribes de golpe hacia su proa.");
+  } else {
+    const BastA=Math.abs(rbA)>105&&Math.abs(rbB)<75, AastB=Math.abs(rbB)>105&&Math.abs(rbA)<75;
+    if(BastA||AastB){
+      const yo=AastB;
+      r=R(yo?"A":"B","Regla 12 · Misma amura, no comprometidos",yo?"Estás libre a popa: te mantenés separado":"La otra está libre a popa: se mantiene separada",
+        `Los dos van amurados a ${a.lado} y no están comprometidos: el barco libre a popa se mantiene separado del barco libre a proa.`);
+      notas.push("Si el de atrás se compromete por sotavento a menos de dos esloras, pasa a tener derecho de paso (regla 11), pero debe dar espacio al otro (regla 15) y no puede navegar por encima de su rumbo debido (regla 17).");
+    } else {
+      const d=Math.sin(rad(s.w))*Math.sin(rad(brgAB))+Math.cos(rad(s.w))*Math.cos(rad(brgAB)), otro=d>0;
+      r=R(otro?"B":"A","Regla 11 · Misma amura, comprometidos",otro?"Estás a sotavento: tenés derecho de paso":"Estás a barlovento: te mantenés separado",
+        `Los dos van amurados a ${a.lado} y están comprometidos: el de barlovento se mantiene separado del de sotavento.`);
+      notas.push(otro?"Si orzás, dale espacio para apartarse (regla 16). Si te comprometiste desde atrás a menos de dos esloras, no podés navegar por encima de tu rumbo debido (regla 17).":"Si el de sotavento orza, debe darte espacio para apartarte (regla 16); igual mantenete atento y separado.");
+    }
+  }
+  if(Math.abs(a.a)>165||Math.abs(b.a)>165) notas.push("En popa, la amura la define el lado contrario a donde va la botavara de la mayor.");
+  if(s.bal) notas.push("Zona de baliza (regla 18): si al entrar el primero a la zona estaban comprometidos, el de afuera le da espacio en baliza al de adentro; si no, el que entró libre a proa tiene derecho al espacio. No se aplica entre barcos en amuras opuestas en ceñida hacia la baliza. Si virás dentro de la zona, no podés obligar a otro que ya va a la baliza a orzar por encima de ceñida.");
+  notas.push("Los dos deben evitar el contacto si es razonablemente posible (regla 14).");
+  r.notas=notas; return r;
+}
 /* dibujos vistos desde arriba, proa hacia arriba (y negativo). Tamaños en unidades del esquema */
 function svgEmb(t,col,borde,ang){
   const g=TIPOS[t].g, sw=`stroke="${borde}" stroke-width="3"`;
@@ -1825,13 +1898,18 @@ function ripaDibujar(s,r){
 const AYUDA={pos:"Tocá o arrastrá donde querés que esté la otra embarcación.",hB:"Arrastrá hacia donde querés que apunte la proa de la otra embarcación.",hA:"Arrastrá hacia donde querés llevar tu proa: el gráfico gira para dejarla siempre hacia arriba.",w:"Arrastrá hacia el lado de donde viene el viento."};
 function ripaRender(){
   const s=RP;
-  $("rpW").value=s.w; $("rpHA").value=s.hA; $("rpHB").value=s.hB; $("rpBB").value=s.rb; $("rpTA").value=s.tA; $("rpTB").value=s.tB; $("rpCanal").checked=s.canal;
+  $("rpW").value=s.w; $("rpHA").value=s.hA; $("rpHB").value=s.hB; $("rpBB").value=s.rb; $("rpTA").value=s.tA; $("rpTB").value=s.tB; $("rpCanal").checked=s.canal; $("rpMan").value=s.man; $("rpBal").checked=s.bal;
+  const enR=s.reg==="rrv";
+  $("rpReg").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.r===s.reg));
+  $("rpRRVctl").hidden=!enR; $("rpTxtRRV").hidden=!enR; $("rpTxtRipa").hidden=enR; $("rpLeyRipa").hidden=enR;
+  $("rpTit").textContent=enR?"Derecho de paso en regata · RRV 2025-2028":"Prioridad de paso · RIPA";
+  if(pintarEsc._m!==s.reg) pintarEsc();
   $("rpWv").textContent=rumboTxt(s.w); $("rpHAv").textContent=rumboTxt(s.hA); $("rpHBv").textContent=rumboTxt(s.hB); $("rpBBv").textContent=marcTxt(s.rb);
   $("rpModo").querySelectorAll("button").forEach(b=>b.classList.toggle("on",b.dataset.m===s.modo)); $("rpAyuda").textContent=`Tu proa hacia arriba (rumbo ${Math.round(s.hA)}°, viento del ${card16(s.w)}). `+AYUDA[s.modo];
-  const r=ripaCalc(s); ripaDibujar(s,r);
+  const r=s.reg==="rrv"?rrvCalc(s):ripaCalc(s); ripaDibujar(s,r);
   const cls=r.q==="A"?"cede":r.q==="B"?"mant":"amb";
   const chicoA=TIPOS[s.tA].L<20;
-  const acc=r.q==="A"?(r.eB==="canal"?"Qué hacer: apartate ya y en forma franca, saliendo de su derrota. Si no entendés su maniobra, 5 pitadas cortas y llamalo por VHF.":r.eA==="vela"?"Qué hacer: maniobrá con tiempo y en forma franca: arribá para pasarle por la popa, o virá o trasluchá antes de acercarte.":"Qué hacer: caé a estribor con tiempo y en forma franca, o bajá la velocidad o pará, y pasale por la popa (1 pitada corta si caés a estribor; 3 cortas si das atrás).")
+  const acc=r.rrv?(r.q==="A"?"Qué hacer: mantenete separado con tiempo: arribá para pasarle por la popa, o virá o trasluchá antes de acercarte. Si igual infringís, hacé la penalización de dos giros (regla 44).":r.q==="B"?"Qué hacer: tenés derecho de paso, pero evitá el contacto. Si cambiás de rumbo, dale espacio para apartarse (regla 16). Si te obliga a maniobrar, gritá «¡Protesto!» y, si tu barco mide 6 m o más, mostrá bandera roja (regla 61).":"Qué hacer: maniobrá con tiempo y evitá el contacto."):r.q==="A"?(r.eB==="canal"?"Qué hacer: apartate ya y en forma franca, saliendo de su derrota. Si no entendés su maniobra, 5 pitadas cortas y llamalo por VHF.":r.eA==="vela"?"Qué hacer: maniobrá con tiempo y en forma franca: arribá para pasarle por la popa, o virá o trasluchá antes de acercarte.":"Qué hacer: caé a estribor con tiempo y en forma franca, o bajá la velocidad o pará, y pasale por la popa (1 pitada corta si caés a estribor; 3 cortas si das atrás).")
     :r.q==="B"?"Qué hacer: mantené rumbo y velocidad. Vigilá que la otra maniobre; si no lo hace, avisale con 5 pitadas cortas y, si hace falta, maniobrá vos para evitar el abordaje"+(r.eA==="motor"||r.eA==="canal"?" sin caer a babor hacia un buque que tenés por babor":"")+"."
     :r.q==="AB"?"Qué hacer: caé a estribor en forma franca y avisá con 1 pitada corta."
     :r.q==="-"?"":"Qué hacer: comunicate por VHF y maniobrá con tiempo para que no quede ninguna duda.";
@@ -1856,8 +1934,23 @@ const RP_ESC=[
   ["⚓ Buque fondeado",{w:90,hA:0,hB:330,rb:15,tA:"velero",tB:"fondeado",canal:false}],
   ["🚢🚢 Dos buques en el canal",{w:90,hA:0,hB:180,rb:4,tA:"granelero",tB:"convoy",canal:true}]
 ];
-$("rpEsc").innerHTML=RP_ESC.map((e,i)=>`<button data-i="${i}">${e[0]}</button>`).join("");
-$("rpEsc").querySelectorAll("button").forEach(b=>b.onclick=()=>{ Object.assign(RP,RP_ESC[+b.dataset.i][1]); $("rpMiaTxt").textContent=""; ripaRender(); $("ripa").scrollTo({top:0,behavior:"smooth"}); });
+const RRV_ESC=[
+  ["⛵⛵ Babor y estribor en ceñida",{w:0,hA:45,hB:315,rb:60,tA:"velero",tB:"velero",man:"no",bal:false,canal:false}],
+  ["⛵⛵ Comprometidos, misma amura",{w:0,hA:45,hB:45,rb:275,tA:"velero",tB:"velero",man:"no",bal:false,canal:false}],
+  ["⛵⛵ Libre a popa",{w:0,hA:45,hB:45,rb:180,tA:"velero",tB:"velero",man:"no",bal:false,canal:false}],
+  ["⛵↻ La otra vira por avante",{w:0,hA:45,hB:330,rb:60,tA:"velero",tB:"velero",man:"otro",bal:false,canal:false}],
+  ["🔶 Llegando a la baliza en popa",{w:340,hA:180,hB:180,rb:95,tA:"velero",tB:"velero",man:"no",bal:true,canal:false}],
+  ["⛵🚢 Regata y buque comercial",{w:90,hA:0,hB:180,rb:8,tA:"velero",tB:"granelero",man:"no",bal:false,canal:true}]
+];
+function pintarEsc(){
+  const L=RP.reg==="rrv"?RRV_ESC:RP_ESC; pintarEsc._m=RP.reg;
+  $("rpEsc").innerHTML=L.map((e,i)=>`<button data-i="${i}">${e[0]}</button>`).join("");
+  $("rpEsc").querySelectorAll("button").forEach(b=>b.onclick=()=>{ Object.assign(RP,{man:"no",bal:false},L[+b.dataset.i][1]); $("rpMiaTxt").textContent=""; ripaRender(); $("ripa").scrollTo({top:0,behavior:"smooth"}); });
+}
+pintarEsc();
+$("rpReg").querySelectorAll("button").forEach(b=>b.onclick=()=>{ RP.reg=b.dataset.r; if(RP.reg==="rrv"){ Object.assign(RP,RRV_ESC[0][1]); } ripaRender(); });
+$("rpMan").onchange=()=>{ RP.man=$("rpMan").value; ripaRender(); };
+$("rpBal").onchange=()=>{ RP.bal=$("rpBal").checked; ripaRender(); };
 [["rpW","w"],["rpHA","hA"],["rpHB","hB"],["rpBB","rb"]].forEach(([id,k])=>$(id).oninput=()=>{ RP[k]=+$(id).value; ripaRender(); });
 $("rpTA").onchange=()=>{ RP.tA=$("rpTA").value; ripaRender(); };
 $("rpTB").onchange=()=>{ RP.tB=$("rpTB").value; ripaRender(); };
