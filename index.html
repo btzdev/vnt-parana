@@ -368,6 +368,7 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
           <div class="recsel"><label>Recorrido <select id="recDesde"><option value="todo">Todo el registro</option><option value="hoy">Hoy</option><option value="3h">Últimas 3 horas</option><option value="1h">Última hora</option></select></label></div>
           <svg id="recSvg" viewBox="0 0 320 230" aria-label="Recorrido registrado"></svg>
           <div class="recinfo" id="recInfo"></div>
+          <div class="na" id="regUso" style="margin-top:6px"></div>
           <input type="range" id="recPos" min="0" max="1000" value="1000" aria-label="Momento del recorrido">
           <div class="recctl">
             <label>Mostrar todo el recorrido en <input type="number" id="recDur" min="2" max="900" value="10" inputmode="numeric"> s</label>
@@ -583,6 +584,8 @@ html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
         <div class="card">
           <div class="na" style="margin-top:0" id="offSt">La app queda guardada en el teléfono y el GPS funciona sin internet. Antes de salir, guardá el mapa de la zona.</div>
           <div class="row"><button class="btn" id="bOff10">Guardar mapa · 10 km</button><button class="btn" id="bOff30">Guardar mapa · 30 km</button></div>
+          <div class="na" id="offUso"></div>
+          <div class="row"><button class="btn" id="bOffLib">Liberar espacio (borrar mapa visto)</button></div>
         </div>
       </section>
 
@@ -646,7 +649,7 @@ const arNow = () => new Date(Date.now()-3*3600e3);
 const arISO = (msAgo=0) => new Date(Date.now()-3*3600e3-msAgo).toISOString().slice(0,16);
 async function getJSON(url, ms=15000){const c=new AbortController();const t=setTimeout(()=>c.abort(),ms);try{const r=await fetch(url,{signal:c.signal});if(!r.ok)throw new Error("HTTP "+r.status);return await r.json();}finally{clearTimeout(t);}}
 function toast(msg,ms=4000){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(toast._t);toast._t=setTimeout(()=>t.classList.remove("show"),ms);}
-const store = {get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch{}}};
+const store = {get(k){try{return JSON.parse(localStorage.getItem(k))}catch{return null}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch{return false}}};
 
 /* ====== estado de fuentes ====== */
 const FUENTES = {
@@ -1516,9 +1519,13 @@ function medirFin(){
 function registrar(nota){
   const ok=NAV.sog!=null&&(Date.now()-NAV.t)<15000, w=ok?vel(NAV.sog,NAV.cog,CUR):null;
   LOG.push({t:Date.now(),lat:NAV.lat??me?.lat,lon:NAV.lon??me?.lon,sog:ok?NAV.sog:null,cog:ok?NAV.cog:null,ck:CUR.dir!=null?CUR.kn:null,cd:CUR.dir,stw:w?.kn??null,nota:nota||""});
-  if(LOG.length>3000) LOG.shift(); store.set("regLog",LOG); renderLog();
+  if(LOG.length>LOG_MAX) LOG.splice(0,LOG.length-LOG_MAX);
+  if(!store.set("regLog",LOG)){ LOG.splice(0,Math.ceil(LOG.length/4)); store.set("regLog",LOG); toast("Memoria del teléfono llena: se borraron los registros más viejos"); }
+  renderLog();
 }
+const LOG_MAX=3000; // 3000 puntos ≈ 25 h a uno cada 30 s, unos 400 KB
 function renderLog(){ try{ if(!REC.play&&!$("reg").hidden) recDibujar(); }catch{}
+  try{ const kb=Math.round((localStorage.getItem("regLog")||"").length/1024); $("regUso").textContent=`${LOG.length} de ${LOG_MAX} puntos guardados (≈ ${Math.round(LOG_MAX/120)} h a uno cada 30 s) · ${kb} KB en el teléfono. Al llegar al máximo se borran los más viejos.`; }catch{}
   const f=x=>x==null?"–":fmt(x,1);
   $("rLog").innerHTML=`<tr><th>Hora</th><th>SOG</th><th>COG</th><th>Corr.</th><th>Real</th><th>Nota</th></tr>`+(LOG.length?LOG.slice(-50).reverse().map(r=>`<tr><td>${new Date(r.t).toTimeString().slice(0,8)}</td><td>${f(r.sog)}</td><td>${r.cog!=null?Math.round(r.cog)+"°":"–"}</td><td>${r.ck!=null?fmt(r.ck,1)+" → "+Math.round(r.cd)+"°":"–"}</td><td>${f(r.stw)}</td><td>${r.nota}</td></tr>`).join(""):`<tr><td colspan="6" style="text-align:left;color:var(--ink3)">Sin marcas todavía.</td></tr>`);
 }
@@ -1741,7 +1748,7 @@ const LUGARES=[
   {t:"pna",n:"Prefectura Villa Constitución",lat:-33.21984,lon:-60.33514,vhf:"9 (L6H) · 16",tel:["+543364422204","+543364423693"],nota:"Teléfonos del VTS San Nicolás",src:"Prefectura Naval Argentina"},
   {t:"pna",n:"Prefectura Diamante · VTS Diamante",lat:-32.06576,lon:-60.64306,dir:"Etchevehere 239, Diamante",tel:["+543434981117","+543434983584"],vhf:"12 (VTS) · 16",src:"Prefectura Naval Argentina"},
   {t:"pna",n:"Prefectura Santa Fe",lat:-31.65026,lon:-60.70424,vhf:"16",nota:"Sin centro VTS publicado: llamá por canal 16 o al 106",src:"Prefectura Naval Argentina"},
-  {t:"club",star:1,n:"Club de Velas de Rosario",lat:-32.90382,lon:-60.68039,dir:"Av. Colombres 956, Rosario",tel:["+543412991120","+5493412516677","+5493412516647"],telN:["Administración (lun a sáb 9 a 17)","Atención 24 h","Atención 24 h"],mail:"administracion@cvr.com.ar",mail2:"yachting@cvr.com.ar",web:"https://www.cvr.com.ar",src:"cvr.com.ar"},
+  {t:"club",star:1,n:"Club de Velas de Rosario",lat:-32.90382,lon:-60.68039,dir:"Av. Colombres 956, Rosario",tel:["+543412991120","+5493412516677","+5493412516647"],telN:["Administración (lun a sáb 9 a 17)","Atención 24 h","Atención 24 h"],mail:"administracion@cvr.com.ar",mail2:"yachting@cvr.com.ar",web:"https://www.cvr.com.ar",src:"cvr.com.ar",vhf:"71",vhfF:"Portería CVR · Comisión de Regatas: canal 77 (avisos, horarios, recorridos, abandonos, pasos por llegada) · algunas regatas y travesías (Paraná–Rosario): canal 69",vhfX:"portería · regatas Ch 77 · travesías Ch 69"},
   {t:"club",n:"Yacht Club Rosario",lat:-32.90047,lon:-60.68128,dir:"Av. Carlos Colombres 1296, Rosario",tel:["+543412098418","+543415729914","+543414536200"],telN:["Portería 24 h","Yachting","Secretaría"],mail:"yachting@ycr.com.ar",web:"https://www.ycr.com.ar",vhf:"18",vhfF:"guía PortBooker · en regatas la comisión usó el 78 (aviso de regata 2012)",src:"ycr.com.ar"},
   {t:"club",n:"Club de Regatas Rosario",lat:-32.9079,lon:-60.67653,dir:"Cordiviola 1268, Rosario",tel:["+543415941776","+543413775651","+543413581530"],telN:["Portería","Caleta","Administración"],mail:"info@clubderegatasrosario.com.ar",web:"https://www.clubderegatasrosario.com.ar",src:"clubderegatasrosario.com.ar"},
   {t:"club",n:"Rosario Rowing Club",lat:-32.89401,lon:-60.68456,dir:"Av. Colombres 1798, Rosario",tel:["+543414552219"],mail:"rosariorowing@hotmail.com",src:"FAY"},
@@ -1774,7 +1781,7 @@ function renderRadio(){
     ? `<div class="ch">Canal ${v.ch}<small>${v.n} · ${v.ind}</small></div><div class="zt">Estás en km ${fmt(P.km,1)} · ${v.r}.<br>Escucha también el canal 16.${v.tel?` Teléfono: <a style="color:#fff" href="tel:${v.tel[0]}">${telTxt(v.tel[0])}</a>`:""}</div>`
     : `<div class="ch">Canal 16<small>socorro y llamada</small></div><div class="zt">${P?`Estás a ${fmt(P.d/1000,1)} km del eje del canal, fuera de una zona VTS conocida.`:"Esperando posición GPS…"} Ante una emergencia llamá al 106 o por canal 16.</div>`;
   if(me){ const cer=LUGARES.filter(p=>p.t==="club"&&p.lat!=null).map(p=>({p,d:dist(me.lat,me.lon,p.lat,p.lon)/1000})).sort((a,b)=>a.d-b.d).slice(0,3);
-    $("rdZona").insertAdjacentHTML("beforeend",`<div class="zcl"><div class="zclt">Clubes más cercanos</div>${cer.map(({p,d})=>`<div class="zcli"><span class="zch">${p.vhf?"Ch "+p.vhf:"Ch 16"}</span><span class="zcn">${p.star?"★ ":""}${p.n}<small>${fmt(d,d<10?1:0)} km${p.vhf?"":" · canal propio no publicado: llamá por 16"}</small></span>${p.tel?`<a href="tel:${p.tel[0]}" aria-label="Llamar">📞</a>`:""}</div>`).join("")}</div>`); }
+    $("rdZona").insertAdjacentHTML("beforeend",`<div class="zcl"><div class="zclt">Clubes más cercanos</div>${cer.map(({p,d})=>`<div class="zcli"><span class="zch">${p.vhf?"Ch "+p.vhf:"Ch 16"}</span><span class="zcn">${p.star?"★ ":""}${p.n}<small>${fmt(d,d<10?1:0)} km${p.vhf?(p.vhfX?" · "+p.vhfX:""):" · canal propio no publicado: llamá por 16"}</small></span>${p.tel?`<a href="tel:${p.tel[0]}" aria-label="Llamar">📞</a>`:""}</div>`).join("")}</div>`); }
   $("rdVts").innerHTML = VTS_INFO.map(x=>`<tr${v===x?' style="background:rgba(14,165,233,.12)"':""}><td class="n">${x.ch}</td><td><b>${x.n}</b> · ${x.ind}<br><span style="color:var(--ink2)">${x.r}</span>${x.tel?`<br><a href="tel:${x.tel[0]}">${telTxt(x.tel[0])}</a>${x.tel[1]?` · <a href="tel:${x.tel[1]}">${telTxt(x.tel[1])}</a>`:""}`:""}${x.bol&&x.bol!=="utc"?`<br><span style="color:var(--ink3)">${x.bol}</span>`:""}</td></tr>`).join("")
     + `<tr><td class="n">15</td><td><b>Información de seguridad de la navegación</b><br><span style="color:var(--ink2)">Boletín de Prefectura en Rosario, San Pedro y Diamante</span></td></tr>`;
   const pb=proxBoletin();
@@ -2127,15 +2134,27 @@ async function guardarZona(radioKm,zMax){
   if(guardando) return; if(!("caches" in window)){ toast("Este navegador no permite guardar el mapa"); return; }
   if(!navigator.onLine){ toast("Necesitás conexión para descargar el mapa"); return; }
   guardando=true; const c=me?{lat:me.lat,lon:me.lon}:{lat:map.getCenter().lat,lon:map.getCenter().lng};
-  const urls=teselasZona(c.lat,c.lon,radioKm,7,zMax), cache=await caches.open("vnt-tiles"), st=$("offSt");
+  await caches.delete("vnt-zona"); // una sola zona guardada: la nueva reemplaza a la anterior
+  const urls=teselasZona(c.lat,c.lon,radioKm,7,zMax), cache=await caches.open("vnt-zona"), st=$("offSt");
   let hechas=0, i=0;
-  const trabajador=async()=>{ while(i<urls.length){ const u=urls[i++]; try{ if(!(await cache.match(u))){ const r=await fetch(u,{mode:"no-cors"}); await cache.put(u,r); } }catch{} hechas++; if(hechas%25===0) st.textContent=`Guardando mapa… ${hechas} de ${urls.length}`; } };
+  const trabajador=async()=>{ while(i<urls.length){ const u=urls[i++]; try{ let r=await caches.match(u); if(!r) r=await fetch(u,{mode:"no-cors"}); await cache.put(u,r); }catch{} hechas++; if(hechas%25===0) st.textContent=`Guardando mapa… ${hechas} de ${urls.length}`; } };
   await Promise.all(Array.from({length:6},trabajador));
   // también datos de la zona
   try{ await loadBz(); }catch{}
   st.textContent=`Mapa guardado: ${urls.length} teselas, radio ${radioKm} km alrededor de ${c.lat.toFixed(3)}, ${c.lon.toFixed(3)} (zoom hasta ${zMax}). Funciona sin internet.`;
-  store.set("offZona",{...c,radioKm,zMax,t:Date.now()}); guardando=false;
+  store.set("offZona",{...c,radioKm,zMax,n:urls.length,t:Date.now()}); guardando=false; usoMem();
 }
+const TESELA_KB=25;
+async function usoMem(){
+  if(!("caches" in window)) return; let vis=0, zon=0;
+  try{ vis=(await (await caches.open("vnt-tiles")).keys()).length; zon=(await (await caches.open("vnt-zona")).keys()).length; }catch{}
+  const reg=Math.round(((localStorage.getItem("regLog")||"").length+(localStorage.getItem("ais")||"").length)/1024);
+  const mb=x=>fmt(x*TESELA_KB/1024,0);
+  $("offUso").innerHTML=`<b>Espacio usado ≈ ${mb(vis+zon)} MB</b> · zona guardada ${zon} teselas (${mb(zon)} MB) · mapa visto ${vis} de 3000 teselas como máximo (${mb(vis)} MB; se borran solas las más viejas) · registros y barcos ${reg} KB.`;
+}
+$("bOffLib").onclick=async()=>{ try{ await caches.delete("vnt-tiles"); await caches.delete("vnt-datos"); }catch{} toast("Se borró el mapa visto. La zona guardada y tus registros siguen."); usoMem(); };
+try{ navigator.storage?.persist?.(); }catch{}
+setTimeout(usoMem,3000);
 $("bOff10").onclick=()=>guardarZona(10,16);
 $("bOff30").onclick=()=>guardarZona(30,14);
 { const z=store.get("offZona"); if(z) $("offSt").textContent=`Mapa guardado el ${new Date(z.t).toLocaleDateString("es-AR")} (radio ${z.radioKm} km). La app y el GPS funcionan sin internet.`; }
