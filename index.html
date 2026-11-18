@@ -169,7 +169,23 @@ button{font:inherit;color:inherit}
 .tlog td:last-child{white-space:normal}
 @media (min-width:900px){.tabbar{left:calc((100% - 420px)/2)}}
 .tabbar button{padding:8px 11px;font-size:13px}
-@media (max-width:430px){.tabbar{gap:1px;padding:2px}.tabbar button{padding:8px 7px;font-size:12px}}
+@media (max-width:430px){.tabbar{gap:1px;padding:2px;max-width:calc(100vw - 8px);overflow-x:auto}.tabbar button{padding:8px 5px;font-size:11.5px}}
+.rp svg#rpSvg{display:block;width:100%;max-width:420px;margin:0 auto;touch-action:none;background:radial-gradient(circle,#dff3fb 0,#bfe6f5 70%);border-radius:14px}
+.rp .rpres{margin-top:10px;padding:12px;border-radius:12px;font-size:13.5px;line-height:1.5}
+.rp .rpres.cede{background:#fee2e2;color:#7f1d1d}.rp .rpres.mant{background:#dcfce7;color:#14532d}.rp .rpres.amb{background:#fef3c7;color:#78350f}
+.rp .rpres b.t{display:block;font-size:17px;margin-bottom:3px}
+.rp .rpres .rg{display:inline-block;font:700 11px var(--font);background:rgba(0,0,0,.08);border-radius:6px;padding:2px 6px;margin-top:6px}
+.rp .rpesc{display:flex;flex-wrap:wrap;gap:6px}
+.rp .rpesc button,.rp .rpbt button{font:650 12.5px var(--font);border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:10px;padding:8px 10px;cursor:pointer}
+.rp .rpbt button{width:100%;margin-top:10px;background:#0f6c8c;color:#fff;border:0;padding:11px}
+.rp .rpctl label{display:block;font-size:13px;margin:8px 0 2px}
+.rp .rpctl input[type=range]{width:100%}
+.rp .rpctl select{width:100%;font:600 13px var(--font);padding:7px;border-radius:9px;border:1px solid var(--line);background:var(--bg);color:var(--ink)}
+.rp .rpdos{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:6px}
+.rp .rpdos h4{margin:4px 0 6px;font-size:13.5px}
+.rp .rpreg p{margin:0 0 9px;font-size:13px;line-height:1.5}
+.rp .rpreg p b{color:var(--sea)}
+.rp .chk{display:flex!important;gap:8px;align-items:center;margin-top:10px!important}
 .rd .zona{background:linear-gradient(135deg,#0b2a3f,#0f4c6e);color:#fff;border:0}
 .rd .zona .ch{font:800 54px/1 var(--font);font-variant-numeric:tabular-nums}
 .rd .zona .ch small{font-size:16px;font-weight:650;opacity:.8;margin-left:4px}
@@ -233,18 +249,24 @@ button{font:inherit;color:inherit}
 @media (min-width:600px) and (max-width:899px){
   .grid{grid-template-columns:repeat(4,1fr)}
 }
-@media (prefers-color-scheme:dark){
-  :root{--ink:#e8eef2;--ink2:#a9b7c1;--ink3:#7a8893;--line:#25333d;--bg:#0f1a21;--card:#16232c;--sea2:#123545;--sea:#43b0d4}
-  .fab{background:#16232c;color:#e8eef2}
-  .layers{background:#16232c}
-  .leaflet-popup-content-wrapper,.leaflet-popup-tip{background:#16232c;color:#e8eef2}
-}
+html.osc{--ink:#e8eef2;--ink2:#a9b7c1;--ink3:#7a8893;--line:#25333d;--bg:#0f1a21;--card:#16232c;--sea2:#123545;--sea:#43b0d4;color-scheme:dark}
+html.osc .fab{background:#16232c;color:#e8eef2}
+html.osc .layers{background:#16232c;color:#e8eef2}
+html.osc .leaflet-popup-content-wrapper,html.osc .leaflet-popup-tip{background:#16232c;color:#e8eef2}
+html.osc .teja-ign{filter:invert(1) hue-rotate(185deg) brightness(.85) contrast(.92) saturate(.65)}
+html.osc .leaflet-container{background:#0b1a22}
+html.osc .leaflet-control-zoom a{background:#16232c;color:#e8eef2;border-color:#25333d}
+html.osc .leaflet-control-attribution{background:rgba(15,26,33,.75)!important;color:#a9b7c1}
+html.osc .leaflet-control-attribution a{color:#7cc8e6}
+html.osc .rd .tag{background:#0c3b52;color:#bae6fd}
+#bTema span{font-size:19px;line-height:1}
 </style>
+<script>try{const t=localStorage.getItem("vntTema")||"auto";document.documentElement.classList.toggle("osc",t==="oscuro"||(t==="auto"&&matchMedia("(prefers-color-scheme:dark)").matches));}catch(e){}</script>
 </head>
 <body>
 <div id="app">
   <div id="map" role="application" aria-label="Mapa del río"></div>
-  <nav class="tabbar" id="tabbar"><button class="on" data-v="nav">🧭 Mapa</button><button data-v="reg">⏱ Regata</button><button data-v="vel">⚡ Velocidad</button><button data-v="rad">📻 Radio</button></nav>
+  <nav class="tabbar" id="tabbar"><button class="on" data-v="nav">🧭 Mapa</button><button data-v="reg">⏱ Regata</button><button data-v="vel">⚡ Velocidad</button><button data-v="rad">📻 Radio</button><button data-v="ripa">⚓ RIPA</button></nav>
   <div class="off" id="offBadge">Sin conexión · GPS activo</div>
   <div class="ficha" id="ficha" role="dialog" aria-modal="false"><button class="fx" id="fichaX" aria-label="Cerrar">✕</button><div id="fichaC"></div></div>
 
@@ -261,6 +283,7 @@ button{font:inherit;color:inherit}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v3M12 19v3M2 12h3M19 12h3"></path></svg></button>
     <button class="fab" id="bLay" aria-label="Capas" title="Capas">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3 2 8l10 5 10-5-10-5Z"></path><path d="m2 13 10 5 10-5"></path></svg></button>
+    <button class="fab" id="bTema" aria-label="Modo claro u oscuro" title="Modo claro u oscuro"><span>◐</span></button>
   </div>
   <div class="layers" id="layers">
     <label><input type="radio" name="base" value="ign" checked> Argenmap (IGN)</label>
@@ -370,6 +393,52 @@ button{font:inherit;color:inherit}
       <div class="rtit">Clubes náuticos</div>
       <div class="card" id="rdClub"></div>
       <div class="leyenda">Teléfonos y direcciones tomados de los sitios de cada club, de la Federación Argentina de Yachting y de la Prefectura Naval Argentina. El canal de trabajo de cada regata lo fija la comisión de regata en las instrucciones. Si un dato cambió, avisame y lo corrijo.</div>
+    </div>
+  </section>
+
+  <section class="reg rp" id="ripa" hidden>
+    <div class="regin">
+      <div class="rtit">Prioridad de paso · RIPA</div>
+      <div class="card">
+        <svg id="rpSvg" viewBox="-160 -165 320 330" aria-label="Esquema de cruce"></svg>
+        <div id="rpRes" class="rpres"></div>
+      </div>
+      <div class="rpbt"><button id="rpMia">📍 Usar mi rumbo, el viento actual y el buque AIS más cercano</button></div>
+      <div class="leyenda" id="rpMiaTxt">Tocá o arrastrá sobre el esquema para mover al otro barco.</div>
+
+      <div class="rtit">Situaciones típicas</div>
+      <div class="rpesc" id="rpEsc"></div>
+
+      <div class="rtit">Ajustar</div>
+      <div class="card rpctl">
+        <label>Viento desde <b id="rpWv"></b><input type="range" id="rpW" min="0" max="355" step="5"></label>
+        <div class="rpdos">
+          <div><h4>🟦 Tu barco</h4>
+            <select id="rpTA"><option value="vela">A vela</option><option value="motor">A motor (aunque lleve velas)</option></select>
+            <label>Rumbo <b id="rpHAv"></b><input type="range" id="rpHA" min="0" max="355" step="5"></label></div>
+          <div><h4>🟧 El otro</h4>
+            <select id="rpTB"><option value="vela">A vela</option><option value="motor">A motor</option><option value="canal">Buque en el canal (solo puede navegar por el canal / restringido por calado)</option><option value="pesca">Pescando (con redes o arrastre)</option><option value="restringida">Maniobra restringida (draga, remolque, balizador)</option><option value="singob">Sin gobierno</option></select>
+            <label>Rumbo <b id="rpHBv"></b><input type="range" id="rpHB" min="0" max="355" step="5"></label>
+            <label>Lo ves <b id="rpBBv"></b><input type="range" id="rpBB" min="0" max="355" step="5"></label></div>
+        </div>
+        <label class="chk"><input type="checkbox" id="rpCanal"> Estamos en un canal angosto (regla 9)</label>
+      </div>
+
+      <div class="rtit">Qué dice el RIPA</div>
+      <div class="card rpreg">
+        <p><b>Regla 5 · Vigilancia.</b> Mantené siempre una vigilancia eficaz, con la vista, el oído y todos los medios disponibles.</p>
+        <p><b>Regla 7 · Riesgo de abordaje.</b> Si la marcación del otro buque no cambia apreciablemente mientras la distancia disminuye, hay riesgo de abordaje.</p>
+        <p><b>Regla 8 · Maniobras.</b> Deben hacerse con tiempo, ser francas y lo bastante amplias para que el otro las note. Reducir la velocidad o parar también es una maniobra.</p>
+        <p><b>Regla 9 · Canales angostos.</b> Navegá lo más cerca posible del borde de estribor del canal. Los buques de menos de 20 m y los veleros no deben estorbar el paso de un buque que solo puede navegar con seguridad dentro del canal. No cruces el canal si con eso estorbás a ese buque.</p>
+        <p><b>Regla 12 · Dos veleros.</b> Con el viento por bandas distintas, cede el que lo recibe por babor. Con el viento por la misma banda, cede el que está a barlovento. Si recibís el viento por babor y no podés saber por qué banda lo recibe el que está a barlovento, cedé vos. La banda de barlovento es la contraria a la que lleva la botavara de la mayor.</p>
+        <p><b>Regla 13 · Alcance.</b> El que alcanza a otro se aparta siempre, sea vela o motor. Alcanza quien se acerca desde más de 22,5° a popa del través del otro (de noche, cuando solo le ve la luz de alcance).</p>
+        <p><b>Regla 14 · Vuelta encontrada.</b> Dos buques a motor proa con proa: ambos caen a estribor y se pasan babor con babor.</p>
+        <p><b>Regla 15 · Cruce a motor.</b> Cede el que tiene al otro por su estribor, y evita cruzarle la proa.</p>
+        <p><b>Reglas 16 y 17.</b> El que cede maniobra pronto y en forma franca. El que mantiene conserva rumbo y velocidad. Si el otro no maniobra, puede maniobrar él; y si el abordaje es inminente, debe hacerlo. A motor, no caigas a babor hacia un buque que está por tu babor.</p>
+        <p><b>Regla 18 · Jerarquía.</b> El buque a motor cede a: sin gobierno, maniobra restringida, pescando y vela. El velero cede a: sin gobierno, maniobra restringida y pescando. Todos, salvo los sin gobierno y con maniobra restringida, evitan estorbar a un buque restringido por su calado.</p>
+        <p><b>Regla 34 · Pitadas.</b> 1 corta: caigo a estribor. 2 cortas: caigo a babor. 3 cortas: doy atrás. 5 o más cortas y rápidas: no entiendo su maniobra o dudo de que evite el abordaje.</p>
+      </div>
+      <div class="leyenda">Resumen en lenguaje simple del Reglamento Internacional para Prevenir los Abordajes (RIPA, COLREG 1972), vigente en Argentina. El esquema supone que hay riesgo de abordaje. Entre barcos que están corriendo una regata rige el Reglamento de Regatas a Vela, parte 2; frente a barcos que no están en regata, rige el RIPA. Ante la duda, maniobrá con tiempo y mantené escucha en canal 16.</div>
     </div>
   </section>
 
@@ -549,13 +618,28 @@ const vtsDe = p => VNT.vts.find(t=>t.ruta===p.ruta&&p.km>=t.km[0]&&p.km<=t.km[1]
 const map = L.map("map",{zoomControl:false,attributionControl:true,preferCanvas:false,tap:true}).setView([DEFAULT.lat,DEFAULT.lon],12);
 L.control.zoom({position:"bottomleft"}).addTo(map);
 const BASES = {
-  ign: L.tileLayer("https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/capabaseargenmap@EPSG%3A3857@png/{z}/{x}/{y}.png",{tms:true,maxZoom:19,maxNativeZoom:18,attribution:'<a href="https://www.ign.gob.ar/AreaServicios/Argenmap/Introduccion" target="_blank">Argenmap · IGN</a>'}),
+  ign: L.tileLayer("https://wms.ign.gob.ar/geoserver/gwc/service/tms/1.0.0/capabaseargenmap@EPSG%3A3857@png/{z}/{x}/{y}.png",{tms:true,className:"teja-ign",maxZoom:19,maxNativeZoom:18,attribution:'<a href="https://www.ign.gob.ar/AreaServicios/Argenmap/Introduccion" target="_blank">Argenmap · IGN</a>'}),
   sat: L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}",{maxZoom:19,maxNativeZoom:18,attribution:"Imágenes © Esri, Maxar"})
 };
 BASES.ign.addTo(map);
 BASES.ign.on("tileload",()=>setSrc("ign","ok"));
 BASES.ign.on("tileerror",()=>{ if(FUENTES.ign.st!=="ok") setSrc("ign","er","sin teselas"); });
 const G = {tracks:L.layerGroup().addTo(map), bz:L.layerGroup().addTo(map), ships:L.layerGroup().addTo(map), km:L.layerGroup().addTo(map), esc:L.layerGroup().addTo(map), ign:L.layerGroup().addTo(map)};
+
+// modo claro / oscuro / automático
+const TEMAS=["auto","oscuro","claro"], TEMA_TXT={auto:"automático (sigue al teléfono)",oscuro:"oscuro",claro:"claro"};
+const mqOsc=matchMedia("(prefers-color-scheme:dark)");
+let TEMA=(()=>{ try{ return localStorage.getItem("vntTema")||"auto"; }catch{ return "auto"; } })();
+function aplicarTema(){
+  const osc=TEMA==="oscuro"||(TEMA==="auto"&&mqOsc.matches);
+  document.documentElement.classList.toggle("osc",osc);
+  const m=document.querySelector('meta[name="theme-color"]'); if(m) m.content=osc?"#0f1a21":"#0b2a3f";
+  $("bTema").querySelector("span").textContent=TEMA==="auto"?"◐":TEMA==="oscuro"?"☾":"☀";
+  $("bTema").title="Tema: "+TEMA_TXT[TEMA];
+}
+$("bTema").onclick=()=>{ TEMA=TEMAS[(TEMAS.indexOf(TEMA)+1)%3]; try{ localStorage.setItem("vntTema",TEMA); }catch{} aplicarTema(); toast("Tema "+TEMA_TXT[TEMA],2200); };
+try{ mqOsc.addEventListener("change",()=>{ if(TEMA==="auto") aplicarTema(); }); }catch{}
+aplicarTema();
 
 // panel de capas
 $("bLay").onclick=()=>{$("layers").classList.toggle("open");$("bLay").classList.toggle("on");};
@@ -675,7 +759,8 @@ function renderWx(){
   $("nowCl").innerHTML=`Nubosidad ${C.cloud_cover}%`;
   $("nowP").textContent=Math.round(C.pressure_msl)+" hPa";
 }
-function setNow(kn,g,dir,obsTxt){
+let WIND_NOW=null;
+function setNow(kn,g,dir,obsTxt){ WIND_NOW=dir;
   const el=$("nowKn"); el.className="big "+kcls(kn); el.innerHTML=`${Math.round(kn)}<span>kn</span>`;
   if(dir!=null) $("nowAr").style.transform=`rotate(${(dir+180)%360}deg)`;
   $("nowDir").innerHTML=dir!=null?`Del <b>${card16(dir)}</b> (${Math.round(dir)}°)${g!=null?` · rachas de viento ${Math.round(g)} kn`:""}`:`Dirección variable${g!=null?` · rachas de viento ${Math.round(g)} kn`:""}`;
@@ -1457,10 +1542,10 @@ function tick(){
   $("rAP").textContent=RG.modo==="ap"?"Arriar GI":"Postergación (GI)";
 }
 function vista(v){
-  $("reg").hidden=v!=="reg"; $("vel").hidden=v!=="vel"; $("rad").hidden=v!=="rad"; if(v==="rad") renderRadio();
+  $("reg").hidden=v!=="reg"; $("vel").hidden=v!=="vel"; $("rad").hidden=v!=="rad"; $("ripa").hidden=v!=="ripa"; if(v==="rad") renderRadio(); if(v==="ripa") ripaRender();
   document.querySelectorAll("#tabbar button").forEach(b=>b.classList.toggle("on",b.dataset.v===v));
   if(v==="reg") tick(); if(v==="vel"){ renderRegNav(); renderLog(); } if(v==="nav") setTimeout(()=>map.invalidateSize(),50);
-  try{ history.replaceState(null,"",location.pathname+location.search+(v==="reg"?"#regata":v==="vel"?"#velocidad":v==="rad"?"#radio":"")); }catch{}
+  try{ history.replaceState(null,"",location.pathname+location.search+(v==="reg"?"#regata":v==="vel"?"#velocidad":v==="rad"?"#radio":v==="ripa"?"#ripa":"")); }catch{}
 }
 document.querySelectorAll("#tabbar button").forEach(b=>b.onclick=()=>vista(b.dataset.v));
 $("rStart5").onclick=()=>iniciar(5); $("rStart3").onclick=()=>iniciar(3); $("rSync").onclick=sincronizar;
@@ -1484,7 +1569,7 @@ if(CUR.dir!=null){ $("rCurKn").value=CUR.kn.toFixed(2); $("rCurDir").value=Math.
 setInterval(tick,100); setInterval(()=>{ medirTick(); renderRegNav(); },1000);
 let ultAuto=0; setInterval(()=>{ if($("rAuto").checked&&RG.modo==="race"&&Date.now()-ultAuto>=30000){ ultAuto=Date.now(); registrar("auto"); } },1000);
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible"&&RG.modo!=="idle") despierto(); });
-setTimeout(()=>{ if(location.hash==="#regata") vista("reg"); else if(location.hash==="#velocidad") vista("vel"); else if(location.hash==="#radio") vista("rad"); },0);
+setTimeout(()=>{ if(location.hash==="#regata") vista("reg"); else if(location.hash==="#velocidad") vista("vel"); else if(location.hash==="#radio") vista("rad"); else if(location.hash==="#ripa") vista("ripa"); },0);
 
 /* ====== radio, Prefectura y clubes ====== */
 // Fuente: Prefectura Naval Argentina, páginas de cada centro VTS (argentina.gob.ar/prefecturanaval/avisos/...)
@@ -1549,13 +1634,162 @@ function drawPuntos(){
   G.cl.clearLayers(); const z=map.getZoom(); if(z<11) return;
   for(const p of LUGARES){ if(p.lat==null) continue;
     const cls=p.t==="pna"?"clb pna":p.star?"clb star":"clb";
-    const txt=p.t==="pna"?"⚓ PNA":(z>=14?p.n.replace(/^Club (de |Náutico )?/,"").slice(0,22):(p.star?"★ CVR":"⛵"))+(p.t==="club"?" · ch "+(p.vhf||"16"):"");
+    const txt=p.t==="pna"?"⚓ PNA":(z>=14?p.n.replace(/^Club (de |Náutico )?/,"").slice(0,22):(p.star?"★ CVR":"⛵"))+(p.t==="club"&&p.vhf&&z>=14?" · ch "+p.vhf:"");
     L.marker([p.lat,p.lon],{icon:L.divIcon({className:"",iconSize:[0,0],html:`<span class="${cls}">${txt}</span>`}),keyboard:false,zIndexOffset:500})
       .on("click",()=>ficha(itemPunto(p).replace(/<button data-ver[^<]*<\/button>/,""))).addTo(G.cl);
   }
 }
 map.on("zoomend",drawPuntos); drawPuntos();
 setInterval(()=>{ if(!$("rad").hidden) renderRadio(); },30000);
+
+/* ====== RIPA: prioridad de paso ====== */
+const RP={w:0,hA:45,hB:315,rb:60,tA:"vela",tB:"vela",canal:false};
+const nAng=x=>((x%360)+540)%360-180;
+const rumboTxt=x=>`${Math.round((x+360)%360)}° ${card16((x+360)%360)}`;
+function marcTxt(rb){ const a=nAng(rb), b=Math.abs(a), lado=a>0?"estribor":"babor";
+  if(b<=10) return "por la proa"; if(b>=170) return "por la popa";
+  if(Math.abs(b-90)<=10) return "por el través de "+lado;
+  return (b<90?"por la amura de ":"por la aleta de ")+lado+` (${Math.round(b)}°)`; }
+const RANGO={singob:5,restringida:5,pesca:3,vela:2,motor:1};
+const NOMB_RP={vela:"velero",motor:"buque a motor",canal:"buque en el canal",pesca:"pesquero",restringida:"buque con maniobra restringida",singob:"buque sin gobierno"};
+function amura(w,h){ const a=nAng(w-h); return {a, lado:a>0?"estribor":"babor", proa:Math.abs(a)<35}; }
+function ripaCalc(s){
+  const brgAB=(s.hA+s.rb)%360, brgBA=(brgAB+180)%360;
+  const rbA=nAng(brgAB-s.hA), rbB=nAng(brgBA-s.hB), dh=Math.abs(nAng(s.hA-s.hB));
+  const abaft=x=>Math.abs(x)>112.5;
+  const BalcA=abaft(rbA)&&Math.abs(rbB)<90&&dh<112.5, AalcB=abaft(rbB)&&Math.abs(rbA)<90&&dh<112.5;
+  const notas=[]; if(s.canal) notas.push("En el canal navegá pegado a su borde de estribor (regla 9).");
+  const avisoProa=[]; if(s.tA==="vela"&&amura(s.w,s.hA).proa) avisoProa.push("Con ese rumbo tu velero va casi proa al viento: a vela no puede navegar así.");
+  if(s.tB==="vela"&&amura(s.w,s.hB).proa) avisoProa.push("El otro velero va casi proa al viento: a vela no podría navegar así.");
+  let r;
+  if(BalcA||AalcB){
+    const yo=AalcB;
+    r={q:yo?"A":"B",regla:"Regla 13 · Alcance",t:yo?"Lo estás alcanzando: cedés vos":"Te está alcanzando: cede el otro",
+       x:yo?`Venís desde más de 22,5° a popa de su través, así que sos el que alcanza aunque vayas a vela. Mantenete apartado hasta haberlo pasado y dejado claro.`:`El otro viene desde más de 22,5° a popa de tu través: es el que alcanza y debe apartarse, sea vela o motor.`};
+    if(!yo&&s.tB==="canal") notas.push("Igual, por regla 9 no debés estorbarle: si te quiere pasar en el canal, facilitale el paso. En un canal angosto el que alcanza pide pasar con pitadas (2 largas + 1 corta: por tu estribor; 2 largas + 2 cortas: por tu babor) y el alcanzado responde larga-corta-larga-corta si está de acuerdo.");
+  } else if(s.tB==="canal"){
+    r={q:"A",regla:"Reglas 9 y 18(d)",t:"No debés estorbarle: apartate vos",x:`Un buque que solo puede navegar dentro del canal (o restringido por su calado) tiene preferencia práctica: los veleros y los buques de menos de 20 m no deben estorbar su paso. Salí de su camino con tiempo, hacia fuera del canal o pegado a tu borde de estribor, y no cruces delante de él.`};
+  } else if(RANGO[s.tB]!==RANGO[s.tA]){
+    const yo=RANGO[s.tB]>RANGO[s.tA];
+    r={q:yo?"A":"B",regla:"Regla 18 · Jerarquía",t:yo?`Cedés vos al ${NOMB_RP[s.tB]}`:`Cede el ${NOMB_RP[s.tB]}`,
+       x:yo?`Un ${NOMB_RP[s.tA]} debe apartarse de un ${NOMB_RP[s.tB]}.`:`Un ${NOMB_RP[s.tB]} debe apartarse de un ${NOMB_RP[s.tA]}.`};
+    if(s.canal&&s.tA==="vela"&&s.tB==="motor") notas.push("Si ese buque a motor solo puede navegar dentro del canal, no debés estorbarle (regla 9): elegí «Buque en el canal».");
+  } else if(s.tA==="motor"){
+    if(Math.abs(rbA)<=8&&Math.abs(rbB)<=8){
+      r={q:"AB",regla:"Regla 14 · Vuelta encontrada",t:"Proa con proa: caen los dos a estribor",x:"Ambos buques a motor caen a estribor y se pasan babor con babor. Hacé la señal de 1 pitada corta."};
+    } else {
+      const yo=rbA>0;
+      r={q:yo?"A":"B",regla:"Regla 15 · Cruce",t:yo?"Lo tenés por estribor: cedés vos":"Te tiene por su estribor: cede el otro",
+         x:yo?"Cuando dos buques a motor se cruzan, cede el que tiene al otro por su estribor. Pasale por la popa y evitá cruzarle la proa.":"Cuando dos buques a motor se cruzan, cede el que tiene al otro por su estribor; acá es el otro."};
+    }
+  } else if(s.tA==="vela"){
+    const a=amura(s.w,s.hA), b=amura(s.w,s.hB);
+    if(a.lado!==b.lado){
+      const yo=a.lado==="babor";
+      r={q:yo?"A":"B",regla:"Regla 12(a)(i) · Amuras distintas",t:yo?"Vas amurado a babor: cedés vos":"Vas amurado a estribor: cede el otro",
+         x:`Vos recibís el viento por ${a.lado}; el otro, por ${b.lado}. Cede el que lo recibe por babor.`};
+    } else {
+      const wx=Math.sin(rad(s.w)), wy=Math.cos(rad(s.w)), bx=Math.sin(rad(brgAB)), by=Math.cos(rad(brgAB)), d=wx*bx+wy*by;
+      if(Math.abs(d)<0.12){ r={q:"?",regla:"Regla 12(a)(ii) · Misma amura",t:"Misma amura y casi a la par",x:"Los dos reciben el viento por la misma banda y ninguno está claramente a barlovento. Cede el que esté a barlovento: ante la duda, apartate con tiempo."}; }
+      else { const otroBarl=d>0;
+        r={q:otroBarl?"B":"A",regla:"Regla 12(a)(ii) · Misma amura",t:otroBarl?"El otro está a barlovento: cede él":"Estás a barlovento: cedés vos",
+           x:`Los dos van amurados a ${a.lado}. Cede el que está a barlovento (más cerca del origen del viento).`}; }
+      if(a.lado==="babor"&&r.q!=="A") notas.push("Regla 12(a)(iii): si vas amurado a babor y no podés ver por qué banda recibe el viento el que está a barlovento, cedé vos.");
+    }
+    if(Math.abs(a.a)>165) notas.push("Navegando en popa, la amura la define el lado contrario a donde lleva la botavara de la mayor.");
+  } else {
+    r={q:"?",regla:"Regla 18",t:"Mismo tipo de buque",x:"Mantengan la vigilancia y maniobren con tiempo. Cada uno debe evitar el abordaje."};
+  }
+  r.notas=avisoProa.concat(notas); r.rbB=rbB; return r;
+}
+function svgBarco(t,col,borde,ang){
+  let h;
+  if(t==="canal") h=`<path d="M0-34C7-28 8-20 8-10V30H-8V-10C-8-20-7-28 0-34Z" fill="${col}" stroke="${borde}" stroke-width="3"/><rect x="-6" y="18" width="12" height="8" fill="#fff" opacity=".85"/><path d="M-5 32L-12 52M5 32L12 52" stroke="#fff" stroke-width="2" opacity=".8"/>`;
+  else if(t==="vela"){
+    const side=ang>0?1:-1, ab=Math.max(5,Math.min(85,5+(Math.abs(ang)-35)*(80/145)));
+    h=`<path d="M0-19C7-11 8 4 6 16L-6 16C-8 4-7-11 0-19Z" fill="${col}" stroke="${borde}" stroke-width="3"/>
+       <g transform="translate(0,-5) rotate(${side*ab})"><path d="M0 0Q${-side*9} 11 0 23" fill="rgba(255,255,255,.95)" stroke="#334155" stroke-width="1.4"/><path d="M0 0V23" stroke="#334155" stroke-width="1.6"/></g>
+       <path d="M0-18L0-6" stroke="#334155" stroke-width="1"/><circle cy="-5" r="2.2" fill="#334155"/>`;
+  } else h=`<path d="M0-19C7-11 8 4 6 16L-6 16C-8 4-7-11 0-19Z" fill="${col}" stroke="${borde}" stroke-width="3"/><rect x="-4" y="-4" width="8" height="9" rx="2" fill="#fff" opacity=".9"/><path d="M-5 18L-13 40M5 18L13 40" stroke="#fff" stroke-width="2" opacity=".85"/>`;
+  return h;
+}
+function ripaDibujar(s,r){
+  const P=(a,rr,cx=0,cy=0)=>[cx+rr*Math.sin(rad(a)),cy-rr*Math.cos(rad(a))];
+  const A=[0,35], B=P(s.rb,s.tB==="canal"?122:112,A[0],A[1]), hBr=s.hB-s.hA, wr=nAng(s.w-s.hA);
+  const arc=(a0,a1,c)=>{ const [x0,y0]=P(a0,62,A[0],A[1]),[x1,y1]=P(a1,62,A[0],A[1]); return `<path d="M${A[0]} ${A[1]}L${x0} ${y0}A62 62 0 0 1 ${x1} ${y1}Z" fill="${c}" opacity=".22"/>`; };
+  const cA=r.q==="A"||r.q==="AB"?"#dc2626":r.q==="B"?"#16a34a":"#d97706", cB=r.q==="B"||r.q==="AB"?"#dc2626":r.q==="A"?"#16a34a":"#d97706";
+  const tag=(x,y,c,txt)=>`<g transform="translate(${x},${y})"><rect x="-34" y="-9" width="68" height="18" rx="9" fill="${c}"/><text y="4.5" text-anchor="middle" font-size="11" font-weight="800" fill="#fff" font-family="system-ui">${txt}</text></g>`;
+  const lblA=r.q==="A"||r.q==="AB"?"CEDÉS":r.q==="B"?"MANTENÉS":"¿?", lblB=r.q==="B"||r.q==="AB"?"CEDE":r.q==="A"?"MANTIENE":"¿?";
+  const [wx0,wy0]=P(wr,150),[wx1,wy1]=P(wr,112);
+  const vec=(x,y,a,len,c)=>{ const [x1,y1]=P(a,len,x,y); return `<path d="M${x} ${y}L${x1} ${y1}" stroke="${c}" stroke-width="2.5" stroke-dasharray="5 4" marker-end="url(#rpFl)"/>`; };
+  const angA=nAng(s.w-s.hA), angB=nAng(s.w-s.hB);
+  $("rpSvg").innerHTML=`<defs><marker id="rpFl" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#334155"/></marker>
+     <marker id="rpW" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#0b2a3f"/></marker></defs>
+    ${arc(0,112.5,"#16a34a")}${arc(247.5,360,"#dc2626")}${arc(112.5,247.5,"#94a3b8")}
+    <text x="${P(56,48,A[0],A[1])[0]}" y="${P(56,48,A[0],A[1])[1]}" font-size="9" fill="#166534" text-anchor="middle" font-family="system-ui">estribor</text>
+    <text x="${P(-56,48,A[0],A[1])[0]}" y="${P(-56,48,A[0],A[1])[1]}" font-size="9" fill="#991b1b" text-anchor="middle" font-family="system-ui">babor</text>
+    <text x="${A[0]}" y="${A[1]+56}" font-size="9" fill="#475569" text-anchor="middle" font-family="system-ui">popa · alcance</text>
+    <path d="M${wx0} ${wy0}L${wx1} ${wy1}" stroke="#0b2a3f" stroke-width="5" marker-end="url(#rpW)"/>
+    <text x="${Math.max(-128,Math.min(128,P(wr,140)[0]+(Math.abs(wr)<20?26:0)))}" y="${Math.max(-150,P(wr,140)[1]-10)}" font-size="11" font-weight="800" fill="#0b2a3f" text-anchor="middle" font-family="system-ui">VIENTO</text>
+    ${vec(A[0],A[1],0,58,"#334155")}${vec(B[0],B[1],hBr,58,"#334155")}
+    <g transform="translate(${A[0]},${A[1]})">${svgBarco(s.tA,"#0ea5e9",cA,angA)}</g>
+    <g transform="translate(${B[0]},${B[1]}) rotate(${hBr})">${svgBarco(s.tB,"#f97316",cB,angB)}</g>
+    ${tag(A[0],A[1]+34,cA,lblA)}${tag(B[0],B[1]+(B[1]<A[1]-60?-1:1)*(s.tB==="canal"?48:36)*(B[1]>110?-1:1),cB,lblB)}
+    <text x="0" y="158" font-size="10" fill="#475569" text-anchor="middle" font-family="system-ui">Tu proa hacia arriba · rumbo ${Math.round(s.hA)}° · viento del ${card16(s.w)}</text>`;
+}
+function ripaRender(){
+  const s=RP;
+  $("rpW").value=s.w; $("rpHA").value=s.hA; $("rpHB").value=s.hB; $("rpBB").value=s.rb; $("rpTA").value=s.tA; $("rpTB").value=s.tB; $("rpCanal").checked=s.canal;
+  $("rpWv").textContent=rumboTxt(s.w); $("rpHAv").textContent=rumboTxt(s.hA); $("rpHBv").textContent=rumboTxt(s.hB); $("rpBBv").textContent=marcTxt(s.rb);
+  const r=ripaCalc(s); ripaDibujar(s,r);
+  const cls=r.q==="A"?"cede":r.q==="B"?"mant":"amb";
+  const acc=r.q==="A"?(s.tB==="canal"?"Qué hacer: apartate ya y en forma franca, saliendo de su camino. Si no entendés su maniobra, 5 pitadas cortas.":s.tA==="motor"?"Qué hacer: caé a estribor con tiempo y en forma franca, o bajá la velocidad, y pasale por la popa (1 pitada corta si caés a estribor).":"Qué hacer: maniobrá con tiempo y en forma franca: arribá para pasarle por la popa, o virá o trasluchá antes de acercarte.")
+    :r.q==="B"?"Qué hacer: mantené rumbo y velocidad. Vigilá que el otro maniobre; si no lo hace, avisale (5 pitadas cortas) y maniobrá vos para evitar el abordaje."
+    :r.q==="AB"?"Qué hacer: caé a estribor en forma franca, 1 pitada corta.":"Qué hacer: maniobrá con tiempo para evitar cualquier duda.";
+  const bt=[];
+  $("rpRes").className="rpres "+cls;
+  $("rpRes").innerHTML=`<b class="t">${r.t}</b>${r.x}<br><b>${acc}</b>${r.notas.length?"<br>"+r.notas.map(n=>"• "+n).join("<br>"):""}<br><span class="rg">${r.regla}</span>`;
+}
+const RP_ESC=[
+  ["⛵⛵ Amuras distintas",{w:0,hA:45,hB:315,rb:60,tA:"vela",tB:"vela",canal:false}],
+  ["⛵⛵ Misma amura",{w:0,hA:60,hB:120,rb:300,tA:"vela",tB:"vela",canal:false}],
+  ["🚤⛵ Motor y vela",{w:270,hA:90,hB:0,rb:45,tA:"motor",tB:"vela",canal:false}],
+  ["🚤🚤 Proa con proa",{w:300,hA:0,hB:180,rb:0,tA:"motor",tB:"motor",canal:false}],
+  ["🚤🚤 Cruce",{w:300,hA:0,hB:270,rb:55,tA:"motor",tB:"motor",canal:false}],
+  ["Te alcanzan",{w:200,hA:0,hB:10,rb:195,tA:"vela",tB:"motor",canal:false}],
+  ["🚢 Buque en el canal",{w:90,hA:0,hB:180,rb:8,tA:"vela",tB:"canal",canal:true}],
+  ["🎣 Pesquero",{w:90,hA:0,hB:200,rb:30,tA:"vela",tB:"pesca",canal:false}]
+];
+$("rpEsc").innerHTML=RP_ESC.map((e,i)=>`<button data-i="${i}">${e[0]}</button>`).join("");
+$("rpEsc").querySelectorAll("button").forEach(b=>b.onclick=()=>{ Object.assign(RP,RP_ESC[+b.dataset.i][1]); $("rpMiaTxt").textContent="Tocá o arrastrá sobre el esquema para mover al otro barco."; ripaRender(); });
+[["rpW","w"],["rpHA","hA"],["rpHB","hB"],["rpBB","rb"]].forEach(([id,k])=>$(id).oninput=()=>{ RP[k]=+$(id).value; ripaRender(); });
+$("rpTA").onchange=()=>{ RP.tA=$("rpTA").value; ripaRender(); };
+$("rpTB").onchange=()=>{ RP.tB=$("rpTB").value; ripaRender(); };
+$("rpCanal").onchange=()=>{ RP.canal=$("rpCanal").checked; ripaRender(); };
+(()=>{ const sv=$("rpSvg"); let drag=false;
+  const mover=e=>{ const pt=sv.createSVGPoint(); pt.x=e.clientX; pt.y=e.clientY; const p=pt.matrixTransform(sv.getScreenCTM().inverse());
+    const dx=p.x, dy=p.y-35; if(Math.hypot(dx,dy)<25) return; RP.rb=Math.round(((Math.atan2(dx,-dy)*180/Math.PI)+360)%360/5)*5%360; ripaRender(); };
+  sv.addEventListener("pointerdown",e=>{ drag=true; try{sv.setPointerCapture(e.pointerId);}catch{} mover(e); });
+  sv.addEventListener("pointermove",e=>{ if(drag) mover(e); });
+  sv.addEventListener("pointerup",()=>drag=false); sv.addEventListener("pointercancel",()=>drag=false);
+})();
+$("rpMia").onclick=()=>{
+  const msg=[];
+  if(NAV.cog!=null){ RP.hA=Math.round(NAV.cog/5)*5%360; msg.push(`tu rumbo ${Math.round(NAV.cog)}° (GPS)`); } else msg.push("sin rumbo GPS todavía (movete un poco)");
+  if(WIND_NOW!=null){ RP.w=Math.round(WIND_NOW/5)*5%360; msg.push(`viento del ${card16(WIND_NOW)}`); } else msg.push("sin dirección de viento");
+  let best=null, bd=1e9;
+  if(me) for(const [mm,b] of SHIPS){ if(b.lat==null) continue; const d=dist(me.lat,me.lon,b.lat,b.lon); if(d<bd){ bd=d; best=b; } }
+  if(best&&bd<8000){
+    RP.rb=Math.round(((bearing(me.lat,me.lon,best.lat,best.lon)-RP.hA+720)%360)/5)*5%360;
+    const h=best.hdg!=null&&best.hdg<360?best.hdg:best.cog; if(h!=null) RP.hB=Math.round(h/5)*5%360;
+    const t=+best.type||0, L=best.len||0;
+    RP.tB=(t>=70&&t<=89)||L>=50?"canal":t===30?"pesca":t===36?"vela":t===33?"restringida":"motor";
+    RP.canal=true;
+    msg.push(`buque ${best.name||best.mmsi||""} a ${fmt(bd/1000,1)} km`);
+  } else msg.push("no hay buques AIS a menos de 8 km");
+  $("rpMiaTxt").textContent="Cargado: "+msg.join(" · ")+". Revisá los datos: el AIS y el GPS pueden tener demora.";
+  ripaRender();
+};
 
 /* ====== ficha de detalle ====== */
 let FICHA_ID=null;
