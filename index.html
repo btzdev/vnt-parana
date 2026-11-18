@@ -910,7 +910,7 @@ async function loadBz(){
 let CANAL_AIS=null, CANAL_OSM=[], CASCOS=[];
 // ícono de naufragio tipo carta náutica: casco hundido dentro de la línea de peligro punteada
 function svgCasco(c,W){
-  const visible=/hull_showing|mast_showing/.test(c.cat)||/covers|awash|always_dry/.test(c.nivel||"");
+  const visible=/hull_showing|mast_showing/.test(c.cat)||/covers|awash|always_dry|^dry$/.test(c.nivel||"");
   const obstr=c.tipo==="obstruction";
   const casco=visible
     ? `<path d="M6 17.5L9 22H27L31 16.5Z" fill="#1f2937"/><path d="M14 17V9M20 17V7" stroke="#1f2937" stroke-width="1.6"/><path d="M4 18.5Q18 15.5 32 18.5" stroke="#0ea5e9" stroke-width="1.6" fill="none"/>`
@@ -919,8 +919,8 @@ function svgCasco(c,W){
   return `<svg class="wrk" width="${W}" height="${Math.round(W*.83)}" viewBox="0 0 36 30"><ellipse cx="18" cy="15" rx="16.5" ry="12" fill="rgba(255,255,255,.75)" stroke="#a21caf" stroke-width="1.6" stroke-dasharray="2.2 2"/>${casco}</svg>`;
 }
 function cascoPop(c){
-  const CAT={dangerous_wreck:"Naufragio peligroso",non_dangerous_wreck:"Naufragio no peligroso",distributed_remains_of_wreck:"Restos dispersos",wreck_showing_mast:"Asoma el mástil",wreck_showing_any_portion_of_hull:"Asoma parte del casco",hull_showing:"Asoma el casco",mast_showing:"Asoma el mástil"};
-  const NIV={submerged:"siempre sumergido",covers:"se cubre y descubre",awash:"a flor de agua",always_dry:"siempre visible",partly_submerged:"parcialmente sumergido",floating:"flotando",floods:"se inunda"};
+  const CAT={dangerous:"Naufragio peligroso","non-dangerous":"Naufragio no peligroso",foul_ground:"Fondo sucio (restos)",stump:"Troncos o pilotes",plane:"Avión hundido",dangerous_wreck:"Naufragio peligroso",non_dangerous_wreck:"Naufragio no peligroso",distributed_remains_of_wreck:"Restos dispersos",wreck_showing_mast:"Asoma el mástil",wreck_showing_any_portion_of_hull:"Asoma parte del casco",hull_showing:"Asoma el casco",mast_showing:"Asoma el mástil"};
+  const NIV={dry:"siempre visible (en seco)",submerged:"siempre sumergido",covers:"se cubre y descubre",awash:"a flor de agua",always_dry:"siempre visible",partly_submerged:"parcialmente sumergido",floating:"flotando",floods:"se inunda"};
   const p=proyectar(c.lat,c.lon);
   const filas=[c.nom?["Nombre",c.nom]:null,c.cat?["Tipo",CAT[c.cat]||c.cat]:null,c.nivel?["Situación",NIV[c.nivel]||c.nivel]:null,c.prof!=null&&c.prof!==""?["Profundidad",`${String(c.prof).replace(".",",")} m sobre el casco`]:null,p.d<4000?["Km VNT",`≈ ${fmt(p.km,1)} (${p.nombre})`]:null,["Posición",`${c.lat.toFixed(5)}, ${c.lon.toFixed(5)}`]].filter(Boolean).map(([a,b])=>`<tr><td>${a}</td><td>${b}</td></tr>`).join("");
   return `<div class="bzpop"><div class="bzimg" style="place-items:center">${svgCasco(c,74)}</div><div style="min-width:0"><b>${c.tipo==="obstruction"?"Obstrucción":"Naufragio"}</b><div class="bzsig">${c.tipo==="obstruction"?"Obstáculo sumergido o semisumergido. No pases por encima: dejalo a buena distancia.":"Casco hundido. No navegues sobre él ni fondees cerca: puede haber restos, cables o redes enganchadas. Con el río bajo puede quedar más cerca de la superficie."}</div></div></div><table class="bzdat">${filas}</table><div style="color:#667;font-size:11px;margin-top:6px">Fuente: ${c.fuente} (no oficial). Verificá con la carta del SHN y con Prefectura.</div>`;
